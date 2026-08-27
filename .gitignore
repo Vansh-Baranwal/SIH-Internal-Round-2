@@ -16,3 +16,19 @@ data/sr_outputs/*
 scratch/
 data/scratch/
 web/public/sr/
+
+# Output and sensitive files
+results/mission_export/*
+web/.env*
+
+# Scratch and patch scripts
+apply_*.py
+fix_*.py
+patch_*.py
+patch_*.js
+remove_*.py
+strip_*.py
+inject_*.py
+revert_*.py
+scaffold_repo.py
+write_planner.py
