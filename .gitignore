@@ -16,7 +16,7 @@ data/sr_outputs/*
 scratch/
 data/scratch/
 web/public/sr/
-
+data/real_samples/
 # Output and sensitive files
 results/mission_export/*
 web/.env*
@@ -32,3 +32,5 @@ inject_*.py
 revert_*.py
 scaffold_repo.py
 write_planner.py
+
+output_*/
