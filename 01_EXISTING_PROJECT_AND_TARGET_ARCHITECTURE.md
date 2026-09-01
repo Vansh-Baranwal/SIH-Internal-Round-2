@@ -125,3 +125,4 @@ flowchart TD
 *   **DEM as the Truth Layer:** M3 (DEM) is a strict dependency for the `Sun Simulator`, the `3D Viewer`, and the `Hazard Maps`.
 *   **Registration before Science:** The `Spectral Intelligence`, `Water-Ice Intelligence`, and `Change Detection` modules depend entirely on the sub-pixel accuracy of the `Correspondence Engine` output.
 *   **Isolated Synthetic Generation:** The `Counterfactual Sun Simulator` is strictly isolated as an evaluation tool. Synthetic imagery must never feed back into real-world registered outputs.
+

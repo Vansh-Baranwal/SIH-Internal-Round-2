@@ -1,10 +1,15 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+from typing import Optional, List
 import json
+import base64
+import io
 
 import os
+import numpy as np
+import cv2
 
 app = FastAPI(title="SIH Lunar Hazard Mapper - Mission API")
 
@@ -237,5 +242,292 @@ def get_moon_surface():
     if not glb_path.exists():
         raise HTTPException(status_code=404, detail="GLB model not found")
     return FileResponse(str(glb_path))
+
+
+# ---------------------------------------------------------------------------
+# Correspondence endpoints
+# ---------------------------------------------------------------------------
+from pydantic import BaseModel
+
+
+def _read_image_b64(b64_str: str) -> "np.ndarray":
+    import numpy as np
+    import cv2
+    data = base64.b64decode(b64_str)
+    arr = np.frombuffer(data, dtype=np.uint8)
+    img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+    if img is None:
+        raise ValueError("Could not decode image from base64 data")
+    return img
+
+
+class MatchRequest(BaseModel):
+    src_image_b64: str
+    dst_image_b64: str
+    algorithm: str = "sift"
+    geo_method: str = "RANSAC"
+    include_warped: bool = False
+    include_vis: bool = True
+    src_gsd_m: float = 1.0
+    dst_gsd_m: float = 1.0
+
+
+@app.post("/api/correspondence/match")
+def correspondence_match(req: MatchRequest):
+    """Pairwise multi-modal image registration. Returns match points, metrics, and optional warped image."""
+    from lunar_hazard_mapper.correspondence import CorrespondenceEngine
+    try:
+        src = _read_image_b64(req.src_image_b64)
+        dst = _read_image_b64(req.dst_image_b64)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Image decode failed: {e}")
+
+    engine = CorrespondenceEngine(
+        algorithm=req.algorithm,
+        geo_method=req.geo_method,
+    )
+    try:
+        result = engine.run(
+            src, dst,
+            src_gsd_m=req.src_gsd_m,
+            dst_gsd_m=req.dst_gsd_m,
+            include_warped=req.include_warped,
+            include_vis=req.include_vis,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Registration failed: {e}")
+
+    m = result.metrics
+    return {
+        "algorithm": req.algorithm,
+        "rmse_px": round(m.rmse_px, 4),
+        "inlier_count": m.inlier_count,
+        "inlier_ratio": round(m.inlier_ratio, 4),
+        "spatial_coverage": round(m.spatial_coverage, 4),
+        "meets_target": m.meets_target,
+        "match_points": result.match_dict.get("matches", []),
+        "warped_b64": result.warped_b64,
+        "match_vis_b64": result.match_vis_b64,
+    }
+
+
+@app.post("/api/correspondence/benchmark")
+def correspondence_benchmark(req: MatchRequest):
+    """Run all matchers (SIFT, ORB, AKAZE) and return comparative metrics."""
+    from lunar_hazard_mapper.correspondence import CorrespondenceEngine
+    try:
+        src = _read_image_b64(req.src_image_b64)
+        dst = _read_image_b64(req.dst_image_b64)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Image decode failed: {e}")
+
+    engine = CorrespondenceEngine()
+    try:
+        results = engine.benchmark(src, dst)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Benchmark failed: {e}")
+
+    return {
+        algo: {
+            "rmse_px": round(r.metrics.rmse_px, 4) if r.metrics.rmse_px != float("inf") else None,
+            "inlier_count": r.metrics.inlier_count,
+            "inlier_ratio": round(r.metrics.inlier_ratio, 4),
+            "spatial_coverage": round(r.metrics.spatial_coverage, 4),
+            "meets_target": r.metrics.meets_target,
+        }
+        for algo, r in results.items()
+    }
+
+
+# ---------------------------------------------------------------------------
+# Landmark endpoints
+# ---------------------------------------------------------------------------
+class GeolocateRequest(BaseModel):
+    lat: float
+    lon: float
+    radius_km: float = 1000.0
+    top_k: int = 5
+    tags: Optional[List[str]] = None
+
+
+@app.post("/api/landmarks/geolocate")
+def landmark_geolocate(req: GeolocateRequest):
+    """Return top-k nearest landmarks for coarse-to-fine image geolocation."""
+    from lunar_hazard_mapper.landmarks import LandmarkDatabase
+    db = LandmarkDatabase()
+    hits = db.geolocate(req.lat, req.lon, radius_km=req.radius_km, top_k=req.top_k)
+    return {
+        "query": {"lat": req.lat, "lon": req.lon},
+        "results": [
+            {
+                "id": h.landmark.id,
+                "name": h.landmark.name,
+                "lat": h.landmark.lat,
+                "lon": h.landmark.lon,
+                "radius_km": h.landmark.radius_km,
+                "depth_m": h.landmark.depth_m,
+                "distance_km": round(h.distance_km, 2),
+                "bearing_deg": round(h.bearing_deg, 2),
+                "confidence": h.confidence,
+                "tags": h.landmark.tags,
+            }
+            for h in hits
+        ],
+    }
+
+
+@app.get("/api/landmarks/list")
+def landmark_list():
+    """Return all landmarks in the database."""
+    from lunar_hazard_mapper.landmarks import LandmarkDatabase
+    db = LandmarkDatabase()
+    return {"landmarks": [
+        {"id": lm.id, "name": lm.name, "lat": lm.lat, "lon": lm.lon,
+         "radius_km": lm.radius_km, "depth_m": lm.depth_m,
+         "confidence": lm.confidence, "tags": lm.tags}
+        for lm in db.all()
+    ]}
+
+
+# ---------------------------------------------------------------------------
+# Sun simulation endpoint
+# ---------------------------------------------------------------------------
+class SunInvarianceRequest(BaseModel):
+    src_image_b64: str
+    dst_image_b64: str
+    sun_azimuth_deg: float = 45.0
+    sun_elevation_deg: float = 30.0
+    algorithm: str = "sift"
+
+
+@app.post("/api/simulation/sun-invariance")
+def simulation_sun_invariance(req: SunInvarianceRequest):
+    """
+    Run counterfactual sun-angle correspondence test.
+    Applies synthetic illumination to src, then matches vs dst. Returns metrics for both conditions.
+    """
+    from lunar_hazard_mapper.correspondence import CorrespondenceEngine
+    from lunar_hazard_mapper.simulation import simulate_sun
+
+    try:
+        src = _read_image_b64(req.src_image_b64)
+        dst = _read_image_b64(req.dst_image_b64)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Image decode failed: {e}")
+
+    # Use a flat DEM (zero elevation) for the synthetic illumination
+    dem = np.zeros(src.shape[:2], dtype=np.float32)
+    try:
+        sim_result = simulate_sun(
+            dem, req.sun_azimuth_deg, req.sun_elevation_deg,
+            pixel_scale_m=5.0, base_image=src,
+        )
+        illuminated_src = sim_result.synthetic_image if sim_result.synthetic_image is not None else src
+    except Exception:
+        illuminated_src = src
+
+    engine = CorrespondenceEngine(algorithm=req.algorithm)
+
+    def _run_safe(a, b):
+        try:
+            r = engine.run(a, b)
+            return {"rmse_px": round(r.metrics.rmse_px, 4), "inlier_count": r.metrics.inlier_count,
+                    "inlier_ratio": round(r.metrics.inlier_ratio, 4), "meets_target": r.metrics.meets_target}
+        except Exception as exc:
+            return {"error": str(exc)}
+
+    baseline = _run_safe(src, dst)
+    counterfactual = _run_safe(illuminated_src, dst)
+
+    return {
+        "sun_azimuth_deg": req.sun_azimuth_deg,
+        "sun_elevation_deg": req.sun_elevation_deg,
+        "shadow_fraction": float(sim_result.shadow_mask.mean()),
+        "baseline": baseline,
+        "counterfactual": counterfactual,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Temporal change detection endpoint
+# ---------------------------------------------------------------------------
+class TemporalRequest(BaseModel):
+    before_image_b64: str
+    after_image_b64: str
+    threshold: float = 15.0
+    blur_sigma: float = 2.0
+    include_heatmap: bool = True
+
+
+@app.post("/api/temporal/change-detection")
+def temporal_change_detection(req: TemporalRequest):
+    """Compute temporal difference heatmap between a before/after aligned image pair."""
+    from lunar_hazard_mapper.temporal import detect_changes
+    try:
+        before = _read_image_b64(req.before_image_b64)
+        after = _read_image_b64(req.after_image_b64)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Image decode failed: {e}")
+
+    try:
+        result = detect_changes(
+            before, after,
+            threshold=req.threshold,
+            blur_sigma=req.blur_sigma,
+            include_heatmap=req.include_heatmap,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Change detection failed: {e}")
+
+    return {
+        "change_fraction": round(result.change_fraction, 6),
+        "mean_diff": round(result.mean_diff, 4),
+        "max_diff": round(result.max_diff, 4),
+        "heatmap_b64": result.heatmap_b64,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Spectral overlay endpoint
+# ---------------------------------------------------------------------------
+class SpectralOverlayRequest(BaseModel):
+    iirs_band_b64: str            # grayscale IIRS band as base64 PNG
+    optical_image_b64: str        # optical reference image as base64 PNG
+    iirs_gsd_m: float = 80.0
+    optical_gsd_m: float = 5.0
+
+
+@app.post("/api/spectral/overlay")
+def spectral_overlay(req: SpectralOverlayRequest):
+    """Align an IIRS hyperspectral band over a registered optical base image."""
+    from lunar_hazard_mapper.spectral import register_iirs_to_optical
+
+    try:
+        iirs_img = _read_image_b64(req.iirs_band_b64)
+        optical_img = _read_image_b64(req.optical_image_b64)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Image decode failed: {e}")
+
+    iirs_gray = cv2.cvtColor(iirs_img, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    try:
+        registered = register_iirs_to_optical(
+            iirs_gray, optical_img,
+            iirs_gsd_m=req.iirs_gsd_m,
+            optical_gsd_m=req.optical_gsd_m,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Spectral overlay failed: {e}")
+
+    # Encode result as a grayscale PNG (0–255)
+    out_u8 = (registered * 255).astype(np.uint8)
+    _, buf = cv2.imencode(".png", out_u8)
+    result_b64 = base64.b64encode(buf.tobytes()).decode()
+
+    return {
+        "registered_band_b64": result_b64,
+        "iirs_gsd_m": req.iirs_gsd_m,
+        "optical_gsd_m": req.optical_gsd_m,
+        "output_shape": list(registered.shape),
+    }
 
 

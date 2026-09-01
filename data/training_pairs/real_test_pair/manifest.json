@@ -1,0 +1,28 @@
+{
+  "pair_id": "ohrc_lroc_south_pole_test_01",
+  "status": "candidate_smoke_test",
+  "overlap_verified": false,
+  "source": {
+    "ohrc_product_type": "browse_png_8bit",
+    "ohrc_gsd_m": 0.25,
+    "lroc_product_type": "PDS3_attached_header_IMG",
+    "lroc_gsd_m": 0.5,
+    "ohrc": "/home/ronit/1PROJECTS/sih26166/zip-OHRC/browse/calibrated/20260103/ch2_ohr_ncp_20260103T1005176450_b_brw_d18.png",
+    "lroc": "/home/ronit/1PROJECTS/sih26166/Dataset/LRO/NAC/M1410192474LC.IMG"
+  },
+  "products": {
+    "source_sensor": "Chandrayaan-2 OHRC",
+    "target_sensor": "LRO NAC"
+  },
+  "observation_dates": {
+    "source": "2026-01-03T10:05:17.645Z",
+    "target": "2022-06-18T11:53:28.071Z"
+  },
+  "tiles": {
+    "source": "ohrc.png",
+    "target": "lroc.png",
+    "width": 1024,
+    "height": 1024
+  },
+  "notes": "One reproducible image-level smoke-test pair. Crops are spatially plausible south-polar products but require geospatial co-registration before scientific metrics."
+}

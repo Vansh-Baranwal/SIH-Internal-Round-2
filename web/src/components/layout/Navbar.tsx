@@ -13,6 +13,7 @@ export function Navbar() {
     { name: 'Landing Sites', path: '/landing-sites' },
     { name: 'Trajectory', path: '/trajectory' },
     { name: 'Simulation', path: '/simulation' },
+    { name: 'Cockpit', path: '/cockpit' },
   ];
 
   const hasData = result !== null;

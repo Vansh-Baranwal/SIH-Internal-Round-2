@@ -10,6 +10,7 @@ import { HazardMap } from './pages/HazardMap';
 import { LandingSites } from './pages/LandingSites';
 import { Trajectory } from './pages/Trajectory';
 import { Simulation } from './pages/Simulation';
+import MultiSensorCockpit from './pages/MultiSensorCockpit';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -25,6 +26,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="landing-sites" element={<LandingSites />} />
             <Route path="trajectory" element={<Trajectory />} />
             <Route path="simulation" element={<Simulation />} />
+            <Route path="cockpit" element={<MultiSensorCockpit />} />
           </Route>
         </Routes>
       </BrowserRouter>

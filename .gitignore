@@ -20,6 +20,38 @@ web/public/sr/
 # Output and sensitive files
 results/mission_export/*
 web/.env*
+.env
+.env.*
+!.env.example
+
+# Python, test, and tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local datasets, generated imagery, and experiment artifacts
+data/training_pairs/*/*.png
+data/training_pairs/*/*.jpg
+data/training_pairs/*/*.jpeg
+data/training_pairs/*/*.tif
+data/training_pairs/*/*.tiff
+*.blend
+*.zip
+*.7z
+*.tar
+*.tar.gz
+
+# Model weights and archives (keep manifests, not binaries)
+checkpoints/*.pth
+checkpoints/*.pt
+checkpoints/*.ckpt
+checkpoints/*.zip
+
+# Frontend dependencies and build output
+web/node_modules/
+web/dist/
 
 # Scratch and patch scripts
 apply_*.py
