@@ -14,3 +14,4 @@ affine
 
 fastapi
 uvicorn[standard]
+python-multipart

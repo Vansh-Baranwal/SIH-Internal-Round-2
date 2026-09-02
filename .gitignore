@@ -32,3 +32,45 @@ inject_*.py
 revert_*.py
 scaffold_repo.py
 write_planner.py
+
+# Runtime logs
+*.log
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Test caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Frontend dependencies/build output
+web/node_modules/
+web/dist/
+
+
+# Model/checkpoint artifacts
+checkpoints/*
+!checkpoints/.gitkeep
+
+# Generated results
+results/*
+!results/**/README.md
+
+# Blender backup/autosave files
+*.blend1
+*.blend2
+
+
+# Generated experiment runs
+experiments/*
+!experiments/**/README.md
+
+# Frontend build output
+web/dist/

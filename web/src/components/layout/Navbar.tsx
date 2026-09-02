@@ -4,7 +4,7 @@ import { useMission } from '../../context/MissionContext';
 
 export function Navbar() {
   const location = useLocation();
-  const { result } = useMission();
+  const { hasData } = useMission();
 
   const links = [
     { name: 'Imagery', path: '/imagery' },
@@ -14,8 +14,6 @@ export function Navbar() {
     { name: 'Trajectory', path: '/trajectory' },
     { name: 'Simulation', path: '/simulation' },
   ];
-
-  const hasData = result !== null;
 
   return (
     <header className="fixed top-6 z-50 flex justify-center w-full px-6 pointer-events-none">

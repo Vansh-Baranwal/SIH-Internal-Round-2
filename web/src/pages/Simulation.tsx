@@ -1,8 +1,16 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useMission } from '../context/MissionContext';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { Terrain } from '../components/Terrain';
+import { Terrain, type TerrainViewState } from '../components/Terrain';
+import { TmcCameraFrustum, type TmcCameraViewState } from '../components/TmcCameraFrustum';
+import { OhrcCameraFrustum, type OhrcCameraViewState } from '../components/OhrcCameraFrustum';
+import { IirsFootprint, type IirsFootprintViewState } from '../components/IirsFootprint';
+import { LandmarkMarkers, type LandmarkViewState } from '../components/LandmarkMarkers';
+import { HazardOverlay, type HazardViewState } from '../components/HazardOverlay';
+import { SpectralOverlay, type SpectralViewState } from '../components/SpectralOverlay';
+import { WaterIceOverlay, type WaterIceViewState } from '../components/WaterIceOverlay';
+import { SunLight, SunControlPanel, DEFAULT_SUN_SCENARIO, getActiveSunConfig, type SunScenarioState } from '../components/SunControl';
 import { Lander } from '../components/Lander';
 import { HUD } from '../components/HUD';
 import { OrbitalPlanner } from '../components/OrbitalPlanner';
@@ -19,7 +27,10 @@ function TerrainRaycaster({ command, onResult }: { command: {x: number, z: numbe
       // Cast a ray from high above the map directly downward
       raycaster.set(new THREE.Vector3(x, 5000, z), new THREE.Vector3(0, -1, 0));
       
-      const intersects = raycaster.intersectObject(scene, true);
+      // Planner picking only needs the DEM. Avoid traversing cameras, markers,
+      // and every overlay on each command.
+      const terrain = scene.getObjectByName('dem-terrain');
+      const intersects = terrain ? raycaster.intersectObject(terrain, false) : [];
       
       let altitude = 0;
       let isSafe = true;
@@ -58,9 +69,20 @@ export function Simulation() {
   const [isCrashing, setIsCrashing] = useState(false);
   const [telemetry, setTelemetry] = useState<any>(null);
   const [isPlannerOpen, setIsPlannerOpen] = useState(false);
+  const [terrainViewState, setTerrainViewState] = useState<TerrainViewState>({ kind: 'loading', message: 'Loading DEM terrain…' });
+  const [tmcCameraViewState, setTmcCameraViewState] = useState<TmcCameraViewState>({ kind: 'loading', message: 'Loading TMC camera geometry...' });
+  const [ohrcCameraViewState, setOhrcCameraViewState] = useState<OhrcCameraViewState>({ kind: 'loading', message: 'Loading OHRC camera geometry...' });
+  const [iirsFootprintViewState, setIirsFootprintViewState] = useState<IirsFootprintViewState>({ kind: 'loading', message: 'Loading IIRS footprint...' });
+  const [landmarkViewState, setLandmarkViewState] = useState<LandmarkViewState>({ kind: 'loading', message: 'Loading landmarks...' });
+  const [hazardViewState, setHazardViewState] = useState<HazardViewState>({ kind: 'loading', message: 'Loading hazard overlays...' });
+  const [spectralViewState, setSpectralViewState] = useState<SpectralViewState>({ kind: 'loading', message: 'Loading spectral overlays...' });
+  const [waterIceViewState, setWaterIceViewState] = useState<WaterIceViewState>({ kind: 'loading', message: 'Loading water-ice overlay...' });
+  const [sunScenario, setSunScenario] = useState<SunScenarioState>(DEFAULT_SUN_SCENARIO);
+  const activeSunConfig = getActiveSunConfig(sunScenario);
   
   // State to trigger the 3D raycaster from the 2D planner
   const [divertCommand, setDivertCommand] = useState<{x: number, z: number, id: number} | null>(null);
+  const [layerVisibility, setLayerVisibility] = useState({ tmc: true, ohrc: true, iirs: true, landmarks: true, hazards: true, spectral: true, waterIce: true });
   
   useEffect(() => {
     if (result?.pipeline?.binary_url) {
@@ -68,7 +90,7 @@ export function Simulation() {
     }
   }, [result]);
 
-  const initiateDescent = (x: number, altitude: number, z: number, isSafe: boolean) => {
+  const initiateDescent = useCallback((x: number, altitude: number, z: number, isSafe: boolean) => {
     setTarget({x, y: altitude, z});
     
     if (isSafe) {
@@ -156,18 +178,22 @@ export function Simulation() {
     
     setTrajectory({ points });
     setAnimationTime(0);
-  };
+  }, []);
 
-  const handleTerrainClick = (x: number, altitude: number, z: number, isSafe: boolean) => {
+  const handleTerrainClick = useCallback((x: number, altitude: number, z: number, isSafe: boolean) => {
     initiateDescent(x, altitude, z, isSafe);
-  };
+  }, [initiateDescent]);
 
-  const handlePlannerExecute = (x: number, z: number) => {
+  const handlePlannerExecute = useCallback((x: number, z: number) => {
     // Instead of immediately executing, we send a command to the 3D Raycaster inside the Canvas.
     // The Raycaster will find the exact 3D altitude and slope, and then call initiateDescent!
     setDivertCommand({ x, z, id: Date.now() });
     setIsPlannerOpen(false);
-  };
+  }, []);
+
+  const toggleLayer = useCallback((layer: keyof typeof layerVisibility) => {
+    setLayerVisibility(current => ({ ...current, [layer]: !current[layer] }));
+  }, []);
 
   const TimeUpdater = () => {
     useFrame((state, delta) => {
@@ -190,8 +216,6 @@ export function Simulation() {
     return null;
   };
 
-  if (!result) return <div className="text-white flex-grow flex items-center justify-center font-mono">Run Pipeline first</div>;
-
   return (
     <div className="w-full relative bg-black flex flex-col pt-24" style={{ height: '100vh', overflow: 'hidden' }}>
       
@@ -206,11 +230,18 @@ export function Simulation() {
             />
 
             <color attach="background" args={['#050505']} />
-            <ambientLight intensity={5.0} />
-            <directionalLight position={[100, 500, 100]} intensity={10.0} />
+            <ambientLight intensity={1.5} />
+            <SunLight config={activeSunConfig} />
             
             <Suspense fallback={null}>
-                <Terrain onClick={handleTerrainClick} target={target} />
+                <Terrain onClick={handleTerrainClick} target={target} onStateChange={setTerrainViewState} />
+                {layerVisibility.tmc && <TmcCameraFrustum onStateChange={setTmcCameraViewState} />}
+                {layerVisibility.ohrc && <OhrcCameraFrustum onStateChange={setOhrcCameraViewState} />}
+                {layerVisibility.iirs && <IirsFootprint onStateChange={setIirsFootprintViewState} />}
+                {layerVisibility.landmarks && <LandmarkMarkers onStateChange={setLandmarkViewState} />}
+                {layerVisibility.hazards && <HazardOverlay onStateChange={setHazardViewState} />}
+                {layerVisibility.spectral && <SpectralOverlay onStateChange={setSpectralViewState} />}
+                {layerVisibility.waterIce && <WaterIceOverlay onStateChange={setWaterIceViewState} />}
             </Suspense>
             
             <Suspense fallback={null}>
@@ -225,6 +256,51 @@ export function Simulation() {
             
             <OrbitControls target={[0, 0, 0]} maxPolarAngle={Math.PI / 2.1} />
           </Canvas>
+      </div>
+
+      <div className="absolute top-28 left-4 z-10 max-w-sm border border-amber-400/60 bg-black/80 px-3 py-2 font-mono text-xs text-amber-200">
+        <div>{terrainViewState.label ?? 'DEM TERRAIN'}</div>
+        <div className="mt-1 text-slate-300">{terrainViewState.kind === 'ready'
+          ? 'DEM-derived geometry · local East/North/Up · metres'
+          : terrainViewState.message}</div>
+        <div className="mt-2 border-t border-sky-300/30 pt-2 text-sky-200">{tmcCameraViewState.label ?? 'TMC CAMERA GEOMETRY'}</div>
+        <div className="mt-1 text-slate-300">{tmcCameraViewState.kind === 'ready'
+          ? 'Frustum is a development visualization, not observation coverage.'
+          : tmcCameraViewState.message}</div>
+        <div className="mt-2 border-t border-amber-500/30 pt-2 text-amber-300">{ohrcCameraViewState.label ?? 'OHRC CAMERA GEOMETRY'}</div>
+        <div className="mt-1 text-slate-300">{ohrcCameraViewState.kind === 'ready'
+          ? 'Frustum is a development visualization, not observation coverage.'
+          : ohrcCameraViewState.message}</div>
+        <div className="mt-2 border-t border-emerald-500/30 pt-2 text-emerald-300">{iirsFootprintViewState.label ?? 'IIRS FOOTPRINT'}</div>
+        <div className="mt-1 text-slate-300">{iirsFootprintViewState.kind === 'ready'
+          ? 'Footprint is a development viewing area, not observation coverage.'
+          : iirsFootprintViewState.message}</div>
+        <div className="mt-2 border-t border-cyan-500/30 pt-2 text-cyan-300">{landmarkViewState.label ?? 'LANDMARK VISUALIZATION'}</div>
+        <div className="mt-1 text-slate-300">{landmarkViewState.kind === 'ready'
+          ? 'Estimated vs Reference coordinates distinguished.'
+          : landmarkViewState.message}</div>
+        <div className="mt-2 border-t border-red-500/30 pt-2 text-red-300">{hazardViewState.label ?? 'HAZARD OVERLAYS'}</div>
+        <div className="mt-1 text-slate-300">{hazardViewState.kind === 'ready'
+          ? 'Spatially positioned on DEM surface.'
+          : hazardViewState.message}</div>
+        <div className="mt-2 border-t border-indigo-500/30 pt-2 text-indigo-300">{spectralViewState.label ?? 'SPECTRAL OVERLAY'}</div>
+        <div className="mt-1 text-slate-300">{spectralViewState.kind === 'ready'
+          ? 'Multispectral band values draped on DEM.'
+          : spectralViewState.message}</div>
+        <div className="mt-2 border-t border-cyan-300/30 pt-2 text-cyan-200">{waterIceViewState.label ?? 'WATER-ICE OVERLAY'}</div>
+        <div className="mt-1 text-slate-300">{waterIceViewState.kind === 'ready'
+          ? 'Synthetic development data; not a scientific observation.'
+          : waterIceViewState.message}</div>
+      </div>
+
+      <SunControlPanel scenario={sunScenario} onScenarioChange={setSunScenario} />
+
+      <div className="absolute bottom-5 left-4 z-10 flex flex-wrap gap-2 border border-white/15 bg-black/75 px-3 py-2 font-mono text-[10px] text-slate-200">
+        {([['tmc', 'TMC'], ['ohrc', 'OHRC'], ['iirs', 'IIRS'], ['landmarks', 'LANDMARKS'], ['hazards', 'HAZARDS'], ['spectral', 'SPECTRAL'], ['waterIce', 'WATER-ICE']] as const).map(([key, label]) => (
+          <label key={key} className="flex cursor-pointer items-center gap-1">
+            <input type="checkbox" checked={layerVisibility[key]} onChange={() => toggleLayer(key)} />{label}
+          </label>
+        ))}
       </div>
 
       <HUD 
