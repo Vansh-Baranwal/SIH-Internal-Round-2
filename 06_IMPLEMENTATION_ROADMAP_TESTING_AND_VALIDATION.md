@@ -39,14 +39,14 @@
 *   **Tasks:** Extract crater geometries. Build retrieval pipeline for unknown images.
 *   **Tests:** Localization accuracy tests using stripped metadata.
 
-### M7: Frontend Integration & Cockpit
+### M7: Frontend Integration & Cockpit (Implemented)
 *   **Goal:** Unify the UI.
-*   **Tasks:** Build Multi-Sensor Cockpit. Integrate 3D Digital Twin. Connect React frontend to FastAPI correspondence endpoints.
-*   **Acceptance:** Seamless user journey from ingestion to 3D visualization.
+*   **Tasks:** Build Multi-Sensor Cockpit. Integrate the React frontend with the synchronous FastAPI correspondence endpoint.
+*   **Acceptance:** Real source/reference image pairs produce backend metrics, verified match points, and a viewable warped output.
 
 ### M8: End-to-End Validation & Legacy Integration
-*   **Goal:** Ensure the entire pipeline works, including legacy modules.
-*   **Tasks:** Route registered outputs into M4 (Hazards) and M5/M6 (Lander).
+*   **Goal:** Complete explicit hand-off into the legacy downstream modules.
+*   **Tasks:** Route registered outputs through imagery processing, then M4 (Hazards) and M5/M6 (Lander).
 *   **Acceptance:** Existing hazard maps and trajectory sims successfully process the new registered imagery.
 
 ---

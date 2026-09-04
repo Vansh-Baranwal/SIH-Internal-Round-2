@@ -23,7 +23,7 @@ The platform must feel like a professional ISRO/space-science analysis tool. It 
 *   **Main Workspace:** Side-by-side or swipe-slider view.
 *   **Outputs:** Visualized match points (lines connecting the two images), transformed/registered image overlay.
 *   **Analytics Panel:** RMSE, inlier ratio, spatial coverage histogram, sub-pixel accuracy estimation.
-*   **API Requirements:** `/api/v1/register` (trigger engine), `/api/v1/metrics` (fetch results).
+*   **Implemented API:** `POST /api/v1/correspondence/register` accepts multipart `source` and `reference` images and returns synchronous metrics, verified matches, and a job id. `GET /api/v1/correspondence/metrics/{job_id}` remains available for stored metrics, and `GET /api/v1/correspondence/jobs/{job_id}/{filename}` serves generated images.
 
 ### C. Spectral & Water-Ice Intelligence (IIRS / LUPEX)
 *   **Purpose:** Analyze mineralogy and hydration on registered optical images.
@@ -48,16 +48,17 @@ The platform must feel like a professional ISRO/space-science analysis tool. It 
 
 ## 4. Backend Architecture (FastAPI)
 
-*   **Asynchronous Processing:** Multi-modal registration is computationally heavy. The backend must use Celery or FastAPI background tasks. The UI will poll or use WebSockets to display loading states.
+*   **Current Processing:** Registration runs synchronously through the correspondence router. The UI shows a processing state while the request is in flight. Celery, background tasks, and polling/WebSockets remain future options for long-running jobs.
 *   **Data Models:** Define strict Pydantic schemas for `RegistrationRequest`, `RegistrationResult`, and `FeatureMatches`.
 *   **File Serving:** Efficient streaming of large GeoTIFFs/pyramids (e.g., using Cloud Optimized GeoTIFFs - COG logic) to the frontend canvas.
 
 ## 5. Judge / Demo Experience
 
-The UX will include a "Guided Demo" mode. This will step a judge through:
+The current judge workflow is a direct cockpit flow:
 1.  Loading two unaligned, multi-modal images (TMC + OHRC).
-2.  Executing the correspondence engine and watching the match points appear.
-3.  Viewing the registered output and the sub-pixel RMSE metrics.
-4.  Switching to the 3D Viewer to change the Sun angle.
-5.  Re-running registration to prove sun-angle invariance.
-6.  Applying the IIRS Spectral overlay on the newly registered footprint.
+2.  Executing the real correspondence engine and reviewing verified matches.
+3.  Viewing the registered output and pixel RMSE metrics.
+4.  Sending the output to Imagery for explicit downstream processing.
+5.  Opening hazard, landing-site, and trajectory views after their required pipeline steps complete.
+
+Spectral and water-ice overlays require backend endpoints and catalog-backed datasets that are not currently implemented.
