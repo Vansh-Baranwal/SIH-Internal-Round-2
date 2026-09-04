@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect, type ChangeEvent, type KeyboardEvent, type MouseEvent } from 'react';
 
 interface OrbitalPlannerProps {
   onClose: () => void;
@@ -33,17 +33,50 @@ export function OrbitalPlanner({ onClose, onExecute }: OrbitalPlannerProps) {
   const [deorbitData, setDeorbitData] = useState<{x: number, y: number, orbit: number} | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const handleOrbitClick = (e: React.MouseEvent, orbitIndex: number) => {
+  const selectOrbit = (orbitIndex: number, x?: number, y?: number) => {
+    setDeorbitData({ x: x ?? 380, y: y ?? 350, orbit: orbitIndex });
+  };
+
+  const handleOrbitClick = (e: MouseEvent<SVGElement>, orbitIndex: number) => {
     if (!svgRef.current) return;
     const svg = svgRef.current;
+    const screenMatrix = svg.getScreenCTM();
+    if (!screenMatrix) return;
     const pt = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
-    const cursorPt = pt.matrixTransform(svg.getScreenCTM()!.inverse());
-    setDeorbitData({ x: cursorPt.x, y: cursorPt.y, orbit: orbitIndex });
+    const cursorPt = pt.matrixTransform(screenMatrix.inverse());
+    selectOrbit(orbitIndex, cursorPt.x, cursorPt.y);
   };
-const handleXChange = (e: any) => setVx(parseFloat(e.target.value));
-  const handleZChange = (e: any) => setVz(parseFloat(e.target.value));
+
+  const handleOrbitKeyDown = (e: KeyboardEvent<SVGElement>, orbitIndex: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selectOrbit(orbitIndex);
+    }
+  };
+
+  const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/80';
+  const panelId = 'trajectory-override-panel';
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
+  const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) onClose();
+  };
+  const handleXChange = (e: ChangeEvent<HTMLInputElement>) => setVx(parseFloat(e.target.value));
+  const handleZChange = (e: ChangeEvent<HTMLInputElement>) => setVz(parseFloat(e.target.value));
 
   const DESCENT_TIME = 15; 
   const targetX = vx * DESCENT_TIME;
@@ -105,14 +138,28 @@ const handleXChange = (e: any) => setVx(parseFloat(e.target.value));
   })), []);
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#050505]/80 backdrop-blur-xl p-8 font-sans">
-      <div className="border border-white/10 bg-[#0a0a0a] w-full max-w-6xl h-full flex shadow-2xl rounded-2xl overflow-hidden">
+    <div
+      className="absolute inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#050505]/80 backdrop-blur-xl p-3 sm:p-8 font-sans"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={panelId}
+      onMouseDown={handleBackdropClick}
+    >
+      <div className="border border-white/10 bg-[#0a0a0a] w-full max-w-6xl min-h-[min(720px,calc(100vh-1.5rem))] max-h-[calc(100vh-1.5rem)] sm:h-full flex flex-col lg:flex-row shadow-2xl rounded-2xl overflow-hidden">
         
         {/* LEFT PANEL: 2D Interactive Orbital Map */}
         <div className="flex-grow relative border-r border-white/5 bg-[#09090b] overflow-hidden">
-          <h2 className="absolute top-6 left-6 text-zinc-300 font-bold tracking-wide text-lg z-10 drop-shadow-md">Lunar Orbital Dynamics Planner</h2>
+          <h2 id={panelId} className="absolute top-4 left-4 sm:top-6 sm:left-6 text-zinc-300 font-bold tracking-wide text-base sm:text-lg z-10 drop-shadow-md">Lunar Orbital Dynamics Planner</h2>
           
-          <svg ref={svgRef} width="100%" height="100%" viewBox="0 0 600 600" className="absolute inset-0">
+          <svg
+            ref={svgRef}
+            width="100%"
+            height="100%"
+            viewBox="0 0 600 600"
+            className="absolute inset-0"
+            aria-label="Interactive lunar orbit map"
+            role="img"
+          >
             <defs>
               <radialGradient id="moonGlow" cx="30%" cy="30%" r="70%">
                 <stop offset="60%" stopColor="#000" stopOpacity="0" />
@@ -130,16 +177,16 @@ const handleXChange = (e: any) => setVx(parseFloat(e.target.value));
 
             {/* Orbit 1 (Outer) */}
             <ellipse cx="280" cy="350" rx="270" ry="180" transform="rotate(-15 280 350)" fill="none" stroke="#52525b" strokeWidth="3" />
-            <ellipse cx="280" cy="350" rx="270" ry="180" transform="rotate(-15 280 350)" fill="none" stroke="transparent" strokeWidth="20" className="cursor-crosshair hover:stroke-white/10 transition-colors" onClick={(e) => handleOrbitClick(e, 1)} />
+            <ellipse cx="280" cy="350" rx="270" ry="180" transform="rotate(-15 280 350)" fill="none" stroke="transparent" strokeWidth="20" className={`cursor-crosshair hover:stroke-white/10 transition-colors ${focusRing}`} role="button" tabIndex={0} aria-label="Select lunar orbit 1" onClick={(e) => handleOrbitClick(e, 1)} onKeyDown={(e) => handleOrbitKeyDown(e, 1)} />
             
             {/* Orbit 2 (Middle) */}
             <ellipse cx="340" cy="350" rx="200" ry="150" transform="rotate(-10 340 350)" fill="none" stroke="#52525b" strokeWidth="3" />
-            <ellipse cx="340" cy="350" rx="200" ry="150" transform="rotate(-10 340 350)" fill="none" stroke="transparent" strokeWidth="20" className="cursor-crosshair hover:stroke-white/10 transition-colors" onClick={(e) => handleOrbitClick(e, 2)} />
+            <ellipse cx="340" cy="350" rx="200" ry="150" transform="rotate(-10 340 350)" fill="none" stroke="transparent" strokeWidth="20" className={`cursor-crosshair hover:stroke-white/10 transition-colors ${focusRing}`} role="button" tabIndex={0} aria-label="Select lunar orbit 2" onClick={(e) => handleOrbitClick(e, 2)} onKeyDown={(e) => handleOrbitKeyDown(e, 2)} />
             
             {/* Orbit 3 (Inner) */}
             <ellipse cx="400" cy="350" rx="140" ry="125" transform="rotate(-5 400 350)" fill="none" stroke="#52525b" strokeWidth="3" />
             {/* Invisible thicker overlay for easier clicking */}
-            <ellipse cx="400" cy="350" rx="140" ry="125" transform="rotate(-5 400 350)" fill="none" stroke="transparent" strokeWidth="20" className="cursor-crosshair hover:stroke-white/10 transition-colors" onClick={(e) => handleOrbitClick(e, 3)} />
+            <ellipse cx="400" cy="350" rx="140" ry="125" transform="rotate(-5 400 350)" fill="none" stroke="transparent" strokeWidth="20" className={`cursor-crosshair hover:stroke-white/10 transition-colors ${focusRing}`} role="button" tabIndex={0} aria-label="Select lunar orbit 3" onClick={(e) => handleOrbitClick(e, 3)} onKeyDown={(e) => handleOrbitKeyDown(e, 3)} />
 
             {/* Spacecrafts on orbits */}
             <Spacecraft x={220} y={190} rot={30} /> {/* Orbit 1 */}
@@ -194,20 +241,20 @@ const handleXChange = (e: any) => setVx(parseFloat(e.target.value));
             </g>
 
             {/* Data Labels */}
-            <LabelBox x="20" y="140" title="Lunar Orbit 1" width={95} />
-            <LabelBox x="120" y="320" title="Lunar Orbit 2" width={95} />
-            <LabelBox x="290" y="470" title="Lunar Orbit 3" width={95} />
-            
-            <LabelBox x="460" y="220" title="Landing Phase" sub="Target Active" width={110} />
+            <LabelBox x={20} y={140} title="Lunar Orbit 1" width={95} />
+            <LabelBox x={120} y={320} title="Lunar Orbit 2" width={95} />
+            <LabelBox x={290} y={470} title="Lunar Orbit 3" width={95} />
+
+            <LabelBox x={460} y={220} title="Landing Phase" sub="Target Active" width={110} />
           </svg>
         </div>
 
         {/* RIGHT PANEL: Controls */}
-        <div className="w-[400px] p-8 flex flex-col justify-between bg-zinc-950/80 z-10 shadow-2xl border-l border-white/5">
+        <div className="w-full lg:w-[400px] max-h-full overflow-y-auto p-5 sm:p-8 flex flex-col justify-between gap-8 bg-zinc-950/80 z-10 shadow-2xl border-t lg:border-t-0 lg:border-l border-white/5">
           <div>
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
               <h3 className="text-zinc-300 font-semibold tracking-wide text-lg">Trajectory Override</h3>
-              <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center">x</button>
+              <button ref={closeButtonRef} type="button" onClick={onClose} aria-label="Close trajectory override" className={`text-zinc-500 hover:text-white ${focusRing} transition-colors bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center`}>×</button>
             </div>
 
             <p className="text-sm text-zinc-500 mb-10 leading-relaxed font-medium">
@@ -220,10 +267,15 @@ const handleXChange = (e: any) => setVx(parseFloat(e.target.value));
                 <span>Cross-Track Vel (Vx)</span>
                 <span className="font-mono text-zinc-300">{vx.toFixed(1)} m/s</span>
               </label>
-              <input 
-                type="range" min="-15" max="15" step="0.5" 
-                value={vx} onChange={handleXChange}
-                className="w-full accent-zinc-300 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+              <input
+                type="range"
+                aria-label="Cross-track velocity"
+                min="-15"
+                max="15"
+                step="0.5"
+                value={vx}
+                onChange={handleXChange}
+                className={`w-full accent-zinc-300 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer ${focusRing}`}
               />
               <div className="text-[10px] text-zinc-600 font-mono mt-1 text-right">Offset: {targetX.toFixed(0)}m</div>
             </div>
@@ -233,10 +285,15 @@ const handleXChange = (e: any) => setVx(parseFloat(e.target.value));
                 <span>Downrange Vel (Vz)</span>
                 <span className="font-mono text-zinc-300">{vz.toFixed(1)} m/s</span>
               </label>
-              <input 
-                type="range" min="-15" max="15" step="0.5" 
-                value={vz} onChange={handleZChange}
-                className="w-full accent-zinc-300 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+              <input
+                type="range"
+                aria-label="Downrange velocity"
+                min="-15"
+                max="15"
+                step="0.5"
+                value={vz}
+                onChange={handleZChange}
+                className={`w-full accent-zinc-300 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer ${focusRing}`}
               />
               <div className="text-[10px] text-zinc-600 font-mono mt-1 text-right">Offset: {targetZ.toFixed(0)}m</div>
             </div>
@@ -250,10 +307,11 @@ const handleXChange = (e: any) => setVx(parseFloat(e.target.value));
             </div>
           </div>
 
-          <button 
+          <button
+            type="button"
             onClick={() => deorbitData && onExecute(targetX, targetZ)}
             disabled={!deorbitData}
-            className={`w-full py-4 rounded-xl font-semibold tracking-wide text-sm transition-all shadow-lg ${deorbitData ? 'bg-zinc-200 hover:bg-white text-black' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}
+            className={`w-full py-4 rounded-xl font-semibold tracking-wide text-sm transition-all shadow-lg ${focusRing} ${deorbitData ? 'bg-zinc-200 hover:bg-white text-black' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}`}
           >
             {deorbitData ? 'Execute Divert Maneuver' : 'Select Deorbit Point First'}
           </button>

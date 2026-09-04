@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MissionProvider } from './context/MissionContext';
 import { Layout } from './components/layout/Layout';
 import { Landing } from './pages/Landing';
+import { Registration } from './pages/Registration';
 import { Imagery } from './pages/Imagery';
 import { Terrain } from './pages/Terrain';
 import { HazardMap } from './pages/HazardMap';
@@ -19,6 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Landing />} />
+            <Route path="registration" element={<Registration />} />
             <Route path="imagery" element={<Imagery />} />
             <Route path="terrain" element={<Terrain />} />
             <Route path="hazard-map" element={<HazardMap />} />

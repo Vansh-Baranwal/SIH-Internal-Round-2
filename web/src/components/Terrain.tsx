@@ -92,4 +92,4 @@ export function Terrain({ onClick, target }: TerrainProps) {
   );
 }
 
-useGLTF.preload('http://localhost:8000/api/assets/moon_surface.glb?v=3');
+useGLTF.preload(getAssetUrl('moon_surface.glb?v=3'));

@@ -1,5 +1,6 @@
-import { useMission } from '../context/MissionContext';
+import { useMission } from '../context/useMission';
 import { useNavigate } from 'react-router-dom';
+import { CheckCircle } from 'lucide-react';
 
 export function Terrain() {
   const { result } = useMission();
@@ -65,8 +66,8 @@ export function Terrain() {
           </button>
         </div>
 
-        <div className="lg:col-span-2 border-l border-white/20 pl-12 flex flex-col justify-center min-h-[500px]">
-            <div className="w-16 h-16 border-2 border-white/20 border-t-white animate-spin mb-8"></div>
+        <div className="lg:col-span-2 border-l border-white/20 pl-12 flex flex-col justify-center items-start min-h-[500px]">
+            <CheckCircle className="w-12 h-12 text-green-500 mb-6" />
             <h3 className="text-white font-bold text-lg mb-2">Registration Complete</h3>
             <p className="text-zinc-500 font-medium leading-relaxed max-w-md">Physical DEM correlated in memory for Phase IV hazard extraction. The topographic mesh is now prepared for strict slope and surface roughness evaluations.</p>
         </div>
@@ -74,4 +75,3 @@ export function Terrain() {
     </div>
   );
 }
-

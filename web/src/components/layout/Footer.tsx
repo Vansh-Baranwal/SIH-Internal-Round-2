@@ -7,13 +7,14 @@ export function Footer() {
         <div className="col-span-2">
           <h2 className="text-2xl font-black tracking-tighter mb-4 uppercase leading-none"><span className="text-white">LUNA</span> <span className="text-transparent [-webkit-text-stroke:1px_white]">DRISHTI</span></h2>
           <p className="text-sm font-medium leading-relaxed max-w-sm">
-            High-fidelity geospatial intelligence platform for generating terrain-aware hazard maps, dual-lander feasibility assessments, and propulsive descent trajectory simulations.
+            Geospatial intelligence platform for registering lunar imagery, reviewing correspondence quality, and continuing into terrain-aware mission analysis.
           </p>
         </div>
         
         <div>
           <h3 className="text-white tracking-widest uppercase font-bold mb-4 text-[11px]">Navigation</h3>
           <ul className="space-y-2 text-sm font-medium">
+            <li><Link to="/registration" className="hover:text-zinc-300 transition-colors">Registration</Link></li>
             <li><Link to="/imagery" className="hover:text-zinc-300 transition-colors">Imagery</Link></li>
             <li><Link to="/terrain" className="hover:text-zinc-300 transition-colors">Terrain</Link></li>
             <li><Link to="/hazard-map" className="hover:text-zinc-300 transition-colors">Hazards</Link></li>
