@@ -213,7 +213,7 @@ class ESA(nn.Module):
         # conv = conv + self.conv1(pool)
         conv = self.conv2(pool)
         conv = self.conv1(conv)
-        up = torch.nn.functional.interpolate(conv, size=(rc.shape[2], rc.shape[3]), mode='nearest')
+        up = torch.nn.functional.upsample(conv, size=(rc.shape[2], rc.shape[3]), mode='nearest')
         up = up + rc
         # out = (self.sigmoid(self.increase_channels(up)) * x) * self.sigmoid(self.bottom11_dw(self.bottom11(x)))
         out = (self.sigmoid(self.increase_channels(up)) * x)
@@ -284,7 +284,7 @@ class CSASR(nn.Module):
             return x
         else:
             x = self.tail(x)
-            return x + torch.nn.functional.interpolate(input, scale_factor=self.scale, mode='bicubic')
+            return x + torch.nn.functional.upsample(input, scale_factor=self.scale, mode='bicubic')
 
     def load_state_dict(self, state_dict, strict=True):
         own_state = self.state_dict()

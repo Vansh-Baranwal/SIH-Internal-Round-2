@@ -134,7 +134,6 @@ async def upload_tmc(file: UploadFile = File(...)):
     })
 
 from lunar_hazard_mapper.api.pipeline import run_dual_pipeline
-from lunar_hazard_mapper.m2_super_resolution.inference import InferenceResourceError
 
 @app.post("/api/pipeline/run")
 async def run_full_pipeline(file: UploadFile = File(None), scene_id: str = "01_01"):
@@ -230,8 +229,6 @@ async def run_full_pipeline(file: UploadFile = File(None), scene_id: str = "01_0
             "scale_factor": "32x Dual-Path",
             "ready_for_m3": True
         }
-    except InferenceResourceError as e:
-        raise HTTPException(status_code=413, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

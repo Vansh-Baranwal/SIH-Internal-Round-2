@@ -131,7 +131,7 @@ export function Simulation() {
   const [divertCommand, setDivertCommand] = useState<{x: number, z: number, id: number} | null>(null);
   
   useEffect(() => {
-    if (result?.binary_url || result?.pipeline?.binary_url) {
+    if (result?.pipeline?.binary_url) {
         setStatus('AWAITING TARGET');
     }
   }, [result]);

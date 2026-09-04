@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, type ReactNode } from 'react';
+import { useState, useCallback, type ReactNode } from 'react';
 import type { RegistrationSession, DatasetInput } from '../types/registration';
 import { createEmptySession } from '../types/registration';
 import { MissionContext } from './MissionContextValue';
@@ -21,25 +21,8 @@ export type { MissionContextType } from './MissionContextValue';
 
 
 export function MissionProvider({ children }: { children: ReactNode }) {
-  const [result, setResult] = useState<any>(() => {
-    const stored = localStorage.getItem('lunadrishti.mission-result');
-    if (!stored) return null;
-    try {
-      return JSON.parse(stored);
-    } catch {
-      localStorage.removeItem('lunadrishti.mission-result');
-      return null;
-    }
-  });
+  const [result, setResult] = useState<any>(null);
   const [session, setSession] = useState<RegistrationSession>(createEmptySession());
-
-  useEffect(() => {
-    if (result) {
-      localStorage.setItem('lunadrishti.mission-result', JSON.stringify(result));
-    } else {
-      localStorage.removeItem('lunadrishti.mission-result');
-    }
-  }, [result]);
 
   const resetSession = useCallback(() => setSession(createEmptySession()), []);
 
@@ -54,10 +37,11 @@ export function MissionProvider({ children }: { children: ReactNode }) {
     // all" apart from "registered image present, downstream M3/M4/M5/M6
     // hasn't processed it yet" and show the right message instead of a
     // silently broken image request.
-    setResult(() => ({
+    setResult((prev: any) => ({
+      ...(prev ?? {}),
       source_image_url: overlayImageUrl,
       from_registration: true,
-      pipeline: {},
+      pipeline: prev?.pipeline ?? {},
     }));
   }, []);
 

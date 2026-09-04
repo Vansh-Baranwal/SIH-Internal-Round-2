@@ -291,7 +291,7 @@ function SpectralPanel({
 }
 
 export function Registration() {
-  const { session, setSession, setResult, resetSession, sendToMissionPipeline } = useMission();
+  const { session, setSession, resetSession, sendToMissionPipeline } = useMission();
   const navigate = useNavigate();
   const isRunning = session.status === 'queued' || session.status === 'running' || session.status === 'uploading';
 
@@ -363,7 +363,6 @@ export function Registration() {
     clearPollTimer();
     const generation = ++runGenerationRef.current;
     setPreviousQuality(session.metrics?.quality ?? null);
-    setResult(null);
     setSession((prev) => ({
       ...prev,
       status: 'running',
@@ -405,7 +404,7 @@ export function Registration() {
         updatedAt: new Date().toISOString(),
       }));
     }
-  }, [clearPollTimer, isRunning, session.datasetReference, session.datasetSource, session.metrics, setResult, setSession, sunParams]);
+  }, [clearPollTimer, isRunning, session.datasetReference, session.datasetSource, session.metrics, setSession, sunParams]);
 
   const handleCancel = useCallback(() => {
     ++runGenerationRef.current;
@@ -559,24 +558,18 @@ export function Registration() {
           </h3>
           <div className="relative w-full bg-[#030303] min-h-[420px] flex items-center justify-center overflow-hidden">
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full opacity-80">
-              {(() => {
-                const sourceWidth = Math.max(...session.matchPoints.map((m) => m.sourceX), 1);
-                const sourceHeight = Math.max(...session.matchPoints.map((m) => m.sourceY), 1);
-                const referenceWidth = Math.max(...session.matchPoints.map((m) => m.referenceX), 1);
-                const referenceHeight = Math.max(...session.matchPoints.map((m) => m.referenceY), 1);
-                return session.matchPoints.map((m) => (
-                  <line
-                    key={m.id}
-                    x1={(m.sourceX / sourceWidth) * 45}
-                    y1={(m.sourceY / sourceHeight) * 100}
-                    x2={55 + (m.referenceX / referenceWidth) * 45}
-                    y2={(m.referenceY / referenceHeight) * 100}
-                    stroke={m.isInlier ? '#38bdf8' : '#52525b'}
-                    strokeWidth={m.isInlier ? 0.15 : 0.08}
-                    opacity={m.isInlier ? 0.7 : 0.25}
-                  />
-                ));
-              })()}
+              {session.matchPoints.map((m) => (
+                <line
+                  key={m.id}
+                  x1={m.sourceX * 0.45}
+                  y1={m.sourceY}
+                  x2={55 + m.referenceX * 0.45}
+                  y2={m.referenceY}
+                  stroke={m.isInlier ? '#38bdf8' : '#52525b'}
+                  strokeWidth={m.isInlier ? 0.15 : 0.08}
+                  opacity={m.isInlier ? 0.7 : 0.25}
+                />
+              ))}
             </svg>
             <div className="relative z-10 flex w-full justify-between px-8 py-8 pointer-events-none">
               <span className="text-[11px] font-bold tracking-widest uppercase text-zinc-600">Source</span>
