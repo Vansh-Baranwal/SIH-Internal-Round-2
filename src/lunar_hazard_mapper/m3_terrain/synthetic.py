@@ -13,9 +13,10 @@ import sys
 
 # synthetic/terrain lives at the repo root, not under src/. Make sure the
 # repo root is importable regardless of which directory a script is run
-# from (VS Code, pytest, or a plain `python scripts/...`).
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                           "..", "..", ".."))
+# from (VS Code, pytest, or a plain python scripts/...).
+_REPO_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..")
+)
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
@@ -27,6 +28,7 @@ from synthetic.terrain.combined import generate_combined
 
 from .dem import generate_dem
 
+
 _GENERATORS = {
     "flat": generate_flat_terrain,
     "slope": generate_slope,
@@ -36,8 +38,12 @@ _GENERATORS = {
 }
 
 
-def create_synthetic_terrain(kind="combined", size=256, pixel_size_m=1.0,
-                              **kwargs):
+def create_synthetic_terrain(
+    kind="combined",
+    size=256,
+    pixel_size_m=1.0,
+    **kwargs,
+):
     """
     Generate a synthetic terrain type and wrap it as a DEM object.
 
@@ -45,8 +51,7 @@ def create_synthetic_terrain(kind="combined", size=256, pixel_size_m=1.0,
         kind: one of "flat", "slope", "crater", "boulder", "combined".
         size: grid size (pixels per side).
         pixel_size_m: ground sampling distance per pixel, in meters.
-        **kwargs: forwarded to the underlying generator (e.g. slope_deg,
-            depth_m, radius_px -- see synthetic/terrain/<kind>.py).
+        **kwargs: forwarded to the underlying generator.
 
     Returns:
         DEM instance, tagged source_type="synthetic".
@@ -57,8 +62,12 @@ def create_synthetic_terrain(kind="combined", size=256, pixel_size_m=1.0,
             f"Choose from: {sorted(_GENERATORS)}"
         )
 
-    terrain = _GENERATORS[kind](size=size, pixel_size_m=pixel_size_m,
-                                 **kwargs)
+    terrain = _GENERATORS[kind](
+        size=size,
+        pixel_size_m=pixel_size_m,
+        **kwargs,
+    )
+
     return generate_dem(
         terrain,
         notes=f"Synthetic '{kind}' terrain generated for M3 pipeline testing.",
