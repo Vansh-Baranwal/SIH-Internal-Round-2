@@ -17,7 +17,7 @@ import shutil
 import uuid
 import json
 from fastapi import APIRouter, UploadFile, File, Form
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from lunar_hazard_mapper.correspondence_engine.registration.pipeline import run_pipeline, MATCHERS
 
@@ -61,14 +61,29 @@ async def register(
     if metrics is None:
         return JSONResponse(status_code=422, content={"error": "insufficient matches found"})
 
+    matches_path = job_dir / "matches.json"
+    with open(matches_path) as f:
+        matches = json.load(f).get("matches", [])
+
     return {
         "job_id": job_id,
         "metrics": metrics.to_dict(),
-        "warped_path": str(job_dir / "warped_source.png"),
+        "matches": matches,
+        "warped_url": f"/api/v1/correspondence/jobs/{job_id}/warped_source.png",
         "visualization_path": str(job_dir / "match_visualization.png"),
         "matches_csv_path": str(job_dir / "matches.csv"),
         "matches_json_path": str(job_dir / "matches.json"),
     }
+
+
+@router.get("/jobs/{job_id}/{filename}")
+async def get_job_file(job_id: str, filename: str):
+    if filename not in {"warped_source.png", "match_visualization.png"}:
+        return JSONResponse(status_code=404, content={"error": "file not found"})
+    path = JOBS_DIR / job_id / filename
+    if not path.exists():
+        return JSONResponse(status_code=404, content={"error": "file not found"})
+    return FileResponse(path)
 
 
 @router.get("/metrics/{job_id}")
