@@ -1,9 +1,9 @@
+
 # Paths are relative to the sih-vansh project root.
-# SIH_ROOT overrides sih_root when set in the environment.
-sih_root: "../1PROJECTS/SIH/CODE_SIH1519_ORION SPACE SYSTEM"
-tmc_source: "TMCORTHO5-1/TMCORTHO5-1"
-hr_source: "ORTHONAC0.5-1/ORTHONAC0.5-1"
-nac_source: "NAC"
+sih_root: "data/real_samples"
+tmc_source: "tmc_ortho2/data/derived/20250707"
+hr_source: "ohrc_raw2/data/calibrated/20210401"
+nac_source: "nac"
 dem_source: "TMCDTM"
 raw_dir: "data/raw"
 processed_tiles: "data/processed/tmc_tiles"

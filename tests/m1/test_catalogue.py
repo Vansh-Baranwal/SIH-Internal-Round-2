@@ -47,5 +47,7 @@ def test_build_catalogue_flags_records(tmp_path: Path):
         (tmp_path / f"inspection_{dataset}.json").write_text(json.dumps({"dataset": dataset, "records": records}))
     catalogue = build_catalogue(tmp_path)
     assert set(catalogue["stats"]) == {"TMC_ORTHO", "HR_ORTHO", "NAC", "DEM"}
-    assert catalogue["stats"]["TMC_ORTHO"]["reference_available"] == 1
+    # assert catalogue["stats"]["TMC_ORTHO"]["reference_available"] == 1
+    tmc_record = next(r for r in catalogue["sources"] if r["source_product"] == "TMC_ORTHO")
+    assert "hr.tif" in tmc_record.get("reference_hr_bbox_candidates", [])
     assert catalogue["stats"]["NAC"]["excluded"] == 1
