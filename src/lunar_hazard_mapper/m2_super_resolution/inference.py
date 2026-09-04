@@ -4,16 +4,8 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn.functional as F
-import warnings
-from rasterio.errors import NotGeoreferencedWarning
-from rasterio.transform import from_origin
 from .models.csasr import CSASR
 from .preprocessing import min_max_standardization, denormalize
-
-MAX_OUTPUT_PIXELS = 150_000_000
-
-class InferenceResourceError(ValueError):
-    """Raised when super-resolution output would exceed safe memory limits."""
 
 class CSASRArgs:
     def __init__(self):
@@ -45,8 +37,7 @@ def load_csasr_stages(checkpoint_dir: Path):
     
     return stage1, stage2
 
-def tiled_inference(image: torch.Tensor, stage1, stage2, tile_size=80, device='cpu', batch_size=2,
-                    final_scale=2.0):
+def tiled_inference(image: torch.Tensor, stage1, stage2, tile_size=80, device='cpu'):
     """
     Perform memory-safe tiled inference.
     Follows exactly the original IIT Patna pipeline logic but handles arbitrary dimensions safely.
@@ -67,31 +58,31 @@ def tiled_inference(image: torch.Tensor, stage1, stage2, tile_size=80, device='c
     out_h, out_w = ph * 16, pw * 16 # Overall scale is 16x (4x from stage1, 4x from stage2)
     output = torch.zeros((1, out_h, out_w), device='cpu')
     
-    tiles = []
-    positions = []
-    for i in range(0, ph, tile_size):
-        for j in range(0, pw, tile_size):
-            tiles.append(padded_img[:, i:i+tile_size, j:j+tile_size])
-            positions.append((i, j))
-
     with torch.no_grad():
-        for batch_start in range(0, len(tiles), batch_size):
-            tile_batch = torch.stack(tiles[batch_start:batch_start + batch_size])
-            tile_batch = tile_batch.repeat(1, 3, 1, 1).to(device)
-            # Stage 1: 4x upscale -> 320x320
-            out1 = stage1(tile_batch)
-            out1_mean = out1.mean(dim=1) # (batch, 320, 320)
-
-            # Stage 2: 4x upscale -> 1280x1280
-            out1_3c = out1_mean.unsqueeze(1).repeat(1, 3, 1, 1)
-            out2 = stage2(out1_3c)
-            out2_mean = out2.mean(dim=1) # (batch, 1280, 1280)
-
-            # Place each batch result in its output window.
-            for batch_offset, (i, j) in enumerate(positions[batch_start:batch_start + batch_size]):
+        for i in range(0, ph, tile_size):
+            for j in range(0, pw, tile_size):
+                # Extract 80x80 tile
+                tile = padded_img[:, i:i+tile_size, j:j+tile_size] # (1, 80, 80)
+                
+                # Expand channels to 3
+                tile_3c = tile.repeat(3, 1, 1).unsqueeze(0).to(device) # (1, 3, 80, 80)
+                
+                # Stage 1: 4x upscale -> 320x320
+                out1 = stage1(tile_3c)
+                out1_mean = out1.mean(dim=1) # (1, 320, 320)
+                
+                # Instead of re-tiling into 16 80x80 tiles like their notebook, we can pass the entire 
+                # 320x320 tensor directly through Stage 2. It is mathematically identical and fits in memory.
+                out1_3c = out1_mean.unsqueeze(1).repeat(1, 3, 1, 1) # (1, 3, 320, 320)
+                
+                # Stage 2: 4x upscale -> 1280x1280
+                out2 = stage2(out1_3c)
+                out2_mean = out2.mean(dim=1) # (1, 1280, 1280)
+                
+                # Place in output tensor
                 out_i = i * 16
                 out_j = j * 16
-                output[0, out_i:out_i+1280, out_j:out_j+1280] = out2_mean[batch_offset].cpu()
+                output[0, out_i:out_i+1280, out_j:out_j+1280] = out2_mean[0].cpu()
 
     # Crop out padding
     final_out = output[:, :h*16, :w*16]
@@ -99,40 +90,23 @@ def tiled_inference(image: torch.Tensor, stage1, stage2, tile_size=80, device='c
     # The IIT Patna team used an additional 2x bicubic upscale for a total 32x.
     # We apply this explicitly here to match the combined 32x pipeline precisely.
     final_out = final_out.unsqueeze(0) # (1, 1, H, W)
-    if final_scale != 1.0:
-        final_out = F.interpolate(final_out, scale_factor=final_scale, mode='bicubic', align_corners=False)
+    final_out = F.interpolate(final_out, scale_factor=2.0, mode='bicubic', align_corners=False)
     
     return final_out.squeeze(0) # (1, final_H, final_W)
 
 
-def infer_geotiff(checkpoint_dir: Path, input_path: Path, output_path: Path, device=None) -> None:
+def infer_geotiff(checkpoint_dir: Path, input_path: Path, output_path: Path, device="cpu") -> None:
     import rasterio
-
-    device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
     
     stage1, stage2 = load_csasr_stages(checkpoint_dir)
     stage1.to(device)
     stage2.to(device)
     
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=NotGeoreferencedWarning)
-        src = rasterio.open(input_path)
-    with src:
+    with rasterio.open(input_path) as src:
         array = src.read(1)
         profile = src.profile.copy()
         transform = src.transform
         nodata = src.nodata
-
-        if transform.is_identity:
-            transform = from_origin(0, array.shape[0], 1, 1)
-            profile["transform"] = transform
-
-        output_pixels = array.shape[0] * array.shape[1] * 32 * 32
-        if output_pixels > MAX_OUTPUT_PIXELS:
-            raise InferenceResourceError(
-                f"Input is too large for 32x inference ({array.shape[1]}x{array.shape[0]} pixels). "
-                "Use a smaller crop or upload a lower-resolution image."
-            )
 
         # Fill nan with 0 for preprocessing safely
         array_filled = np.nan_to_num(array, nan=0.0)
@@ -142,7 +116,9 @@ def infer_geotiff(checkpoint_dir: Path, input_path: Path, output_path: Path, dev
         
         tensor = torch.from_numpy(norm_array)
         
-        result_tensor = tiled_inference(tensor, stage1, stage2, tile_size=80, device=device, final_scale=1.0)
+        result_tensor = tiled_inference(tensor, stage1, stage2, tile_size=80, device=device)
+        
+        result = result_tensor[0].numpy()
         
         # The scale factor is exactly 32.
         scale_factor = 32
@@ -153,21 +129,13 @@ def infer_geotiff(checkpoint_dir: Path, input_path: Path, output_path: Path, dev
             del profile["compress"]
         profile.update(
             driver="GTiff",
-            height=result_tensor.shape[1] * 2,
-            width=result_tensor.shape[2] * 2,
-            transform=transform @ transform.scale(1/scale_factor, 1/scale_factor),
+            height=result.shape[0],
+            width=result.shape[1],
+            transform=transform * transform.scale(1/scale_factor, 1/scale_factor),
             count=1,
             dtype="float32"
         )
         with rasterio.open(output_path, "w", **profile) as dst:
-            for row_start in range(0, result_tensor.shape[1], 256):
-                row_end = min(row_start + 256, result_tensor.shape[1])
-                chunk = F.interpolate(
-                    result_tensor[:, row_start:row_end].unsqueeze(0),
-                    scale_factor=2.0,
-                    mode='bicubic',
-                    align_corners=False,
-                )[0, 0].numpy().astype("float32")
-                dst.write(chunk, 1, window=((row_start * 2, row_end * 2), (0, result_tensor.shape[2] * 2)))
+            dst.write(result.astype("float32"), 1)
             if nodata is not None:
                 dst.nodata = nodata

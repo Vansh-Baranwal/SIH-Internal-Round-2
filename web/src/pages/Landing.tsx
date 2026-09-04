@@ -92,7 +92,7 @@ export function Landing() {
           </h1>
           
           <motion.p className="text-lg lg:text-xl text-zinc-400 leading-relaxed mb-12 max-w-2xl font-medium overflow-hidden">
-            {"A multimodal image-correspondence platform for registering Chandrayaan-2 OHRC, TMC, and IIRS observations against lunar reference imagery.".split(" ").map((word, index) => (
+            {"A geospatial intelligence platform for converting Chandrayaan-2 lunar observations into high-fidelity terrain hazard maps, landing-site assessments, and interactive descent trajectory physics.".split(" ").map((word, index) => (
               <motion.span key={index} variants={wordVariant} className="inline-block mr-1.5">{word}</motion.span>
             ))}
           </motion.p>
@@ -125,7 +125,7 @@ export function Landing() {
           className="relative max-w-[1400px] mx-auto p-10 lg:p-16 rounded-[2rem] bg-white/[0.015] backdrop-blur-2xl border border-white/10 shadow-2xl mb-16"
         >
           <div className="flex flex-col items-center mb-16 text-center">
-            <p className="text-zinc-500 font-bold tracking-widest text-[10px] uppercase mb-4">SIH26166 · ISRO · Software</p>
+            <p className="text-zinc-500 font-bold tracking-widest text-[10px] uppercase mb-4">The Challenge</p>
             <h2 className="text-5xl lg:text-[4rem] font-semibold text-white tracking-tighter mb-4 leading-tight">Mission Overview</h2>
           </div>
           
@@ -133,15 +133,11 @@ export function Landing() {
             <div>
               <h3 className="text-lg font-medium text-white mb-6 tracking-tight">Problem Statement</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight mb-4">
-                Image registration aligns a moving source image with a fixed reference image of the same lunar scene. For SIH26166, the challenge is to find reliable correspondences between Chandrayaan-2 optical images and lunar reference imagery across different sensors and imaging conditions.
+                Safe autonomous lunar landings require detailed prior knowledge of the target terrain. Existing optical imagery often lacks the resolution required to identify sub-meter hazards (boulders, craters) and steep local slopes.
               </p>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                The difficult variations are illumination from changing Sun azimuth and elevation, viewpoint-induced geometric distortion, and the scale differences created by different spacecraft altitudes and spatial resolutions. The registration output must preserve sub-pixel accuracy and a uniform spatial distribution of matches.
+                Without physical elevation data and mathematically rigorous hazard mapping, mission planners cannot accurately predict the Delta-V required to reach a safe touchdown zone.
               </p>
-              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[10px] font-bold tracking-widest uppercase">
-                <a href="https://www.sih.gov.in/sih2026PS" target="_blank" rel="noreferrer" className="text-sky-400 hover:text-sky-300 transition-colors">Official SIH record</a>
-                <a href="https://www.isro.gov.in/Chandrayaan_2.html" target="_blank" rel="noreferrer" className="text-sky-400 hover:text-sky-300 transition-colors">ISRO Chandrayaan-2</a>
-              </div>
             </div>
 
             <div>
@@ -149,23 +145,23 @@ export function Landing() {
               <ul className="space-y-4 text-sm text-zinc-500 tracking-tight">
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">01</span> 
-                  <span>Align moving and fixed lunar images in a common coordinate system.</span>
+                  <span>Enhance optical imagery resolution using deep learning (CSASR).</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">02</span> 
-                  <span>Handle Sun-angle, viewpoint, and scale variation across sensors.</span>
+                  <span>Integrate physical DEMs to derive true elevation.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">03</span> 
-                  <span>Produce sub-pixel source-image registration with uniform match coverage.</span>
+                  <span>Map hazards including slopes, craters, and roughness.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">04</span> 
-                  <span>Return the registered product together with corresponding match points.</span>
+                  <span>Evaluate sites dynamically against strict lander physics.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">05</span> 
-                  <span>Report measurable quality metrics including RMSE and inlier statistics.</span>
+                  <span>Validate descent reachability and Delta-V costs.</span>
                 </li>
               </ul>
             </div>
@@ -257,7 +253,7 @@ export function Landing() {
             <div>
               <h3 className="text-lg font-medium text-white mb-4 tracking-tight">Data Sources</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                SIH26166 names the Chandrayaan-2 <b>OHRC</b>, <b>TMC</b>, and <b>IIRS</b> optical payloads, along with lunar reference imagery. The active cockpit implements the correspondence and registration part of that challenge. Hazard, landing-site, and trajectory outputs require separate downstream processing; registration metrics alone are not a final flight recommendation.
+                The correspondence engine accepts real local image files, including <b>TMC</b>, <b>OHRC</b>, and other supported sensor imagery. Hazard, landing-site, and trajectory outputs require their own downstream processing; registration metrics alone are not a final flight recommendation.
               </p>
             </div>
           </div>

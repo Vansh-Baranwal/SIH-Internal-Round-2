@@ -1,11 +1,7 @@
 import time
 import rasterio
-import warnings
-from rasterio.errors import NotGeoreferencedWarning
-from rasterio.transform import from_origin
 from pathlib import Path
 import numpy as np
-from rasterio.enums import Resampling
 
 from lunar_hazard_mapper.m2_super_resolution.inference import load_csasr_stages, infer_geotiff
 from lunar_hazard_mapper.m3_terrain.dem import generate_dem
@@ -158,20 +154,13 @@ def run_dual_pipeline(scene_id: str = "01_01", subset_window=((0, 100), (0, 100)
     # M1 & M2: SUPER RESOLUTION (OPTICAL PATH)
     # ---------------------------------------------------------
     t0 = time.time()
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=NotGeoreferencedWarning)
-        optical_src = rasterio.open(optical_path)
-    with optical_src as src:
+    with rasterio.open(optical_path) as src:
         # CROP a beautifully crisp high-resolution rectangle directly from the center
         # DO NOT downsample. Downsampling destroys the image quality!
         center_row = src.height // 2
         center_col = src.width // 2
-        # Keep the 32x output within laptop memory limits.
-        crop_height = min(300, src.height)
-        crop_width = min(300, src.width)
-        row_start = max(0, center_row - crop_height // 2)
-        col_start = max(0, center_col - crop_width // 2)
-        subset_window = ((row_start, row_start + crop_height), (col_start, col_start + crop_width))
+        # Crop a 1200x400 window
+        subset_window = ((center_row - 600, center_row + 600), (center_col - 200, center_col + 200))
         optical_array = src.read(1, window=subset_window)
         opt_profile = src.profile.copy()
 
@@ -189,8 +178,6 @@ def run_dual_pipeline(scene_id: str = "01_01", subset_window=((0, 100), (0, 100)
     sr_path.parent.mkdir(parents=True, exist_ok=True)
 
     opt_profile.update(width=optical_array.shape[1], height=optical_array.shape[0])
-    if opt_profile.get("transform") is None or opt_profile["transform"].is_identity:
-        opt_profile["transform"] = from_origin(0, optical_array.shape[0], 1, 1)
     with rasterio.open(crop_path, "w", **opt_profile) as dst:
         dst.write(optical_array, 1)
 
@@ -252,19 +239,8 @@ def run_dual_pipeline(scene_id: str = "01_01", subset_window=((0, 100), (0, 100)
     else:
         print("WARNING: No DEM found. Falling back to optical estimation.")
         with rasterio.open(sr_path) as sr_src:
-            max_terrain_size = 512
-            scale = min(1.0, max_terrain_size / max(sr_src.height, sr_src.width))
-            terrain_height = max(1, round(sr_src.height * scale))
-            terrain_width = max(1, round(sr_src.width * scale))
-            dem_array = sr_src.read(
-                1,
-                out_shape=(terrain_height, terrain_width),
-                resampling=Resampling.bilinear,
-            ).astype(np.float32)
-            src_transform = sr_src.transform @ sr_src.transform.scale(
-                sr_src.width / terrain_width,
-                sr_src.height / terrain_height,
-            )
+            dem_array = sr_src.read(1).astype(np.float32)
+            src_transform = sr_src.transform
         dem_res = 1.0
         dem_crs = "EPSG:32610"
         dem_profile = {"driver": "GTiff", "dtype": "float32", "nodata": None, "width": dem_array.shape[1], "height": dem_array.shape[0], "count": 1, "crs": dem_crs, "transform": src_transform}
