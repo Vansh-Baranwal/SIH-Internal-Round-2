@@ -1,5 +1,7 @@
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useMission } from '../context/MissionContext';
+import { ApiError, fetchMissionData } from '../api/client';
+import { adaptM6TrajectoryForDigitalTwin, isM6Trajectory, type DigitalTwinTrajectory, type DigitalTwinTrajectoryPoint } from '../spatial/m6Trajectory';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Terrain, type TerrainViewState } from '../components/Terrain';
@@ -63,7 +65,8 @@ export function Simulation() {
   const { result } = useMission();
   
   const [target, setTarget] = useState<{x: number, y: number, z: number} | null>(null);
-  const [trajectory, setTrajectory] = useState<any>(null);
+  const [trajectory, setTrajectory] = useState<DigitalTwinTrajectory | { source: 'legacy-simulation'; points: DigitalTwinTrajectoryPoint[] } | null>(null);
+  const [m6State, setM6State] = useState<'loading' | 'ready' | 'unavailable' | 'invalid'>('loading');
   const [animationTime, setAnimationTime] = useState(0);
   const [status, setStatus] = useState('STANDBY');
   const [isCrashing, setIsCrashing] = useState(false);
@@ -89,6 +92,26 @@ export function Simulation() {
         setStatus('AWAITING TARGET');
     }
   }, [result]);
+
+  useEffect(() => {
+    let active = true;
+    fetchMissionData()
+      .then((mission) => {
+        if (!active) return;
+        if (!isM6Trajectory(mission.trajectory_primary)) {
+          setM6State('invalid');
+          return;
+        }
+        setTrajectory(adaptM6TrajectoryForDigitalTwin(mission.trajectory_primary));
+        setM6State('ready');
+        setAnimationTime(0);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setM6State(error instanceof ApiError && error.kind === 'response' ? 'invalid' : 'unavailable');
+      });
+    return () => { active = false; };
+  }, []);
 
   const initiateDescent = useCallback((x: number, altitude: number, z: number, isSafe: boolean) => {
     setTarget({x, y: altitude, z});
@@ -172,11 +195,12 @@ export function Simulation() {
             y: currentY, 
             z: currentAltitude, 
             vx, vy, vz,
+            attitude: null,
             pitch, yaw, roll
         });
     }
     
-    setTrajectory({ points });
+    setTrajectory({ source: 'legacy-simulation', points });
     setAnimationTime(0);
   }, []);
 
@@ -196,18 +220,19 @@ export function Simulation() {
   }, []);
 
   const TimeUpdater = () => {
-    useFrame((state, delta) => {
+    useFrame((_state, delta) => {
         if (status.includes('DESCENDING') || status.includes('CRASH IMMINENT')) {
             setAnimationTime(prev => {
                 const speed = 1.5; 
                 const next = prev + delta * speed; 
-                if (next > 10) {
+                const duration = trajectory?.points.at(-1)?.t ?? 10;
+                if (next > duration) {
                     if (isCrashing) {
                         setStatus('CATASTROPHIC FAILURE (CRASH)');
                     } else {
                         setStatus('TOUCHDOWN - NOMINAL');
                     }
-                    return 10;
+                    return duration;
                 }
                 return next;
             });
@@ -259,6 +284,7 @@ export function Simulation() {
       </div>
 
       <div className="absolute top-28 left-4 z-10 max-w-sm border border-amber-400/60 bg-black/80 px-3 py-2 font-mono text-xs text-amber-200">
+        <div className="border-b border-amber-500/30 pb-2">M6 TRAJECTORY: {m6State === 'ready' ? 'LOADED' : m6State === 'loading' ? 'LOADING' : 'UNAVAILABLE'}</div>
         <div>{terrainViewState.label ?? 'DEM TERRAIN'}</div>
         <div className="mt-1 text-slate-300">{terrainViewState.kind === 'ready'
           ? 'DEM-derived geometry · local East/North/Up · metres'

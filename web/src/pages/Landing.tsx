@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, Crosshair, Map, Activity, Mountain } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -26,7 +26,7 @@ export function Landing() {
       y: 0,
       transition: {
         duration: 1.2,
-        ease: "easeOut",
+        ease: "easeOut" as const,
       }
     },
   };
@@ -38,7 +38,7 @@ export function Landing() {
       y: 0,
       transition: {
         duration: 1.0,
-        ease: "easeOut",
+        ease: "easeOut" as const,
       }
     },
   };

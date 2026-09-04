@@ -1,14 +1,16 @@
 import type { MissionData } from '../types/api';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export class ApiError extends Error {
   status?: number;
+  kind: 'http' | 'network' | 'response';
 
-  constructor(message: string, status?: number) {
+  constructor(message: string, status?: number, kind: 'http' | 'network' | 'response' = 'http') {
     super(message);
     this.name = 'ApiError';
     this.status = status;
+    this.kind = kind;
   }
 }
 
@@ -25,11 +27,11 @@ async function fetchJson<T>(url: string, label: string): Promise<T> {
     }
 
     const payload = await response.json().catch(() => {
-      throw new ApiError(`${label} returned invalid JSON.`);
+      throw new ApiError(`${label} returned invalid JSON.`, response.status, 'response');
     });
 
     if (!isRecord(payload)) {
-      throw new ApiError(`${label} returned a malformed response.`);
+      throw new ApiError(`${label} returned a malformed response.`, response.status, 'response');
     }
 
     return payload as T;
@@ -39,7 +41,42 @@ async function fetchJson<T>(url: string, label: string): Promise<T> {
     }
 
     if (error instanceof TypeError) {
-      throw new ApiError(`${label} failed because the request could not be completed.`);
+      throw new ApiError(`${label} failed because the request could not be completed.`, undefined, 'network');
+    }
+
+    throw new ApiError(`${label} request could not be processed.`);
+  }
+}
+
+export async function postJson<T>(url: string, label: string, body: unknown): Promise<T> {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const detail = response.statusText ? ` (${response.statusText})` : '';
+      throw new ApiError(`${label} request failed (${response.status}${detail})`, response.status);
+    }
+
+    const payload = await response.json().catch(() => {
+      throw new ApiError(`${label} returned invalid JSON.`, response.status, 'response');
+    });
+
+    if (!isRecord(payload)) {
+      throw new ApiError(`${label} returned a malformed response.`, response.status, 'response');
+    }
+
+    return payload as T;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    if (error instanceof TypeError) {
+      throw new ApiError(`${label} failed because the request could not be completed.`, undefined, 'network');
     }
 
     throw new ApiError(`${label} request could not be processed.`);

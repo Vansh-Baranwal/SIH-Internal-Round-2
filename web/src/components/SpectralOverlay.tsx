@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import * as THREE from 'three';
-import { fetchSpectralOverlay, type SpectralOverlayPayload, type SpectralRegionPayload, type SpectralBandPayload } from '../api/client';
+import { fetchSpectralOverlay, type SpectralOverlayPayload, type SpectralRegionPayload } from '../api/client';
 import { toThreeVector } from '../spatial/coordinates';
 
 export interface SpectralViewState {

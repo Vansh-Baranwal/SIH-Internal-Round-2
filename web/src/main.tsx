@@ -38,6 +38,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="spectral" element={<SpectralIntelligence />} />
             <Route path="water-ice" element={<WaterIceIntelligence />} />
             <Route path="temporal" element={<TemporalChange />} />
+            <Route path="digital-twin" element={<Simulation />} />
           </Route>
         </Routes>
       </BrowserRouter>

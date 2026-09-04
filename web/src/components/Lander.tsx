@@ -2,19 +2,13 @@ import { useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { getAssetUrl } from '../api/client';
+import { m6PointToDigitalTwinPosition, type DigitalTwinTrajectory, type DigitalTwinTrajectoryPoint } from '../spatial/m6Trajectory';
 import * as THREE from 'three';
 
-// Updated interface to include velocities and attitude
-interface ExtendedTrajectoryPoint {
-  t: number; x: number; y: number; z: number;
-  vx: number; vy: number; vz: number;
-  pitch?: number; yaw?: number; roll?: number;
-}
-
 interface LanderProps {
-  trajectory: { points: ExtendedTrajectoryPoint[] } | null;
+  trajectory: (DigitalTwinTrajectory | { source: 'legacy-simulation'; points: DigitalTwinTrajectoryPoint[] }) | null;
   animationTime: number; 
-  onUpdateTelemetry: (point: ExtendedTrajectoryPoint) => void;
+  onUpdateTelemetry: (point: DigitalTwinTrajectoryPoint) => void;
 }
 
 export function Lander({ trajectory, animationTime, onUpdateTelemetry }: LanderProps) {
@@ -51,9 +45,10 @@ export function Lander({ trajectory, animationTime, onUpdateTelemetry }: LanderP
     const y = currentPoint.y + (nextPoint.y - currentPoint.y) * progress;
     const z = currentPoint.z + (nextPoint.z - currentPoint.z) * progress;
     
-    // M6: X East, Y North, Z Up
-    // ThreeJS: X Right, Y Up, Z Forward
-    groupRef.current.position.set(x, z, -y);
+    const viewerPosition = trajectory.source === 'm6'
+      ? m6PointToDigitalTwinPosition({ ...currentPoint, attitude: null })
+      : [x, z, -y] as [number, number, number];
+    groupRef.current.position.set(...viewerPosition);
 
     // Apply attitude (rotation)
     const curPitch = currentPoint.pitch || 0;
@@ -78,6 +73,7 @@ export function Lander({ trajectory, animationTime, onUpdateTelemetry }: LanderP
       t: animationTime,
       x, y, z,
       vx, vy, vz,
+      attitude: null,
       pitch, yaw, roll
     });
   });

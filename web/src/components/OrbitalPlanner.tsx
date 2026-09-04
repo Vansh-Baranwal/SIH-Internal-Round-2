@@ -194,11 +194,11 @@ const handleXChange = (e: any) => setVx(parseFloat(e.target.value));
             </g>
 
             {/* Data Labels */}
-            <LabelBox x="20" y="140" title="Lunar Orbit 1" width={95} />
-            <LabelBox x="120" y="320" title="Lunar Orbit 2" width={95} />
-            <LabelBox x="290" y="470" title="Lunar Orbit 3" width={95} />
+            <LabelBox x={20} y={140} title="Lunar Orbit 1" width={95} />
+            <LabelBox x={120} y={320} title="Lunar Orbit 2" width={95} />
+            <LabelBox x={290} y={470} title="Lunar Orbit 3" width={95} />
             
-            <LabelBox x="460" y="220" title="Landing Phase" sub="Target Active" width={110} />
+            <LabelBox x={460} y={220} title="Landing Phase" sub="Target Active" width={110} />
           </svg>
         </div>
 

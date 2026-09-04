@@ -7,10 +7,9 @@
 
 import {
   DataProvenance,
-  M4DataProvenanceRegistry,
   getProvenanceRegistry,
   validateDataStatus,
-} from '../src/types/provenance';
+} from './provenance';
 
 /**
  * Compile-time check: ensures all provenance types are correctly defined
@@ -24,6 +23,9 @@ function typeCheckProvenance(): void {
     const isSynthetic: boolean = registry.isSynthetic('terrain_dem');
     const isReal: boolean = registry.isReal('terrain_dem');
     const isAvailable: boolean = registry.isAvailable('terrain_dem');
+    void isSynthetic;
+    void isReal;
+    void isAvailable;
   }
 
   // Check collection methods
@@ -31,12 +33,15 @@ function typeCheckProvenance(): void {
   const realAll = registry.getAllReal();
   const unavailableAll = registry.getAllUnavailable();
   const deferredAll = registry.getAllDeferred();
+  void [syntheticAll, realAll, unavailableAll, deferredAll];
 
   // Check UI label generation
   const label = registry.getUiLabel(DataProvenance.SYNTHETIC);
+  void label;
 
   // Check audit report
   const report = registry.auditReport();
+  void report;
 }
 
 /**

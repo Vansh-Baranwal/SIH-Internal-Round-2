@@ -47,6 +47,8 @@ from lunar_hazard_mapper.m4_terrain import (
     SyntheticWaterIceProvider,
     TerrainFoundation,
 )
+from lunar_hazard_mapper.api.phase11_router import router as phase11_router
+from lunar_hazard_mapper.api.phase10_router import router as phase10_router
 
 def read_json_file(filename: str) -> dict:
     filepath = MISSION_DIR / filename
@@ -363,3 +365,7 @@ def get_moon_surface():
     if not glb_path.exists():
         raise HTTPException(status_code=404, detail="GLB model not found")
     return FileResponse(str(glb_path))
+
+
+app.include_router(phase11_router)
+app.include_router(phase10_router)

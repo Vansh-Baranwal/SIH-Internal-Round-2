@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from lunar_hazard_mapper.m4_terrain import (  # noqa: E402

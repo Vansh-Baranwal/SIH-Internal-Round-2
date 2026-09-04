@@ -4,7 +4,6 @@ import {
   ArrowRight,
   Server,
   Database,
-  AlertTriangle,
   CheckCircle2,
   type LucideIcon,
 } from 'lucide-react';

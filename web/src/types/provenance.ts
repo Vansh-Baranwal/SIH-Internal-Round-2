@@ -5,14 +5,16 @@
  * Ensures consistent classification and auditable separation of synthetic vs real data.
  */
 
-export enum DataProvenance {
-  REAL = 'real',
-  SYNTHETIC = 'synthetic',
-  ESTIMATED = 'estimated',
-  ILLUSTRATIVE = 'illustrative',
-  DEFERRED = 'deferred',
-  UNAVAILABLE = 'unavailable',
-}
+export const DataProvenance = {
+  REAL: 'real',
+  SYNTHETIC: 'synthetic',
+  ESTIMATED: 'estimated',
+  ILLUSTRATIVE: 'illustrative',
+  DEFERRED: 'deferred',
+  UNAVAILABLE: 'unavailable',
+} as const;
+
+export type DataProvenance = (typeof DataProvenance)[keyof typeof DataProvenance];
 
 export interface ProvenanceMetadata {
   classification: DataProvenance;
@@ -190,8 +192,9 @@ export class M4DataProvenanceRegistry {
   isAvailable(key: string): boolean {
     const meta = this.get(key);
     return (
-      meta &&
-      ![DataProvenance.UNAVAILABLE, DataProvenance.DEFERRED].includes(meta.classification)
+      meta !== undefined &&
+      meta.classification !== DataProvenance.UNAVAILABLE &&
+      meta.classification !== DataProvenance.DEFERRED
     );
   }
 
