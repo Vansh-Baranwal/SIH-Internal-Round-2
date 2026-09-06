@@ -1,17 +1,4 @@
-"""Real (pixel-level) overlap verification owned by Member 1 (M1).
-
-catalogue.py's find_overlapping_hr_tiles() and coordinates.py's
-real_intersection_fraction() both operate on *claimed* footprints (a bounding
-box, or a polygon built from label corner coordinates). Neither actually looks
-at the pixels. A tile's real data can still be a smaller, oddly-shaped, or
-rotated region inside that claimed footprint (common with orbit gaps,
-nodata borders, and pushbroom swaths) -- two footprints can overlap on paper
-while their *real* image content does not overlap at all.
-
-This module is the final gate before a pair is trusted: it reads a small
-window at the claimed intersection region from both sources and checks that
-each side actually has non-nodata pixel data there.
-"""
+"""Real (pixel-level) overlap verification owned by Member 1 (M1)."""
 
 from __future__ import annotations
 
@@ -31,14 +18,13 @@ from .coordinates import real_intersection_fraction
 
 def transform_from_corners(corners: list[tuple[float, float]], width: int, height: int):
     """
-    Builds a real pixel<->lonlat affine transform for products (like OHRC)
-    that open with an identity transform (no map projection baked into the
-    file itself) but DO have known real corner coordinates from their PDS4
-    label.
+    Builds a real pixel<->lonlat affine transform for products (like OHRC
+    and IIRS) that open with an identity transform (no map projection baked
+    into the file itself) but DO have known real corner coordinates from
+    their PDS4 label.
 
     corners must be in (upper_left, upper_right, lower_right, lower_left)
-    order -- the same perimeter-walk order parse_iirs_corners() returns,
-    confirmed shared by both IIRS and OHRC labels.
+    order -- the same perimeter-walk order parse_iirs_corners() returns.
     """
     pixel_corners = [(0, 0), (width - 1, 0), (width - 1, height - 1), (0, height - 1)]
     gcps = [
@@ -46,6 +32,49 @@ def transform_from_corners(corners: list[tuple[float, float]], width: int, heigh
         for (lon, lat), (col, row) in zip(corners, pixel_corners)
     ]
     return from_gcps(gcps)
+
+
+def _window_from_bounds_general(transform, west, south, east, north, raster_width, raster_height):
+    """
+    Replacement for rasterio.windows.from_bounds() for use with a rotated/
+    corner-derived transform (see transform_from_corners above).
+
+    from_bounds() assumes the transform is close to axis-aligned (near-zero
+    rotation) -- it inverts just two opposite corners (west,north) and
+    (east,south) and treats the result as an axis-aligned pixel window.
+    For a transform with real rotation -- confirmed present in IIRS's
+    ~900km pole-to-equator swath (the footprint's longitude span visibly
+    shifts between the swath's north and south ends -- it is NOT an
+    axis-aligned rectangle in lon/lat), unlike OHRC's much shorter ~22km
+    swath, which is close enough to axis-aligned that from_bounds() worked
+    fine there -- that assumption is wrong and can compute a window that
+    lands partly or entirely outside the real raster, even though the
+    requested lon/lat region genuinely does overlap real data. This was
+    confirmed: IIRS's real polygon overlap with TMC was 0.987 (genuine),
+    but the naive from_bounds() window still reported "falls outside file
+    extent".
+
+    Fix: invert ALL FOUR corners of the requested region individually, then
+    take the min/max row/col across all four -- this correctly bounds a
+    rotated region with an axis-aligned pixel window regardless of how much
+    rotation is present in the transform.
+    """
+    inv = ~transform
+    corners_world = [(west, north), (east, north), (east, south), (west, south)]
+    cols, rows = [], []
+    for x, y in corners_world:
+        col, row = inv * (x, y)
+        cols.append(col)
+        rows.append(row)
+
+    col_min, col_max = max(0, min(cols)), min(raster_width, max(cols))
+    row_min, row_max = max(0, min(rows)), min(raster_height, max(rows))
+
+    width = col_max - col_min
+    height = row_max - row_min
+    if width <= 0 or height <= 0:
+        return None
+    return rasterio.windows.Window(col_min, row_min, width, height)
 
 
 def _bounds_tuple(bounds: dict[str, float]) -> tuple[float, float, float, float]:
@@ -62,18 +91,12 @@ def check_real_data_at_region(
 ) -> dict[str, Any]:
     """Check whether a raster has real (non-nodata) pixel data inside a target region.
 
-    ``region_bounds``/``region_crs`` describe the claimed overlap region, which
-    may be in a different CRS than the file being checked -- it is reprojected
-    onto the file's own CRS before windowing.
-
     ``transform_override``: for products that open with an identity transform
-    (no real georeferencing in the file itself, e.g. OHRC via the PDS4 XML
-    driver) but DO have a real pixel<->lonlat mapping derivable from known
-    corner coordinates (see transform_from_corners above), pass that here.
-    Without it, region_bounds (real lon/lat, e.g. ~25.1, -13.0) would be
-    misinterpreted as raw pixel coordinates against the identity transform --
-    landing the window near pixel (25, 13) in a 12000x90148 image instead of
-    the real data region.
+    but DO have a real pixel<->lonlat mapping derivable from known corner
+    coordinates (OHRC, IIRS), pass that here. When set, windowing uses
+    ``_window_from_bounds_general`` (rotation-safe) instead of the standard
+    ``from_bounds`` (which assumes near-zero rotation and is only safe for a
+    dataset's own native, typically near-axis-aligned transform).
     """
     file_path = Path(file_path)
     try:
@@ -83,21 +106,27 @@ def check_real_data_at_region(
                 west, south, east, north = transform_bounds(region_crs, dataset.crs, *region_bounds)
             else:
                 west, south, east, north = region_bounds
-            try:
-                window = from_bounds(west, south, east, north, transform=effective_transform)
-            except WindowError:
-                return {"has_real_data": False, "valid_fraction": 0.0, "reason": "region falls outside file extent"}
-            # window.intersection() raises WindowError (not an empty window)
-            # when there's zero overlap with the raster extent -- this
-            # crashed the whole check for query regions entirely outside a
-            # file, instead of correctly reporting "no data here".
-            try:
-                window = window.intersection(rasterio.windows.Window(0, 0, dataset.width, dataset.height))
-            except WindowError:
-                return {"has_real_data": False, "valid_fraction": 0.0,
-                         "reason": "region does not overlap this file's raster extent at all"}
-            if window.width <= 0 or window.height <= 0:
-                return {"has_real_data": False, "valid_fraction": 0.0, "reason": "zero-size window after clipping to raster extent"}
+
+            if transform_override is not None:
+                window = _window_from_bounds_general(
+                    effective_transform, west, south, east, north, dataset.width, dataset.height
+                )
+                if window is None:
+                    return {"has_real_data": False, "valid_fraction": 0.0,
+                             "reason": "region does not overlap this file's raster extent at all (rotation-safe check)"}
+            else:
+                try:
+                    window = from_bounds(west, south, east, north, transform=effective_transform)
+                except WindowError:
+                    return {"has_real_data": False, "valid_fraction": 0.0, "reason": "region falls outside file extent"}
+                try:
+                    window = window.intersection(rasterio.windows.Window(0, 0, dataset.width, dataset.height))
+                except WindowError:
+                    return {"has_real_data": False, "valid_fraction": 0.0,
+                             "reason": "region does not overlap this file's raster extent at all"}
+                if window.width <= 0 or window.height <= 0:
+                    return {"has_real_data": False, "valid_fraction": 0.0, "reason": "zero-size window after clipping to raster extent"}
+
             mask = dataset.read_masks(1, window=window)
             valid_fraction = float((mask != 0).mean()) if mask.size else 0.0
             return {
@@ -111,9 +140,8 @@ def check_real_data_at_region(
 
 def _transform_for(record: dict[str, Any]):
     """Build a corner-derived transform override for records that need one
-    (corners known, but no real georeferencing in the file -- currently
-    OHRC). Returns None for records that should just use their own
-    dataset.transform (TMC, anything with a real CRS)."""
+    (corners known, but no real georeferencing in the file -- OHRC, IIRS).
+    Returns None for records that should use their own dataset.transform."""
     if record.get("corners") and record.get("width") and record.get("height"):
         return transform_from_corners(record["corners"], record["width"], record["height"])
     return None
@@ -126,26 +154,7 @@ def verify_real_overlap(
     min_polygon_overlap_fraction: float = 0.05,
     min_valid_pixel_fraction: float = 0.5,
 ) -> dict[str, Any]:
-    """Verify that two records genuinely overlap in real pixel data, not just claimed footprint.
-
-    Two-stage check:
-      1. Real polygon intersection (handles rotated IIRS/OHRC swaths
-         correctly, unlike a bounding-box check) must clear
-         ``min_polygon_overlap_fraction``.
-      2. Both sides must have actual non-nodata pixel data inside that
-         intersection region -- this is the check a bbox/polygon test alone
-         cannot make, since a nodata border or orbit gap can sit inside an
-         otherwise-overlapping footprint.
-    """
-    # real_intersection_fraction's default relative_to="a" hardcodes which
-    # footprint is the denominator. For this project's actual use case (a
-    # small OHRC/IIRS tile fully contained within a much larger TMC tile),
-    # the fraction relative to the LARGE tile is always tiny (e.g. 0.01 for
-    # a 1deg box fully inside a 10deg box) even when the small tile's
-    # footprint is 100% covered -- this would systematically reject
-    # genuinely good pairs, not just bad ones. The correct denominator for
-    # "does this pair actually share useful ground" is the SMALLER
-    # footprint's area, i.e. "what fraction of the smaller tile is covered".
+    """Verify that two records genuinely overlap in real pixel data, not just claimed footprint."""
     area_a = _footprint_area(record_a)
     area_b = _footprint_area(record_b)
     relative_to = "a" if area_a <= area_b else "b"
@@ -193,10 +202,5 @@ def _corners_bounds(record: dict[str, Any]) -> dict[str, float]:
 
 
 def _footprint_area(record: dict[str, Any]) -> float:
-    """Rough planar bounding-box area, used only to decide which footprint
-    is smaller for real_intersection_fraction's denominator -- does not need
-    to be precise (a full polygon area would double-compute what
-    real_intersection_fraction already does internally), just needs to
-    correctly rank TMC (large) vs OHRC/IIRS (small) tiles by size."""
     bounds = record.get("bounds") or _corners_bounds(record)
     return (bounds["east"] - bounds["west"]) * (bounds["north"] - bounds["south"])

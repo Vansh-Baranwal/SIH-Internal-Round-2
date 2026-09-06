@@ -24,7 +24,21 @@ DATASETS = {
     "ORTHONAC0.5-1": "hr_source",
     "NAC": "nac_source",
     "TMCDTM": "dem_source",
+    "IIRSRAW-1": "iirs_source",
 }
+
+# Products whose raw file isn't independently readable (or isn't
+# georeferenced) on its own -- glob for the sibling PDS4 .xml / .qub instead
+# of the raw .img, and attach a corner-derived footprint afterward.
+FILE_PATTERNS = {
+    "ORTHONAC0.5-1": "*_d_img_*.xml",  # OHRC's raw .img isn't GDAL-readable alone; its .xml opens via the PDS4 driver
+    "IIRSRAW-1": "*.qub",              # IIRS's ENVI cube IS directly readable, but carries no map-info -- footprint still needs corner-parsing
+}
+
+# Which labels need a corner-derived real-world footprint attached after
+# inspect_directory() returns (both currently open with crs=None / an
+# identity transform and no usable dataset.bounds).
+NEEDS_CORNER_FOOTPRINT = {"ORTHONAC0.5-1", "IIRSRAW-1"}
 
 
 def load_paths() -> dict[str, Any]:
@@ -36,49 +50,44 @@ def load_paths() -> dict[str, Any]:
     return config
 
 
-def _attach_ohrc_real_footprint(records: list[dict[str, Any]]) -> None:
+def _attach_real_footprint_from_corners(records: list[dict[str, Any]]) -> None:
     """
-    OHRC's raw .img is opened via its .xml label through GDAL's PDS4 driver
-    (see FILE_PATTERNS below -- '*_d_img_*.xml', not '*.img', since the
-    .img alone isn't a GDAL-readable format on its own).
+    Replaces a meaningless pixel-space `bounds` (raw pixel-index numbers,
+    since the file itself carries no map projection) with a real lat/lon
+    `corners` footprint parsed from the product's PDS4 label.
 
-    That PDS4-driver open gives real PIXEL DATA but crs=None and an identity
-    transform -- rasterio has no map-projection info for this product, so
-    dataset.bounds comes back as raw pixel-index numbers (e.g. east=12000,
-    the image WIDTH in pixels), not degrees. Comparing that against TMC's
-    real lon/lat bounds in catalogue.py's overlap math can never match --
-    not because the data doesn't overlap, but because one side is pixels
-    and the other is degrees.
+    Works for BOTH OHRC and IIRS: OHRC's inspected file_path IS the .xml
+    (see FILE_PATTERNS above), IIRS's inspected file_path is the .qub with
+    a sibling .xml -- this handles both by checking the actual suffix
+    rather than assuming which one it is.
 
-    Fix: replace the meaningless pixel-space bounds with OHRC's REAL lat/lon
-    footprint, parsed from the same .xml label's ISDA Geometry_Parameters
-    corners (already proven to work in check_ohrc.py -- OHRC shares IIRS's
-    corner-tag schema). catalogue.py/overlap.py already know how to consume
-    record["corners"] (see overlap.py's _footprint_area/_corners_bounds and
-    coordinates.py's _footprint_polygon) -- so once corners is populated
-    correctly here, the existing verified-overlap machinery picks it up
-    without any further changes downstream.
-
-    Also fixes the file-size figure: summarise() was reporting the tiny
-    .xml label's size (~0.01 MB) since that's the file path GDAL opened,
-    not the real ~1GB .img pixel data behind it -- misleading for anything
-    that reads the manifest later (e.g. the final summary doc).
+    Sets `has_derived_footprint = True` rather than falsely claiming
+    `has_valid_crs`/`has_valid_transform` -- there IS no real embedded
+    geodetic CRS here, we've derived usable geometry from label corners
+    instead. catalogue.py's inclusion logic checks this flag explicitly
+    (see the OHRC-exclusion fix below) so a record can be legitimately
+    included without pretending its raw metadata says something it doesn't.
     """
     for record in records:
-        xml_path = Path(record["file_path"])
+        file_path = Path(record["file_path"])
+        xml_path = file_path if file_path.suffix.lower() == ".xml" else file_path.with_suffix(".xml")
 
         try:
             corners = parse_iirs_corners(xml_path)
             record["corners"] = corners
             record.pop("bounds", None)  # pixel-space bounds are meaningless here -- corners is the real footprint
-            record["has_valid_crs"] = True  # we DO have a real footprint, just not from dataset.crs/dataset.bounds
+            record["has_derived_footprint"] = True
         except (ValueError, FileNotFoundError) as e:
             print(f"  WARNING: could not attach real corners to {xml_path.name}: {e}")
             continue
 
-        img_path = xml_path.with_name(xml_path.name.replace(".xml", ".img"))
-        if img_path.exists():
-            record["file_size_mb"] = img_path.stat().st_size / (1024 * 1024)
+        # OHRC-specific: the file we opened (.xml, via PDS4 driver) is tiny;
+        # the real pixel data lives in the sibling .img. Report the real size.
+        if file_path.suffix.lower() == ".xml":
+            img_path = file_path.with_name(file_path.name.replace(".xml", ".img"))
+            if img_path.exists():
+                record["file_size_mb"] = img_path.stat().st_size / (1024 * 1024)
+        # IIRS: file_path is already the real .qub -- its own size is already correct.
 
 
 def main() -> int:
@@ -89,14 +98,13 @@ def main() -> int:
     all_summaries: dict[str, dict[str, Any]] = {}
 
     for label, config_key in DATASETS.items():
+        if config_key not in config:
+            print(f"  SKIPPED {label}: no '{config_key}' entry in configs/paths.yaml yet")
+            continue
         source = Path(config["sih_root"]) / config[config_key]
         if not source.is_dir():
             raise FileNotFoundError(f"Configured {label} directory does not exist: {source}")
 
-        # OHRC ships as raw .img, which isn't GDAL-readable on its own --
-        # its .xml label opens fine through GDAL's PDS4 driver, so glob for
-        # that instead.
-        FILE_PATTERNS = {"ORTHONAC0.5-1": "*_d_img_*.xml"}
         pattern = FILE_PATTERNS.get(label, "*.tif")
         try:
             records = inspect_directory(source, pattern=pattern)
@@ -104,8 +112,8 @@ def main() -> int:
             print(f"  SKIPPED {label}: {type(e).__name__}: {e}")
             records = []
 
-        if label == "ORTHONAC0.5-1" and records:
-            _attach_ohrc_real_footprint(records)
+        if label in NEEDS_CORNER_FOOTPRINT and records:
+            _attach_real_footprint_from_corners(records)
 
         summary = summarise(records)
         all_summaries[label] = summary

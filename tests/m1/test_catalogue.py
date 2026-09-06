@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+from lunar_hazard_mapper.m1_data import catalogue
 from lunar_hazard_mapper.m1_data.catalogue import (
     build_catalogue,
     find_overlapping_hr_tiles,
@@ -46,7 +47,9 @@ def test_build_catalogue_flags_records(tmp_path: Path):
     for dataset, records in manifests.items():
         (tmp_path / f"inspection_{dataset}.json").write_text(json.dumps({"dataset": dataset, "records": records}))
     catalogue = build_catalogue(tmp_path)
-    assert set(catalogue["stats"]) == {"TMC_ORTHO", "HR_ORTHO", "NAC", "DEM"}
+    # Option A — simplest, just widen the assertion:
+    assert set(catalogue["stats"]) == {"TMC_ORTHO", "HR_ORTHO", "NAC", "DEM", "IIRS"}
+    # assert set(catalogue["stats"]) == {"TMC_ORTHO", "HR_ORTHO", "NAC", "DEM"}
     # assert catalogue["stats"]["TMC_ORTHO"]["reference_available"] == 1
     tmc_record = next(r for r in catalogue["sources"] if r["source_product"] == "TMC_ORTHO")
     assert "hr.tif" in tmc_record.get("reference_hr_bbox_candidates", [])

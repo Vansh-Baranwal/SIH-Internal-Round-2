@@ -1,10 +1,10 @@
-
 # Paths are relative to the sih-vansh project root.
 sih_root: "data/real_samples"
 tmc_source: "tmc_ortho2/data/derived/20250707"
 hr_source: "ohrc_raw2/data/calibrated/20210401"
 nac_source: "nac"
 dem_source: "TMCDTM"
+iirs_source: "iirs_raw/data/raw/20200203"
 raw_dir: "data/raw"
 processed_tiles: "data/processed/tmc_tiles"
 sr_output: "data/processed/sr_output"
@@ -12,3 +12,4 @@ training_pairs: "data/training_pairs"
 manifests: "data/manifests"
 experiments: "experiments"
 checkpoints: "checkpoints"
+nac_source: "nac_georeferenced"
