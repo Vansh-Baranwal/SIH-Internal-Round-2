@@ -21,7 +21,7 @@
       "pixel_size_x_m": null,
       "pixel_size_y_m": null,
       "nodata": null,
-      "has_valid_crs": true,
+      "has_valid_crs": false,
       "has_valid_transform": false,
       "nodata_fraction": 0.0,
       "corners": [
@@ -41,7 +41,8 @@
           25.127978,
           -13.897119
         ]
-      ]
+      ],
+      "has_derived_footprint": true
     }
   ],
   "summary": {
@@ -55,7 +56,7 @@
       "min_m": null,
       "max_m": null
     },
-    "any_missing_crs": false,
+    "any_missing_crs": true,
     "any_missing_transform": true,
     "bounds": null
   }

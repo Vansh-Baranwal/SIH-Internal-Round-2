@@ -12,12 +12,14 @@ from rasterio.warp import transform_bounds
 
 from lunar_hazard_mapper.m1_data.overlap import verify_real_overlap
 
+
 PRODUCTS = {
     "TMCORTHO5-1": "TMC_ORTHO",
     "ORTHONAC0.5-1": "HR_ORTHO",
     "NAC": "NAC",
     "TMCDTM": "DEM",
     "IIRSRAW-1": "IIRS",
+    "SELENE_TCO": "SELENE",
 }
 
 # Products checked as candidate reference tiles against TMC_ORTHO. Kept as a

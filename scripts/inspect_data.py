@@ -25,21 +25,51 @@ DATASETS = {
     "NAC": "nac_source",
     "TMCDTM": "dem_source",
     "IIRSRAW-1": "iirs_source",
+    "SELENE_TCO": "selene_source",
 }
 
 # Products whose raw file isn't independently readable (or isn't
 # georeferenced) on its own -- glob for the sibling PDS4 .xml / .qub instead
 # of the raw .img, and attach a corner-derived footprint afterward.
+
 FILE_PATTERNS = {
-    "ORTHONAC0.5-1": "*_d_img_*.xml",  # OHRC's raw .img isn't GDAL-readable alone; its .xml opens via the PDS4 driver
-    "IIRSRAW-1": "*.qub",              # IIRS's ENVI cube IS directly readable, but carries no map-info -- footprint still needs corner-parsing
+    "ORTHONAC0.5-1": "*_d_img_*.xml",
+    "IIRSRAW-1": "*.qub",
+    "NAC": "*.IMG",
+    "SELENE_TCO": "*.lbl",
 }
+# NAC CDR files carry NO embedded corner/geometry metadata at all (unlike
+# OHRC/IIRS PDS4 labels, which have parseable corner tags). This scene's
+# real footprint comes from ODE's (Lunar Orbital Data Explorer) own
+# spatial index shown on its product detail page -- NOT parsed from the
+# file itself, since the file genuinely doesn't carry it.
+NAC_MANUAL_FOOTPRINTS = {
+    "M101993185LC": [
+        (24.98, -8.31),    # upper_left  (west, north)
+        (25.17, -8.31),    # upper_right (east, north)
+        (25.17, -10.15),   # lower_right (east, south)
+        (24.98, -10.15),   # lower_left  (west, south)
+    ],
+}
+
+
+def _attach_manual_nac_footprint(records: list[dict[str, Any]]) -> None:
+    """Attach ODE-sourced corner coordinates for NAC files with no embedded geometry."""
+    for record in records:
+        stem = Path(record["file_path"]).stem.upper()
+        corners = NAC_MANUAL_FOOTPRINTS.get(stem)
+        if corners is None:
+            print(f"  WARNING: no manual footprint recorded for NAC file {stem}; leaving unlocated")
+            continue
+        record["corners"] = corners
+        record.pop("bounds", None)
+        record["has_derived_footprint"] = True
 
 # Which labels need a corner-derived real-world footprint attached after
 # inspect_directory() returns (both currently open with crs=None / an
 # identity transform and no usable dataset.bounds).
-NEEDS_CORNER_FOOTPRINT = {"ORTHONAC0.5-1", "IIRSRAW-1"}
 
+NEEDS_CORNER_FOOTPRINT = {"ORTHONAC0.5-1", "IIRSRAW-1", "NAC"}
 
 def load_paths() -> dict[str, Any]:
     """Load path configuration and resolve the canonical SIH root."""
@@ -112,8 +142,13 @@ def main() -> int:
             print(f"  SKIPPED {label}: {type(e).__name__}: {e}")
             records = []
 
+        # if label in NEEDS_CORNER_FOOTPRINT and records:
+        #     _attach_real_footprint_from_corners(records)
         if label in NEEDS_CORNER_FOOTPRINT and records:
-            _attach_real_footprint_from_corners(records)
+            if label == "NAC":
+                _attach_manual_nac_footprint(records)
+            else:
+                _attach_real_footprint_from_corners(records)
 
         summary = summarise(records)
         all_summaries[label] = summary

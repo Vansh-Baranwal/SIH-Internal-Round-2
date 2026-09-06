@@ -1,14 +1,14 @@
 {
   "version": "1.0",
-  "created_at": "2026-09-04T10:37:53.917016+00:00",
+  "created_at": "2026-09-06T07:04:54.920484+00:00",
   "sources": [
     {
-      "file_path": "data/real_samples/nac/nac_a.tif",
-      "file_size_mb": 40.95,
-      "width": 5064,
-      "height": 52224,
-      "count": 1,
-      "dtype": "uint8",
+      "file_path": "data/real_samples/iirs_raw/data/raw/20200203/ch2_iir_nri_20200203T1845559180_d_img_m65.qub",
+      "file_size_mb": 1318.85,
+      "width": 250,
+      "height": 10804,
+      "count": 256,
+      "dtype": "int16",
       "crs": null,
       "transform": [
         1.0,
@@ -21,29 +21,42 @@
       "pixel_size_x_m": null,
       "pixel_size_y_m": null,
       "nodata": null,
-      "bounds": {
-        "west": 0.0,
-        "south": 52224.0,
-        "east": 5064.0,
-        "north": 0.0
-      },
       "has_valid_crs": false,
       "has_valid_transform": false,
       "nodata_fraction": 0.0,
-      "source_product": "NAC",
+      "corners": [
+        [
+          25.176954,
+          -30.375724
+        ],
+        [
+          24.556687,
+          -30.374377
+        ],
+        [
+          24.626887,
+          -0.52665
+        ],
+        [
+          25.154838,
+          -0.527657
+        ]
+      ],
+      "has_derived_footprint": true,
+      "source_product": "IIRS",
       "processing_status": "pending",
-      "include": false,
-      "exclusion_reason": "missing or invalid CRS/transform",
+      "include": true,
+      "exclusion_reason": null,
       "reference_available": false,
       "reference_hr_paths": []
     },
     {
-      "file_path": "data/real_samples/nac/nac_b.tif",
-      "file_size_mb": 40.87,
+      "file_path": "data/real_samples/nac_real_overlap/M101993185LC.IMG",
+      "file_size_mb": 504.43,
       "width": 5064,
       "height": 52224,
       "count": 1,
-      "dtype": "uint8",
+      "dtype": "int16",
       "crs": null,
       "transform": [
         1.0,
@@ -55,20 +68,33 @@
       ],
       "pixel_size_x_m": null,
       "pixel_size_y_m": null,
-      "nodata": null,
-      "bounds": {
-        "west": 0.0,
-        "south": 52224.0,
-        "east": 5064.0,
-        "north": 0.0
-      },
+      "nodata": -32768.0,
       "has_valid_crs": false,
       "has_valid_transform": false,
-      "nodata_fraction": 0.0,
+      "nodata_fraction": 0.01263823064770932,
+      "corners": [
+        [
+          24.98,
+          -8.31
+        ],
+        [
+          25.17,
+          -8.31
+        ],
+        [
+          25.17,
+          -10.15
+        ],
+        [
+          24.98,
+          -10.15
+        ]
+      ],
+      "has_derived_footprint": true,
       "source_product": "NAC",
       "processing_status": "pending",
-      "include": false,
-      "exclusion_reason": "missing or invalid CRS/transform",
+      "include": true,
+      "exclusion_reason": null,
       "reference_available": false,
       "reference_hr_paths": []
     },
@@ -91,7 +117,7 @@
       "pixel_size_x_m": null,
       "pixel_size_y_m": null,
       "nodata": null,
-      "has_valid_crs": true,
+      "has_valid_crs": false,
       "has_valid_transform": false,
       "nodata_fraction": 0.0,
       "corners": [
@@ -112,10 +138,46 @@
           -13.897119
         ]
       ],
+      "has_derived_footprint": true,
       "source_product": "HR_ORTHO",
       "processing_status": "pending",
-      "include": false,
-      "exclusion_reason": "missing or invalid CRS/transform",
+      "include": true,
+      "exclusion_reason": null,
+      "reference_available": false,
+      "reference_hr_paths": []
+    },
+    {
+      "file_path": "data/real_samples/selene_real_overlap/dtmtco_03_02666s010e0261sc_img.lbl",
+      "file_size_mb": 0.01,
+      "width": 5240,
+      "height": 6112,
+      "count": 1,
+      "dtype": "uint16",
+      "crs": "PROJCS[\"SIMPLE_CYLINDRICAL MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+      "transform": [
+        7.4031617246699,
+        0.0,
+        770703.7980963393,
+        0.0,
+        -7.4031617246699,
+        -7757.150358092014
+      ],
+      "pixel_size_x_m": 7.4031617246699,
+      "pixel_size_y_m": 7.4031617246699,
+      "nodata": 0.0,
+      "bounds": {
+        "west": 770703.7980963393,
+        "south": -53005.27481927445,
+        "east": 809496.3655336096,
+        "north": -7757.150358092014
+      },
+      "has_valid_crs": true,
+      "has_valid_transform": true,
+      "nodata_fraction": 0.019242648675112904,
+      "source_product": "SELENE",
+      "processing_status": "pending",
+      "include": true,
+      "exclusion_reason": null,
       "reference_available": false,
       "reference_hr_paths": []
     },
@@ -188,14 +250,44 @@
       "exclusion_reason": null,
       "reference_available": true,
       "reference_hr_paths": [
+        "data/real_samples/iirs_raw/data/raw/20200203/ch2_iir_nri_20200203T1845559180_d_img_m65.qub",
         "data/real_samples/ohrc_raw2/data/calibrated/20210401/ch2_ohr_ncp_20210401T2357376656_d_img_hw1.xml"
       ],
       "reference_hr_bbox_candidates": [
+        "data/real_samples/iirs_raw/data/raw/20200203/ch2_iir_nri_20200203T1845559180_d_img_m65.qub",
         "data/real_samples/ohrc_raw2/data/calibrated/20210401/ch2_ohr_ncp_20210401T2357376656_d_img_hw1.xml"
       ],
       "reference_verification_detail": [
         {
-          "hr_file_path": "data/real_samples/ohrc_raw2/data/calibrated/20210401/ch2_ohr_ncp_20210401T2357376656_d_img_hw1.xml",
+          "file_path": "data/real_samples/iirs_raw/data/raw/20200203/ch2_iir_nri_20200203T1845559180_d_img_m65.qub",
+          "verified": true,
+          "reason": "verified real pixel overlap",
+          "polygon_overlap_fraction": 0.9867713368671077,
+          "bbox_intersection": [
+            24.556687,
+            -30.375724,
+            25.176954,
+            -0.9559836436429201
+          ],
+          "a_check": {
+            "has_real_data": true,
+            "valid_fraction": 1.0,
+            "window_shape": [
+              176589,
+              3723
+            ]
+          },
+          "b_check": {
+            "has_real_data": true,
+            "valid_fraction": 1.0,
+            "window_shape": [
+              10648,
+              250
+            ]
+          }
+        },
+        {
+          "file_path": "data/real_samples/ohrc_raw2/data/calibrated/20210401/ch2_ohr_ncp_20210401T2357376656_d_img_hw1.xml",
           "verified": true,
           "reason": "verified real pixel overlap",
           "polygon_overlap_fraction": 1.0000000000000002,
@@ -234,14 +326,24 @@
     "HR_ORTHO": {
       "total": 1,
       "reference_available": 0,
-      "excluded": 1
+      "excluded": 0
     },
     "NAC": {
-      "total": 2,
+      "total": 1,
       "reference_available": 0,
-      "excluded": 2
+      "excluded": 0
     },
     "DEM": {
+      "total": 1,
+      "reference_available": 0,
+      "excluded": 0
+    },
+    "IIRS": {
+      "total": 1,
+      "reference_available": 0,
+      "excluded": 0
+    },
+    "SELENE": {
       "total": 1,
       "reference_available": 0,
       "excluded": 0
@@ -260,9 +362,21 @@
       ],
       "is_consistent": true
     },
+    "IIRS": {
+      "crs_values": [
+        "None"
+      ],
+      "is_consistent": true
+    },
     "NAC": {
       "crs_values": [
         "None"
+      ],
+      "is_consistent": true
+    },
+    "SELENE": {
+      "crs_values": [
+        "PROJCS[\"SIMPLE_CYLINDRICAL MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]"
       ],
       "is_consistent": true
     },

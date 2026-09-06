@@ -32,15 +32,15 @@
       "min_m": null,
       "max_m": null
     },
-    "any_missing_crs": false,
+    "any_missing_crs": true,
     "any_missing_transform": true,
     "bounds": null
   },
   "NAC": {
-    "total_files": 2,
-    "total_size_mb": 81.82,
+    "total_files": 1,
+    "total_size_mb": 504.43,
     "unique_dtypes": [
-      "uint8"
+      "int16"
     ],
     "unique_crs_values": [],
     "pixel_size_range": {
@@ -49,12 +49,7 @@
     },
     "any_missing_crs": true,
     "any_missing_transform": true,
-    "bounds": {
-      "west": 0.0,
-      "south": 52224.0,
-      "east": 5064.0,
-      "north": 0.0
-    }
+    "bounds": null
   },
   "TMCDTM": {
     "total_files": 1,
@@ -76,6 +71,43 @@
       "south": -29.36416252232122,
       "east": 25.187708054611797,
       "north": -1.6802405223212153
+    }
+  },
+  "IIRSRAW-1": {
+    "total_files": 1,
+    "total_size_mb": 1318.85,
+    "unique_dtypes": [
+      "int16"
+    ],
+    "unique_crs_values": [],
+    "pixel_size_range": {
+      "min_m": null,
+      "max_m": null
+    },
+    "any_missing_crs": true,
+    "any_missing_transform": true,
+    "bounds": null
+  },
+  "SELENE_TCO": {
+    "total_files": 1,
+    "total_size_mb": 0.01,
+    "unique_dtypes": [
+      "uint16"
+    ],
+    "unique_crs_values": [
+      "PROJCS[\"SIMPLE_CYLINDRICAL MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]"
+    ],
+    "pixel_size_range": {
+      "min_m": 7.4031617246699,
+      "max_m": 7.4031617246699
+    },
+    "any_missing_crs": false,
+    "any_missing_transform": false,
+    "bounds": {
+      "west": 770703.7980963393,
+      "south": -53005.27481927445,
+      "east": 809496.3655336096,
+      "north": -7757.150358092014
     }
   }
 }

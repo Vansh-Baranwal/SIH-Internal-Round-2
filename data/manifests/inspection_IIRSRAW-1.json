@@ -1,0 +1,63 @@
+{
+  "dataset": "IIRSRAW-1",
+  "source": "C:/Users/manee/sih-internal/SIH-Internal-Round-2/data/real_samples/iirs_raw/data/raw/20200203",
+  "records": [
+    {
+      "file_path": "data/real_samples/iirs_raw/data/raw/20200203/ch2_iir_nri_20200203T1845559180_d_img_m65.qub",
+      "file_size_mb": 1318.85,
+      "width": 250,
+      "height": 10804,
+      "count": 256,
+      "dtype": "int16",
+      "crs": null,
+      "transform": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "pixel_size_x_m": null,
+      "pixel_size_y_m": null,
+      "nodata": null,
+      "has_valid_crs": false,
+      "has_valid_transform": false,
+      "nodata_fraction": 0.0,
+      "corners": [
+        [
+          25.176954,
+          -30.375724
+        ],
+        [
+          24.556687,
+          -30.374377
+        ],
+        [
+          24.626887,
+          -0.52665
+        ],
+        [
+          25.154838,
+          -0.527657
+        ]
+      ],
+      "has_derived_footprint": true
+    }
+  ],
+  "summary": {
+    "total_files": 1,
+    "total_size_mb": 1318.85,
+    "unique_dtypes": [
+      "int16"
+    ],
+    "unique_crs_values": [],
+    "pixel_size_range": {
+      "min_m": null,
+      "max_m": null
+    },
+    "any_missing_crs": true,
+    "any_missing_transform": true,
+    "bounds": null
+  }
+}

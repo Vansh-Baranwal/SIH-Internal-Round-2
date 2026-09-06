@@ -1,0 +1,57 @@
+{
+  "dataset": "SELENE_TCO",
+  "source": "C:/Users/manee/sih-internal/SIH-Internal-Round-2/data/real_samples/selene_real_overlap",
+  "records": [
+    {
+      "file_path": "data/real_samples/selene_real_overlap/dtmtco_03_02666s010e0261sc_img.lbl",
+      "file_size_mb": 0.01,
+      "width": 5240,
+      "height": 6112,
+      "count": 1,
+      "dtype": "uint16",
+      "crs": "PROJCS[\"SIMPLE_CYLINDRICAL MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+      "transform": [
+        7.4031617246699,
+        0.0,
+        770703.7980963393,
+        0.0,
+        -7.4031617246699,
+        -7757.150358092014
+      ],
+      "pixel_size_x_m": 7.4031617246699,
+      "pixel_size_y_m": 7.4031617246699,
+      "nodata": 0.0,
+      "bounds": {
+        "west": 770703.7980963393,
+        "south": -53005.27481927445,
+        "east": 809496.3655336096,
+        "north": -7757.150358092014
+      },
+      "has_valid_crs": true,
+      "has_valid_transform": true,
+      "nodata_fraction": 0.019242648675112904
+    }
+  ],
+  "summary": {
+    "total_files": 1,
+    "total_size_mb": 0.01,
+    "unique_dtypes": [
+      "uint16"
+    ],
+    "unique_crs_values": [
+      "PROJCS[\"SIMPLE_CYLINDRICAL MOON\",GEOGCS[\"GCS_MOON\",DATUM[\"D_MOON\",SPHEROID[\"MOON\",1737400,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]"
+    ],
+    "pixel_size_range": {
+      "min_m": 7.4031617246699,
+      "max_m": 7.4031617246699
+    },
+    "any_missing_crs": false,
+    "any_missing_transform": false,
+    "bounds": {
+      "west": 770703.7980963393,
+      "south": -53005.27481927445,
+      "east": 809496.3655336096,
+      "north": -7757.150358092014
+    }
+  }
+}

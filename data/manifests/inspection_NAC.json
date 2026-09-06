@@ -1,14 +1,14 @@
 {
   "dataset": "NAC",
-  "source": "C:/Users/manee/sih-internal/SIH-Internal-Round-2/data/real_samples/nac",
+  "source": "C:/Users/manee/sih-internal/SIH-Internal-Round-2/data/real_samples/nac_real_overlap",
   "records": [
     {
-      "file_path": "data/real_samples/nac/nac_a.tif",
-      "file_size_mb": 40.95,
+      "file_path": "data/real_samples/nac_real_overlap/M101993185LC.IMG",
+      "file_size_mb": 504.43,
       "width": 5064,
       "height": 52224,
       "count": 1,
-      "dtype": "uint8",
+      "dtype": "int16",
       "crs": null,
       "transform": [
         1.0,
@@ -20,52 +20,36 @@
       ],
       "pixel_size_x_m": null,
       "pixel_size_y_m": null,
-      "nodata": null,
-      "bounds": {
-        "west": 0.0,
-        "south": 52224.0,
-        "east": 5064.0,
-        "north": 0.0
-      },
+      "nodata": -32768.0,
       "has_valid_crs": false,
       "has_valid_transform": false,
-      "nodata_fraction": 0.0
-    },
-    {
-      "file_path": "data/real_samples/nac/nac_b.tif",
-      "file_size_mb": 40.87,
-      "width": 5064,
-      "height": 52224,
-      "count": 1,
-      "dtype": "uint8",
-      "crs": null,
-      "transform": [
-        1.0,
-        0.0,
-        0.0,
-        0.0,
-        1.0,
-        0.0
+      "nodata_fraction": 0.01263823064770932,
+      "corners": [
+        [
+          24.98,
+          -8.31
+        ],
+        [
+          25.17,
+          -8.31
+        ],
+        [
+          25.17,
+          -10.15
+        ],
+        [
+          24.98,
+          -10.15
+        ]
       ],
-      "pixel_size_x_m": null,
-      "pixel_size_y_m": null,
-      "nodata": null,
-      "bounds": {
-        "west": 0.0,
-        "south": 52224.0,
-        "east": 5064.0,
-        "north": 0.0
-      },
-      "has_valid_crs": false,
-      "has_valid_transform": false,
-      "nodata_fraction": 0.0
+      "has_derived_footprint": true
     }
   ],
   "summary": {
-    "total_files": 2,
-    "total_size_mb": 81.82,
+    "total_files": 1,
+    "total_size_mb": 504.43,
     "unique_dtypes": [
-      "uint8"
+      "int16"
     ],
     "unique_crs_values": [],
     "pixel_size_range": {
@@ -74,11 +58,6 @@
     },
     "any_missing_crs": true,
     "any_missing_transform": true,
-    "bounds": {
-      "west": 0.0,
-      "south": 52224.0,
-      "east": 5064.0,
-      "north": 0.0
-    }
+    "bounds": null
   }
 }
