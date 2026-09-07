@@ -21,3 +21,4 @@ torch
 torchvision
 kornia
 kornia_moons
+python-multipart

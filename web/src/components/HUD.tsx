@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface HUDProps {
   telemetry: any;
   status: string;

@@ -20,7 +20,7 @@
   ],
   "reason": "Unexpected boulder field detected near touchdown zone",
   "oldTrajectoryId": "TRAJ_PRIMARY",
-  "newTrajectoryId": "TRAJ_283C1D41",
+  "newTrajectoryId": "TRAJ_72132A90",
   "rejectedCandidates": [
     {
       "siteId": "SITE_A",

@@ -40,7 +40,20 @@ app.mount("/static/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 app.mount("/static/sr", StaticFiles(directory=SR_DIR), name="sr_outputs")
 
 import time
-from lunar_hazard_mapper.m2_super_resolution.inference import infer_geotiff
+from lunar_hazard_mapper.m4_terrain import (
+    SyntheticHazardProvider,
+    SyntheticIirsClassificationProvider,
+    SyntheticIirsProvider,
+    SyntheticLandmarkProvider,
+    SyntheticOhrcCameraProvider,
+    SyntheticSpectralProvider,
+    SyntheticTerrainProvider,
+    SyntheticTmcCameraProvider,
+    SyntheticWaterIceProvider,
+    TerrainFoundation,
+)
+from lunar_hazard_mapper.api.phase11_router import router as phase11_router
+from lunar_hazard_mapper.api.phase10_router import router as phase10_router
 
 from lunar_hazard_mapper.correspondence_engine.api_router import router as correspondence_router
 
@@ -101,6 +114,113 @@ def get_full_mission():
         "replan_event": read_json_file("replan_event.json")
     }
 
+
+@app.get("/api/terrain/dem")
+def get_dem_terrain():
+    """Return the configured TerrainFoundation grid for the 3D DEM renderer.
+
+    The response is deliberately provider/foundation based.  The frontend does
+    not know which concrete provider produced the DEM; it receives positions,
+    elevations, valid cells, and provenance through this stable interchange
+    boundary.  The current configured source is explicitly synthetic
+    development data, not a lunar observation.
+    """
+    try:
+        foundation = TerrainFoundation(SyntheticTerrainProvider())
+        grid = foundation.grid()
+        return {
+            "metadata": foundation.metadata(),
+            "grid": {
+                "width": grid["width"],
+                "height": grid["height"],
+                "pixel_size_m": grid["pixel_size_m"],
+                "x": grid["x"].tolist(),
+                "y": grid["y"].tolist(),
+                "z": grid["z"].tolist(),
+                "valid_mask": grid["valid_mask"].tolist(),
+                "coordinate_convention": grid["coordinate_convention"],
+            },
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Terrain unavailable: {exc}") from exc
+
+
+@app.get("/api/cameras/tmc")
+def get_tmc_camera():
+    """Return the configured TMC camera contract for frustum visualization."""
+    try:
+        return SyntheticTmcCameraProvider().load_camera().payload()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"TMC camera unavailable: {exc}") from exc
+
+
+@app.get("/api/cameras/ohrc")
+def get_ohrc_camera():
+    """Return the configured OHRC camera contract for frustum visualization."""
+    try:
+        return SyntheticOhrcCameraProvider().load_camera().payload()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"OHRC camera unavailable: {exc}") from exc
+
+
+@app.get("/api/cameras/iirs")
+def get_iirs_camera():
+    """Return the configured IIRS camera and DEM-intersected footprint contract."""
+    try:
+        provider = SyntheticIirsProvider()
+        footprint = provider.load_footprint()
+        return footprint.payload()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"IIRS footprint unavailable: {exc}") from exc
+
+
+@app.get("/api/landmarks")
+def get_landmarks():
+    """Return the landmark visualization contract (estimated vs reference positions)."""
+    try:
+        provider = SyntheticLandmarkProvider()
+        landmarks = provider.load_landmarks()
+        return landmarks.payload()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Landmarks unavailable: {exc}") from exc
+
+
+@app.get("/api/hazards")
+def get_hazards():
+    """Return the hazard overlays visualization contract."""
+    try:
+        provider = SyntheticHazardProvider()
+        hazards = provider.load_hazards()
+        return hazards.payload()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Hazards unavailable: {exc}") from exc
+
+
+@app.get("/api/spectral")
+def get_spectral():
+    """Return the spectral overlay visualization contract."""
+    try:
+        provider = SyntheticSpectralProvider()
+        spectral = provider.load_spectral()
+        payload = spectral.payload()
+        payload["classification"] = SyntheticIirsClassificationProvider().load_classification()
+        return payload
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Spectral data unavailable: {exc}") from exc
+
+
+@app.get("/api/water-ice")
+def get_water_ice():
+    """Return the provider-backed water-ice visualization contract."""
+    try:
+        foundation = TerrainFoundation(SyntheticTerrainProvider())
+        return SyntheticWaterIceProvider().load_water_ice(foundation).payload()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Water-ice data unavailable: {exc}") from exc
+
+
+
+
 @app.post("/api/upload_tmc")
 async def upload_tmc(file: UploadFile = File(...)):
     """Uploads a TMC image, runs CSASR M2 inference, and returns URLs for comparison."""
@@ -119,6 +239,10 @@ async def upload_tmc(file: UploadFile = File(...)):
     
     try:
         # Run M2 super-resolution!
+        # M2 imports PyTorch, an optional/heavy dependency. Keep it at this
+        # feature boundary so normal API/M4 endpoint startup does not need it.
+        from lunar_hazard_mapper.m2_super_resolution.inference import infer_geotiff
+
         checkpoint_dir = BASE_DIR / "checkpoints"
         infer_geotiff(checkpoint_dir, input_path, output_path)
     except Exception as e:
@@ -137,8 +261,6 @@ async def upload_tmc(file: UploadFile = File(...)):
         "ready_for_m3": True,
         "sr_filepath": str(output_path)
     })
-
-from lunar_hazard_mapper.api.pipeline import run_dual_pipeline
 
 @app.post("/api/pipeline/run")
 async def run_full_pipeline(file: UploadFile = File(None), scene_id: str = "01_01"):
@@ -197,10 +319,16 @@ async def run_full_pipeline(file: UploadFile = File(None), scene_id: str = "01_0
                     }
                 }
             }
-        elif re.match(r"(\d{8}T\d+)", scene_id):
-            stats = run_dual_pipeline(scene_id, optical_path=None)
         else:
-            stats = run_dual_pipeline(scene_id, optical_path=optical_path)
+            # The full M1-M6 pipeline imports M2 inference/PyTorch. Delay that
+            # optional dependency until the pipeline route actually needs it;
+            # cached mission responses and all normal M4 routes stay available.
+            from lunar_hazard_mapper.api.pipeline import run_dual_pipeline
+
+            if re.match(r"(\d{8}T\d+)", scene_id):
+                stats = run_dual_pipeline(scene_id, optical_path=None)
+            else:
+                stats = run_dual_pipeline(scene_id, optical_path=optical_path)
         
         # Include fields the frontend currently expects:
         import time
@@ -535,3 +663,5 @@ def spectral_overlay(req: SpectralOverlayRequest):
     }
 
 
+app.include_router(phase11_router)
+app.include_router(phase10_router)
