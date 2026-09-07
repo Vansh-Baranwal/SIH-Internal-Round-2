@@ -152,3 +152,5 @@ export function Terrain({ onClick, target, onStateChange }: TerrainProps) {
     </group>
   );
 }
+
+useGLTF.preload(getAssetUrl('moon_surface.glb?v=3'));

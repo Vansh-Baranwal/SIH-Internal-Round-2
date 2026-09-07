@@ -1,4 +1,5 @@
-import { useMission } from '../context/MissionContext';
+import { API_ROOT } from '../api/client';
+import { useMission } from '../context/useMission';
 import { useNavigate } from 'react-router-dom';
 
 export function HazardMap() {
@@ -26,6 +27,57 @@ export function HazardMap() {
   }
 
   const p = result.pipeline;
+  const slopeUrl = result.slope_url || p?.slope_url;
+  const riskUrl = result.risk_url || p?.risk_url;
+  const binaryUrl = result.binary_url || p?.binary_url;
+  // `result` can exist with an empty `pipeline` object — e.g. right after
+  // Registration.tsx hands off a registered image via sendToMissionPipeline,
+  // before M3/M4 has actually computed hazard layers for it. Rendering the
+  // grid below in that state would just request
+  // `${API_ROOT}undefined` and silently show broken images, so
+  // that case gets its own explicit panel instead.
+  const hasHazardData = !!(slopeUrl && riskUrl);
+
+  if (!hasHazardData) {
+    return (
+      <div className="max-w-7xl mx-auto w-full pt-32 pb-16 px-8 font-sans">
+        {globalHazardMap}
+
+        <div className="mb-16 flex justify-between items-end border-b border-white/5 pb-6">
+          <div>
+            <h2 className="text-2xl lg:text-3xl font-medium text-white tracking-[0.2em] uppercase mb-4">Hazard Classification</h2>
+            <p className="text-zinc-500 font-medium tracking-wide">Phase IV: Computed Safety Parameters</p>
+          </div>
+        </div>
+
+        <div className="border border-amber-500/20 bg-amber-500/5 px-8 py-12 flex flex-col items-center text-center gap-5">
+          {result.source_image_url && (
+            <div className="w-full max-w-md h-56 bg-[#030303] border border-white/10 flex items-center justify-center overflow-hidden mb-2">
+              <img
+                src={result.source_image_url}
+                alt="Registered source"
+                className="max-h-full max-w-full object-contain opacity-80"
+              />
+            </div>
+          )}
+          <p className="text-amber-500 text-xs font-bold tracking-widest uppercase">
+            {result.from_registration ? 'Registered Image Ready — Hazard Analysis Pending' : 'No Hazard Data Yet'}
+          </p>
+          <p className="text-zinc-500 text-sm max-w-lg leading-relaxed">
+            {result.from_registration
+              ? 'This image came from the Multi-Sensor Registration Cockpit. Slope, risk, and binary hazard layers still need to run against it — that computation happens in M3/M4 on the backend.'
+              : 'Process a dataset in the Imagery tab to generate slope, risk, and binary hazard layers.'}
+          </p>
+          <button
+            onClick={() => navigate(result.from_registration ? '/registration' : '/imagery')}
+            className="mt-2 bg-zinc-200 hover:bg-white text-black font-bold tracking-widest text-xs uppercase py-3 px-6 transition-colors"
+          >
+            {result.from_registration ? '← Back to Registration' : '← Go to Imagery'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto w-full pt-32 pb-16 px-8 font-sans">
@@ -34,7 +86,12 @@ export function HazardMap() {
       <div className="mb-16 flex justify-between items-end border-b border-white/5 pb-6">
         <div>
           <h2 className="text-2xl lg:text-3xl font-medium text-white tracking-[0.2em] uppercase mb-4">Hazard Classification</h2>
-          <p className="text-zinc-500 font-medium tracking-wide">Phase IV: Computed Safety Parameters</p>
+          <p className="text-zinc-500 font-medium tracking-wide">
+            Phase IV: Computed Safety Parameters
+            {result.from_registration && (
+              <span className="text-zinc-600"> · Source: Registration Cockpit</span>
+            )}
+          </p>
         </div>
         <button 
           onClick={() => navigate('/landing-sites')}
@@ -48,7 +105,7 @@ export function HazardMap() {
         <div className="border-l border-white/5 pl-8">
           <h3 className="text-zinc-300 font-bold tracking-widest text-xs uppercase mb-8">Slope Gradient Map</h3>
           <div className="w-full bg-[#030303] flex items-center justify-center min-h-[500px]">
-            <img src={`http://localhost:8000${result.slope_url || p.slope_url}`} alt="Slope Map" className="max-h-[480px] object-contain" />
+            <img src={`${API_ROOT}${slopeUrl}`} alt="Slope Map" className="max-h-[480px] object-contain" />
           </div>
           <div className="mt-6 pt-4 border-t border-white/5 flex justify-between text-xs font-bold tracking-widest uppercase">
             <span className="text-zinc-500">Threshold: &lt; {p?.m4?.max_slope || '15.4'}°</span>
@@ -59,7 +116,7 @@ export function HazardMap() {
         <div className="border-l border-white/5 pl-8">
           <h3 className="text-zinc-300 font-bold tracking-widest text-xs uppercase mb-8">Crater/Boulder Risk Analysis</h3>
           <div className="w-full bg-[#030303] flex items-center justify-center min-h-[500px]">
-            <img src={`http://localhost:8000${result.risk_url || p.risk_url}`} alt="Risk Map" className="max-h-[480px] object-contain" />
+            <img src={`${API_ROOT}${riskUrl}`} alt="Risk Map" className="max-h-[480px] object-contain" />
           </div>
           <div className="mt-6 pt-4 border-t border-white/5 flex justify-between text-xs font-bold tracking-widest uppercase">
             <span className="text-zinc-500">Safety Threshold: {parseFloat(p?.m4?.max_risk || '0.85') * 100}%</span>
@@ -70,7 +127,7 @@ export function HazardMap() {
         <div className="border-l border-white/20 pl-8">
           <h3 className="text-zinc-300 font-bold tracking-widest text-xs uppercase mb-8">Combined Binary Mask</h3>
           <div className="w-full bg-[#030303] flex items-center justify-center min-h-[500px]">
-            <img src={`http://localhost:8000${result.binary_url || p?.binary_url || '/static/sr/binary_fallback.png'}`} alt="Binary Mask" className="max-h-[480px] object-contain" />
+            <img src={`${API_ROOT}${binaryUrl || '/static/sr/binary_fallback.png'}`} alt="Binary Mask" className="max-h-[480px] object-contain" />
           </div>
           <div className="mt-6 pt-4 border-t border-white/5 flex justify-between text-xs font-bold tracking-widest uppercase">
             <span className="text-zinc-500">Logical AND Filter</span>
@@ -81,5 +138,3 @@ export function HazardMap() {
     </div>
   );
 }
-
-

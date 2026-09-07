@@ -11,10 +11,11 @@ export function Layout() {
       <Navbar />
       <WorkspaceNav />
       <main className="flex-grow flex flex-col relative">
+      <main className="flex-grow flex flex-col relative min-w-0">
         {/* Subtle, highly professional grid background */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
         
-        <div className="relative flex-grow flex flex-col">
+        <div className="relative flex-grow flex flex-col min-w-0">
           <Outlet />
         </div>
       </main>

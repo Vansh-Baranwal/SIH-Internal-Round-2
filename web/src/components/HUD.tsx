@@ -1,7 +1,23 @@
+interface TelemetryPoint {
+  z: number;
+  vx: number;
+  vy: number;
+  vz: number;
+  pitch: number;
+  yaw: number;
+  roll: number;
+}
+
+interface HUDTarget {
+  x: number;
+  y: number;
+  z: number;
+}
+
 interface HUDProps {
-  telemetry: any;
+  telemetry: TelemetryPoint | null;
   status: string;
-  target: any;
+  target: HUDTarget | null;
   isCrashing: boolean;
   animationTime: number;
   onOpenPlanner: () => void;
@@ -43,19 +59,21 @@ export function HUD({ telemetry, status, target, isCrashing, animationTime, onOp
   const bgColor = isCrashing ? 'bg-rose-950/20' : 'bg-[#0a0a0a]/60';
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6">
+    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between gap-4 p-3 sm:p-6">
       
       {/* TOP ROW */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-start gap-4">
         {/* Top Left: Status & Controls */}
-        <div className={`p-5 rounded-2xl border backdrop-blur-xl shadow-2xl flex flex-col pointer-events-auto ${borderColor} ${bgColor}`}>
+        <div className={`p-4 sm:p-5 rounded-2xl border backdrop-blur-xl shadow-2xl flex flex-col pointer-events-auto w-full sm:w-auto ${borderColor} ${bgColor}`}>
             <h2 className="text-zinc-400 tracking-widest font-bold text-[10px] uppercase mb-1">Flight Dynamics</h2>
             <p className={`text-sm font-semibold tracking-wide ${statusColor}`}>{status}</p>
             <p className="text-zinc-500 mt-1 text-[11px] mb-5">Click on feasible terrain to set target.</p>
             
-            <button 
+            <button
+                type="button"
                 onClick={onOpenPlanner}
-                className="bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-200 font-medium py-2 px-4 text-xs rounded-lg transition-all shadow-sm"
+                aria-label="Open orbital replanner"
+                className="bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-200 font-medium py-2 px-4 text-xs rounded-lg transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70"
             >
                 Open Orbital Replanner
             </button>
@@ -82,9 +100,9 @@ export function HUD({ telemetry, status, target, isCrashing, animationTime, onOp
       </div>
 
       {/* BOTTOM ROW */}
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-4">
         {telemetry && (
-            <div className={`p-6 rounded-2xl border backdrop-blur-xl shadow-2xl min-w-[320px] ${borderColor} ${bgColor}`}>
+            <div className={`p-4 sm:p-6 rounded-2xl border backdrop-blur-xl shadow-2xl w-full sm:min-w-[320px] ${borderColor} ${bgColor}`}>
                 <h3 className="text-zinc-400 font-bold mb-4 text-[10px] tracking-widest uppercase border-b border-white/10 pb-2">Live Telemetry</h3>
                 
                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
@@ -111,7 +129,7 @@ export function HUD({ telemetry, status, target, isCrashing, animationTime, onOp
         )}
 
         {telemetry && (
-            <div className={`p-6 rounded-2xl border backdrop-blur-xl shadow-2xl min-w-[220px] text-right ${borderColor} ${bgColor}`}>
+            <div className={`p-4 sm:p-6 rounded-2xl border backdrop-blur-xl shadow-2xl w-full sm:min-w-[220px] text-left sm:text-right ${borderColor} ${bgColor}`}>
                 <h3 className="text-zinc-400 font-bold mb-4 text-[10px] tracking-widest uppercase border-b border-white/10 pb-2">Guidance & Nav</h3>
                 
                 <div className="mb-4">

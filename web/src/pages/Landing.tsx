@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import moonImage from '../assets/moon.webp';
 
 export function Landing() {
   const { hash } = useLocation();
@@ -66,7 +67,7 @@ export function Landing() {
         
         {/* Moon Image */}
         <img 
-          src="/src/assets/moon.webp" 
+          src={moonImage}
           className="absolute bottom-0 right-0 w-[1000px] lg:w-[1300px] 2xl:w-[1600px] max-w-none object-contain translate-x-[50%] translate-y-[50%] opacity-40 mix-blend-screen pointer-events-none z-0" 
           style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%)', maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%)' }}
         />
@@ -188,19 +189,19 @@ export function Landing() {
                 <h3 className="text-6xl lg:text-[5rem] font-semibold text-white tracking-tighter mb-8 leading-[1.05]">
                   Our<br/>Pipeline
                 </h3>
-                <p className="text-zinc-500 text-xs font-medium tracking-wide">Scope: 6 Phases | Execution: Automated</p>
+                <p className="text-zinc-500 text-xs font-medium tracking-wide">Registration is live; downstream analysis is user-triggered</p>
               </div>
               
               {/* Right Column: List */}
               <div className="lg:col-span-7 flex flex-col w-full">
                 <div className="border-t border-white/10"></div>
                 {[
-                  { step: "01", title: "Data Ingestion", desc: "Process raw TMC ortho-images and physical Digital Elevation Models" },
-                  { step: "02", title: "Super Resolution", desc: "Execute CNN models to upscale optical resolution to 1m/px" },
-                  { step: "03", title: "DEM Registration", desc: "Correlate optical imagery with physical topography" },
-                  { step: "04", title: "Hazard Mapping", desc: "Compute physical slopes, detect craters, and map surface roughness" },
-                  { step: "05", title: "Site Evaluation", desc: "Score terrain against specific lander geometry and safety constraints" },
-                  { step: "06", title: "Flight Dynamics", desc: "Calculate descent trajectories and optimal propulsive routing" }
+                  { step: "01", title: "Select imagery", desc: "Choose a source frame and a geometry reference from local files" },
+                  { step: "02", title: "Match features", desc: "Find cross-modal correspondences with the SIFT matching engine" },
+                  { step: "03", title: "Verify geometry", desc: "Reject outliers with RANSAC and refine the surviving matches" },
+                  { step: "04", title: "Review registration", desc: "Inspect real match points, RMSE, inlier ratio, and spatial coverage" },
+                  { step: "05", title: "Continue to imagery", desc: "Send the registered output into the existing imagery pipeline" },
+                  { step: "06", title: "Run mission analysis", desc: "Generate hazards, landing sites, and trajectories as separate downstream steps" }
                 ].map((module, i) => (
                   <motion.div 
                     initial={{ opacity: 0, x: 20 }} 
@@ -245,14 +246,14 @@ export function Landing() {
             <div>
               <h3 className="text-lg font-medium text-white mb-4 tracking-tight">Scientific Motivation</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                The Lunar Hazard Mapper is a demonstration platform designed to showcase an end-to-end autonomous hazard detection and landing site evaluation pipeline. Using Chandrayaan-2 TMC and TMCDTM datasets, the platform bridges the gap between raw orbital telemetry, deep-learning based optical super-resolution (CSASR), and physical engineering constraints for lunar descent vehicles.
+                The Lunar Hazard Mapper is a geospatial analysis platform for Chandrayaan-2 imagery. Its active correspondence workflow registers a source image against a reference frame, reports measurable geometric quality, and hands the registered output to the downstream mission tools.
               </p>
             </div>
 
             <div>
               <h3 className="text-lg font-medium text-white mb-4 tracking-tight">Data Sources</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                This project relies on verified <b>Chandrayaan-2 TMC</b> optical imagery and <b>TMCDTM</b> physical elevation models. No estimated elevations or fabricated parameters are used in the final trajectory decisions, ensuring engineering-grade validation for mission planning.
+                The correspondence engine accepts real local image files, including <b>TMC</b>, <b>OHRC</b>, and other supported sensor imagery. Hazard, landing-site, and trajectory outputs require their own downstream processing; registration metrics alone are not a final flight recommendation.
               </p>
             </div>
           </div>
