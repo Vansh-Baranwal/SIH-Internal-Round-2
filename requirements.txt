@@ -4,7 +4,7 @@ pandas
 rasterio
 pyproj
 shapely
-opencv-python
+opencv-contrib-python
 scikit-image
 pytest
 jsonschema
@@ -14,3 +14,10 @@ affine
 
 fastapi
 uvicorn[standard]
+
+Pillow
+python-multipart
+torch
+torchvision
+kornia
+kornia_moons

@@ -16,7 +16,7 @@ data/sr_outputs/*
 scratch/
 data/scratch/
 web/public/sr/
-
+data/real_samples/
 # Output and sensitive files
 results/mission_export/*
 web/.env*
@@ -67,3 +67,4 @@ write_planner.py
 
 data/real_samples/
 src/lunar_hazard_mapper.egg-info/
+output_*/

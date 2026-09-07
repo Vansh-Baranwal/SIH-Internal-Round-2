@@ -42,6 +42,10 @@ app.mount("/static/sr", StaticFiles(directory=SR_DIR), name="sr_outputs")
 import time
 from lunar_hazard_mapper.m2_super_resolution.inference import infer_geotiff
 
+from lunar_hazard_mapper.correspondence_engine.api_router import router as correspondence_router
+
+app.include_router(correspondence_router)
+
 def read_json_file(filename: str) -> dict:
     filepath = MISSION_DIR / filename
     if not filepath.exists():
