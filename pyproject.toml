@@ -19,6 +19,6 @@ dependencies = [
     "torch",
     "torchvision",
     "kornia",
-    "kornia_moons"
+    "kornia_moons",
     "python-multipart"
 ]
