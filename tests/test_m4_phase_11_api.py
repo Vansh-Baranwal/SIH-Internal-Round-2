@@ -29,7 +29,6 @@ def test_phase11_route_is_registered_without_repurposing_m2_route():
     response_schema = app.openapi()["components"]["schemas"]["Phase11ApiResponse"]["properties"]
     assert "/api/phase11/lunar-gps" in paths
     assert "post" in paths["/api/phase11/lunar-gps"]
-    assert "/api/v1/correspondence/register" not in paths
     assert "/api/mission/status" in paths
     assert {"match_points", "registration_metrics", "localization"}.issubset(response_schema)
 

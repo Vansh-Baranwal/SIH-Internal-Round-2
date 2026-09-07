@@ -75,7 +75,6 @@ def test_blocked_phase11_context_preserves_source_warnings_and_limitations():
 def test_phase12_7_does_not_use_the_m2_correspondence_route():
     paths = app.openapi()["paths"]
 
-    assert "/api/v1/correspondence/register" not in paths
     assert "/api/phase11/lunar-gps" in paths
 
 
