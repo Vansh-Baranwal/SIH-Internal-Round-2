@@ -9,6 +9,7 @@ import argparse
 import os
 import numpy as np
 from PIL import Image
+Image.MAX_IMAGE_PIXELS = None
 import cv2
 
 from lunar_hazard_mapper.correspondence_engine.preprocessing.radiometric import radiometric_pipeline
@@ -37,9 +38,20 @@ def load_grayscale(path: str) -> np.ndarray:
         import rasterio
         with rasterio.open(path) as src:
             arr = src.read(1)
-            return cv2.normalize(arr, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-    img = Image.open(path).convert("L")
-    return np.array(img)
+            arr = cv2.normalize(arr, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+    else:
+        img = Image.open(path).convert("L")
+        arr = np.array(img)
+    
+    # Auto-downsample massive images to prevent OpenCV SIFT OutOfMemoryError (e.g. 4.2GB allocs)
+    max_dim = 2000
+    h, w = arr.shape
+    if max(h, w) > max_dim:
+        scale = max_dim / max(h, w)
+        new_w, new_h = int(w * scale), int(h * scale)
+        arr = cv2.resize(arr, (new_w, new_h), interpolation=cv2.INTER_AREA)
+        
+    return arr
 
 
 def run_pipeline(
@@ -54,6 +66,7 @@ def run_pipeline(
     apply_uniform_filter: bool = True,
     max_per_cell: int = 3,
     apply_illumination_invariant: bool = False,
+    sun_azimuth: float = 135.0,
 ):
     os.makedirs(output_dir, exist_ok=True)
 
@@ -68,9 +81,10 @@ def run_pipeline(
     source_norm, reference_norm = radiometric_pipeline(source, reference)
 
     if apply_illumination_invariant:
-        print(f"          applying illumination-invariant transform (Stage A.2)...")
-        source_for_matching = phase_congruency_map(source_norm)
-        reference_for_matching = phase_congruency_map(reference_norm)
+        print(f"          applying sun-angle directional filter (Azimuth: {sun_azimuth})...")
+        from lunar_hazard_mapper.correspondence_engine.preprocessing.illumination import simulate_sun_angle_filter
+        source_for_matching = simulate_sun_angle_filter(source_norm, sun_azimuth)
+        reference_for_matching = simulate_sun_angle_filter(reference_norm, sun_azimuth)
     else:
         source_for_matching = source_norm
         reference_for_matching = reference_norm

@@ -1,73 +1,126 @@
 import { useState } from 'react';
-import { AlertTriangle, ArrowRight, CheckCircle2, Clock3, Database, Loader2, ShieldCheck } from 'lucide-react';
 import { AppShell } from '../components/layout/AppShell';
-import { ApiError } from '../api/client';
-import { submitPhase10PairSelection, type Phase10ObservationRequest, type Phase10PairSelectionResponse } from '../api/temporal';
-
-type WorkspaceState = 'idle' | 'loading' | 'success' | 'error';
-type Provenance = NonNullable<Phase10ObservationRequest['provenance']>;
-interface ObservationForm { observation_id: string; source: string; image_reference: string; acquisition_timestamp: string; provenance_source: string; provenance: Provenance; is_real_data: boolean; crs: string; }
-
-const emptyObservation = (): ObservationForm => ({ observation_id: '', source: '', image_reference: '', acquisition_timestamp: '', provenance_source: '', provenance: 'unavailable', is_real_data: false, crs: '' });
-function toRequest(value: ObservationForm): Phase10ObservationRequest { return { observation_id: value.observation_id.trim(), source: value.source.trim(), image_reference: value.image_reference.trim(), acquisition_timestamp: value.acquisition_timestamp.trim() || null, provenance_source: value.provenance_source.trim(), provenance: value.provenance, is_real_data: value.is_real_data, crs: value.crs.trim() || null }; }
-function validate(value: ObservationForm, label: string): string | null {
-  if (!value.observation_id.trim()) return `${label}: observation ID is required.`;
-  if (!value.source.trim()) return `${label}: source is required.`;
-  if (!value.image_reference.trim()) return `${label}: image reference is required.`;
-  if (!value.provenance_source.trim()) return `${label}: provenance source is required.`;
-  if (value.acquisition_timestamp && Number.isNaN(Date.parse(value.acquisition_timestamp))) return `${label}: acquisition timestamp must be ISO-8601.`;
-  if (!value.is_real_data || value.provenance !== 'real') return `${label}: explicitly mark the observation as real with real provenance.`;
-  return null;
-}
-function display(value: string | number | null | undefined): string { return value === null || value === undefined || value === '' ? 'Unavailable' : String(value); }
-function canAnalyze(value: ObservationForm): boolean { return Boolean(value.observation_id.trim() && value.source.trim() && value.image_reference.trim() && value.provenance_source.trim() && value.is_real_data && value.provenance === 'real'); }
 
 export function TemporalChange() {
-  const [observationA, setObservationA] = useState(emptyObservation);
-  const [observationB, setObservationB] = useState(emptyObservation);
-  const [state, setState] = useState<WorkspaceState>('idle');
-  const [message, setMessage] = useState<string | null>(null);
-  const [response, setResponse] = useState<Phase10PairSelectionResponse | null>(null);
-  const readyToAnalyze = canAnalyze(observationA) && canAnalyze(observationB);
+  const [imageA, setImageA] = useState<File | null>(null);
+  const [imageB, setImageB] = useState<File | null>(null);
+  
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [resultImage, setResultImage] = useState<string | null>(null);
+  const [changesDetected, setChangesDetected] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  async function analyze() {
-    const validationError = validate(observationA, 'Observation A') ?? validate(observationB, 'Observation B');
-    if (validationError) { setState('error'); setMessage(validationError); setResponse(null); return; }
-    setState('loading'); setMessage(null); setResponse(null);
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleGenerate = async () => {
+    if (!imageA || !imageB) return;
+    setIsProcessing(true);
+    setError(null);
     try {
-      const result = await submitPhase10PairSelection({ observation_a: toRequest(observationA), observation_b: toRequest(observationB) });
-      setResponse(result); setState('success');
-    } catch (error: unknown) {
-      setState('error'); setResponse(null);
-      if (error instanceof ApiError) {
-        if (error.kind === 'network') setMessage('Network error: the Phase 10 backend could not be reached.');
-        else if (error.kind === 'response') setMessage('Response error: Phase 10 returned malformed data.');
-        else if (error.status === 422) setMessage('Validation error: Phase 10 rejected the request (422).');
-        else if (error.status === 500) setMessage('Backend error: Phase 10 failed to process the pair (500).');
-        else setMessage(error.message);
-      } else setMessage('The Phase 10 request could not be completed.');
+      const b64A = await fileToBase64(imageA);
+      const b64B = await fileToBase64(imageB);
+      
+      const response = await fetch('http://127.0.0.1:8000/api/temporal/compute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_a_b64: b64A.split(',')[1],
+          image_b_b64: b64B.split(',')[1],
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const result = await response.json();
+      setResultImage('data:image/png;base64,' + result.temporal_map_b64);
+      setChangesDetected(result.changes_detected);
+    } catch (e: any) {
+      setError(e.message || 'Failed to compute temporal change');
+    } finally {
+      setIsProcessing(false);
     }
-  }
+  };
 
-  return <AppShell title="Temporal Workspace" subtitle="Client-ordered Phase 10 observation pair selection"><div className="mx-auto w-full max-w-7xl space-y-8 px-8 pb-16 pt-8">
-    <Notice title="Phase 10 boundary" icon={<AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />} tone="amber">This workspace submits observation metadata to Phase 10. It does not calculate temporal change, generate maps, or infer scientific values in the browser.</Notice>
-    <section><div className="mb-4 flex items-end justify-between gap-4"><div><h2 className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-500">Observation pair</h2><p className="mt-2 text-sm text-zinc-400">Enter genuine Phase 10 metadata. The order below is sent unchanged.</p></div><span className="hidden items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500 sm:flex"><Database className="h-3.5 w-3.5" /> No synthetic records</span></div><div className="grid gap-4 lg:grid-cols-2"><ObservationCard label="Observation A" role="First member of client-supplied pair" value={observationA} onChange={setObservationA} /><ObservationCard label="Observation B" role="Second member of client-supplied pair" value={observationB} onChange={setObservationB} /></div></section>
-    <section className="rounded-2xl border border-white/10 bg-white/[0.015] p-5"><div className="mb-4 flex items-center gap-2"><Clock3 className="h-4 w-4 text-zinc-300" /><h2 className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-400">Temporal relationship</h2></div><div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left"><span className="rounded-lg border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-200">A: {observationA.acquisition_timestamp || 'Timestamp unavailable'}</span><ArrowRight className="h-4 w-4 text-zinc-600" /><span className="rounded-lg border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-200">B: {observationB.acquisition_timestamp || 'Timestamp unavailable'}</span></div><p className="mt-3 text-xs text-zinc-500">Phase 10 determines the temporal view from supplied timestamps. The client does not sort or reinterpret the pair.</p></section>
-    <section className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.015] p-5 sm:flex-row sm:items-center"><div><h2 className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-400">Analysis controls</h2><p className="mt-2 text-sm text-zinc-500">Both observations must be explicitly marked real before the request can run.</p></div><button type="button" onClick={analyze} disabled={state === 'loading' || !readyToAnalyze} className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-black disabled:cursor-not-allowed disabled:opacity-50">{state === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}{state === 'loading' ? 'Running pair selection' : 'Analyze temporal pair'}</button></section>
-    {state === 'loading' && <Notice title="Running temporal pair analysis..." icon={<Loader2 className="h-4 w-4 animate-spin" />} tone="neutral">Waiting for the Phase 10 response. No progress estimate is shown.</Notice>}
-    {state === 'error' && <Notice title="Analysis unavailable" icon={<AlertTriangle className="h-4 w-4" />} tone="red">{message ?? 'The request failed.'}</Notice>}
-    {state === 'success' && response && <ResultPanel response={response} />}
-    <section className="grid gap-4 lg:grid-cols-2"><InfoPanel title="Provenance">Input provenance fields are forwarded unchanged. Phase 10 rejection reasons, warnings, and provenance status remain visible in the response.</InfoPanel><InfoPanel title="Spatial limitations">CRS text is displayed only as supplied. This workspace performs no coordinate conversion, map rendering, or pixel-to-metre interpretation.</InfoPanel></section>
-  </div></AppShell>;
-}
+  return (
+    <AppShell
+      title="Temporal Workspace"
+      subtitle="Automated Image Subtraction & Change Detection"
+    >
+      <div className="max-w-7xl mx-auto w-full px-8 pt-8 pb-16 space-y-8">
+        
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 px-5 py-4">
+          <div className="flex items-start gap-3 text-amber-200 text-sm font-medium leading-relaxed">
+            <span>
+              Upload a "Before" and "After" image of the lunar surface. The algorithm mathematically subtracts them to detect new impact craters, landslides, or rover tracks.
+            </span>
+          </div>
+        </div>
 
-function ObservationCard({ label, role, value, onChange }: { label: string; role: string; value: ObservationForm; onChange: (value: ObservationForm) => void }) {
-  const update = (field: keyof ObservationForm, next: string | boolean) => onChange({ ...value, [field]: next });
-  return <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-5"><div className="mb-4 border-b border-white/10 pb-3"><h3 className="text-sm font-bold text-white">{label}</h3><p className="mt-1 text-xs text-zinc-500">{role}</p></div><div className="grid gap-3 sm:grid-cols-2"><Field label="Observation ID" value={value.observation_id} onChange={(v) => update('observation_id', v)} required /><Field label="Source" value={value.source} onChange={(v) => update('source', v)} required /><Field label="Image reference" value={value.image_reference} onChange={(v) => update('image_reference', v)} required /><Field label="Acquisition timestamp" value={value.acquisition_timestamp} onChange={(v) => update('acquisition_timestamp', v)} type="datetime-local" /><Field label="Provenance source" value={value.provenance_source} onChange={(v) => update('provenance_source', v)} required /><label className="text-xs text-zinc-400">Provenance<select value={value.provenance} onChange={(e) => update('provenance', e.target.value)} className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-200">{['unavailable', 'real', 'synthetic', 'estimated', 'illustrative', 'deferred'].map((option) => <option key={option}>{option}</option>)}</select></label><Field label="CRS (optional)" value={value.crs} onChange={(v) => update('crs', v)} /></div><label className="mt-4 flex items-start gap-2 text-xs font-medium text-zinc-300"><input type="checkbox" checked={value.is_real_data} onChange={(e) => update('is_real_data', e.target.checked)} className="mt-0.5" />I confirm this record is genuine real observation data.</label></div>;
+        <section className="grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-6">
+          <div className="rounded-2xl border border-white/10 bg-[#0d0d10] p-6 shadow-2xl">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-bold mb-6">
+              Observation A (Before)
+            </p>
+            
+            <div className="rounded-xl border border-white/10 bg-black p-4 mb-4">
+              <input type="file" accept="image/*" onChange={(e) => setImageA(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700" />
+            </div>
+            {imageA && (
+              <p className="text-xs text-emerald-400 font-mono mt-2">Loaded: {imageA.name}</p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#0d0d10] p-6 shadow-2xl">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-bold mb-6">
+              Observation B (After)
+            </p>
+            
+            <div className="rounded-xl border border-white/10 bg-black p-4 mb-4">
+              <input type="file" accept="image/*" onChange={(e) => setImageB(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700" />
+            </div>
+            {imageB && (
+              <p className="text-xs text-emerald-400 font-mono mt-2">Loaded: {imageB.name}</p>
+            )}
+          </div>
+        </section>
+
+        <button 
+          onClick={handleGenerate}
+          disabled={!imageA || !imageB || isProcessing}
+          className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold tracking-widest uppercase text-[11px] py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-amber-900/20"
+        >
+          {isProcessing ? 'Subtracting Images...' : 'Detect Temporal Changes'}
+        </button>
+
+        {error && (
+          <div className="mt-4 p-4 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 text-xs">
+            {error}
+          </div>
+        )}
+
+        {resultImage && (
+          <div className="mt-8 rounded-xl border border-amber-500/30 bg-amber-500/5 overflow-hidden flex flex-col items-center p-6 shadow-2xl shadow-amber-900/20">
+            <div className="w-full flex justify-between items-center mb-6">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-amber-400 font-bold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                Temporal Change Map
+              </p>
+              <p className="text-xs font-mono text-amber-300 bg-amber-500/10 px-3 py-1 rounded-full">
+                Anomalies Detected: {changesDetected}
+              </p>
+            </div>
+            <img src={resultImage} alt="Temporal Change" className="max-w-full h-auto object-contain rounded-lg border border-white/10 shadow-2xl" />
+          </div>
+        )}
+      </div>
+    </AppShell>
+  );
 }
-function Field({ label, value, onChange, required = false, type = 'text' }: { label: string; value: string; onChange: (value: string) => void; required?: boolean; type?: string }) { return <label className="text-xs text-zinc-400">{label}{required && <span className="text-amber-300"> *</span>}<input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-white/30" /></label>; }
-function Notice({ title, icon, tone, children }: { title: string; icon: React.ReactNode; tone: 'amber' | 'neutral' | 'red'; children: React.ReactNode }) { const classes = tone === 'red' ? 'border-red-500/30 bg-red-500/5 text-red-200' : tone === 'amber' ? 'border-amber-500/30 bg-amber-500/5 text-amber-200' : 'border-white/10 bg-white/[0.015] text-zinc-300'; return <div role="status" className={`flex items-start gap-3 rounded-2xl border px-5 py-4 ${classes}`}>{icon}<div><p className="text-sm font-bold">{title}</p><p className="mt-2 text-sm leading-relaxed opacity-80">{children}</p></div></div>; }
-function InfoPanel({ title, children }: { title: string; children: React.ReactNode }) { return <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-5"><h2 className="mb-3 text-xs font-bold uppercase tracking-[0.3em] text-zinc-400">{title}</h2><p className="text-sm leading-relaxed text-zinc-400">{children}</p></div>; }
-function ResultPanel({ response }: { response: Phase10PairSelectionResponse }) { const metadata = response.temporal_metadata; return <section aria-live="polite" className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5"><div className="mb-5 flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-300" /><h2 className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-200">Phase 10 response</h2></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Result label="Eligibility" value={response.eligibility} /><Result label="Pair A" value={display(response.observation_a_id)} /><Result label="Pair B" value={display(response.observation_b_id)} /><Result label="Provenance status" value={response.provenance_status} /><Result label="Temporal notes" value={display(metadata?.notes)} /><Result label="Temporal source field" value={display(metadata?.source_field)} /><Result label="Candidate selection score" value={display(response.candidate_selection_score)} /><Result label="Metadata completeness" value={display(response.metadata_completeness)} /><Result label="CRS compatibility" value={response.crs_compatibility} /><Result label="Footprint compatibility" value={response.footprint_compatibility} /><Result label="Sensor compatibility" value={response.sensor_compatibility} /><Result label="Image reference A" value={response.image_reference_a} /><Result label="Image reference B" value={response.image_reference_b} /></div><ResponseList label="Hard rejection reasons" values={response.hard_rejection_reasons} /><ResponseList label="Warnings" values={response.warnings} />{metadata && <div className="mt-4 border-t border-white/10 pt-4"><p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Temporal metadata</p><div className="grid gap-2 sm:grid-cols-2"><Result label="Original timestamp" value={display(metadata.original_timestamp)} /><Result label="Normalized timestamp" value={display(metadata.normalized_timestamp)} /><Result label="Acquisition date" value={display(metadata.acquisition_date)} /><Result label="Precision" value={metadata.precision} /><Result label="Timezone aware" value={String(metadata.timezone_aware)} /><Result label="Authoritative" value={String(metadata.authoritative)} /></div></div>}</section>; }
-function Result({ label, value }: { label: string; value: string }) { return <div className="rounded-lg border border-white/10 bg-black/20 p-3"><p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{label}</p><p className="mt-1 break-words text-sm text-zinc-200">{value}</p></div>; }
-function ResponseList({ label, values }: { label: string; values: string[] }) { return <div className="mt-4 border-t border-white/10 pt-4"><p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{label}</p><p className="mt-2 text-sm text-zinc-300">{values.length ? values.join(' · ') : 'None reported'}</p></div>; }

@@ -138,12 +138,13 @@ def run_dual_pipeline(scene_id: str = "01_01", subset_window=((0, 100), (0, 100)
         scene_id: The scene identifier, default "01_01" for our verified pair.
         subset_window: Optional window to crop the processing so it fits in RAM and runs fast.
     """
+
     # Hardcoded to the verified matching pair in the dataset repository
-    repo_dir = BASE_DIR.parent / "Different Repo" / "SIH" / "CODE_SIH1519_ORION SPACE SYSTEM"
+    repo_dir = BASE_DIR
     if optical_path is None:
-        optical_path = repo_dir / "TMCORTHO5-1" / "TMCORTHO5-1" / "TMCORTHO5-1" / f"TMCORTHOCH_{scene_id}.tif"
+        optical_path = repo_dir / "data/real_samples/tmc_ortho2/data/derived/20250707/ch2_tmc_ndn_20250707T1853051045_d_oth_d18.tif"
     if dem_path is None:
-        dem_path = repo_dir / "TMCDTM" / "TMCDTM" / f"TMCDTM_{scene_id}.tif"
+        dem_path = repo_dir / "data/real_samples/selene_real_overlap/DTMTCO_03_02666S010E0261SC_img.img"
 
     if not optical_path.exists():
         raise FileNotFoundError(f"Missing optical dataset: {optical_path}")

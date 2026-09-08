@@ -28,8 +28,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<MissionControl />} />
             <Route index element={<Landing />} />
+            <Route path="dashboard" element={<MissionControl />} />
             <Route path="registration" element={<Registration />} />
             <Route path="imagery" element={<Imagery />} />
             <Route path="sensors" element={<MultiSensor />} />
@@ -39,7 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="trajectory" element={<Trajectory />} />
             <Route path="simulation" element={<Simulation />} />
             <Route path="cockpit" element={<MultiSensorCockpit />} />
-            <Route path="registration" element={<RegistrationCockpit />} />
+            <Route path="registration-cockpit" element={<RegistrationCockpit />} />
             <Route path="scientific" element={<SpectralIntelligence />} />
             <Route path="spectral" element={<SpectralIntelligence />} />
             <Route path="water-ice" element={<WaterIceIntelligence />} />

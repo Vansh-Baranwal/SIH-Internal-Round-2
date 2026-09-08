@@ -104,7 +104,7 @@ class LandmarkSetModel:
         if self.data_status is LandmarkDataStatus.ESTIMATED:
             return "PHASE 11 LOCALIZED LANDMARKS"
         if self.data_status is LandmarkDataStatus.REAL:
-            return "REAL AUTHORITATIVE LANDMARKS"
+            return "Landmark Database"
         return "LANDMARKS UNAVAILABLE"
 
     def payload(self) -> Dict[str, Any]:

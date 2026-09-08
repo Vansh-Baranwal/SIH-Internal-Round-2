@@ -55,7 +55,7 @@ class OhrcCameraModel:
         if self.data_status is OhrcCameraDataStatus.SYNTHETIC:
             return "SYNTHETIC DEVELOPMENT CAMERA GEOMETRY"
         if self.data_status is OhrcCameraDataStatus.REAL:
-            return "REAL OHRC CAMERA METADATA"
+            return "OHRC Sensor Telemetry"
         return "OHRC CAMERA METADATA UNAVAILABLE"
 
     def payload(self) -> Dict[str, Any]:

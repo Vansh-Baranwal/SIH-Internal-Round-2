@@ -94,9 +94,9 @@ export function MissionProvider({ children }: { children: ReactNode }) {
   const datasetLabel = hasData ? 'Mission Dataset' : 'No Dataset Loaded';
 
   return (
-    <MissionContext.Provider value={{ result, setResult, hasData, dataStatus, datasetLabel }}>
+    
     <MissionContext.Provider
-      value={{ result, setResult, session, setSession, resetSession, sendToMissionPipeline, startCounterfactualSession }}
+      value={{ result, setResult, session, setSession, resetSession, sendToMissionPipeline, startCounterfactualSession, hasData, dataStatus, datasetLabel }}
     >
       {children}
     </MissionContext.Provider>

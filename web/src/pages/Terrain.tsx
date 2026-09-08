@@ -1,4 +1,3 @@
-export { Simulation as Terrain } from './Simulation';
 
 import { useMission } from '../context/useMission';
 import { useNavigate } from 'react-router-dom';

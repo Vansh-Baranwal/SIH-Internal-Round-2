@@ -1,6 +1,5 @@
 import type { MissionData } from '../types/api';
 
-export const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export class ApiError extends Error {
   status?: number;
@@ -81,6 +80,7 @@ export async function postJson<T>(url: string, label: string, body: unknown): Pr
 
     throw new ApiError(`${label} request could not be processed.`);
   }
+}
 const configuredApiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 const normalizedApiUrl = configuredApiUrl.replace(/\/+$/, '');
 
@@ -339,5 +339,4 @@ export interface WaterIceOverlayPayload {
 
 export async function fetchWaterIceOverlay(): Promise<WaterIceOverlayPayload> {
   return fetchJson<WaterIceOverlayPayload>(`${API_BASE}/water-ice`, 'Water-ice overlay');
-}
 }

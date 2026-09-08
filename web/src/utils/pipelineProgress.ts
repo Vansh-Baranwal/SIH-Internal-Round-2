@@ -36,12 +36,6 @@ export function getPipelineStages(result: any, session: RegistrationSession): Pi
 
   return [
     {
-      id: 'registration',
-      label: 'Registration',
-      path: '/registration',
-      complete: session.status === 'succeeded',
-    },
-    {
       id: 'imagery',
       label: 'Imagery',
       path: '/imagery',

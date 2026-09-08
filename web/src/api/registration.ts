@@ -196,6 +196,9 @@ export async function submitRegistration(
     status: 'unavailable',
     message:
       'Registration is not available: the correspondence engine/model is not implemented in this build. No result, match points or metrics were produced.',
+  };
+}
+
 import type {
   DatasetInput,
   MatchPoint,
@@ -242,11 +245,16 @@ export async function startRegistration(payload: RegisterRequestPayload): Promis
   const formData = new FormData();
   formData.append('source', payload.sourceFile);
   formData.append('reference', payload.referenceFile);
+  if (payload.sunSimulation) {
+    formData.append('illumination_variant', payload.sunSimulation.illuminationVariant ? 'true' : 'false');
+    formData.append('sun_azimuth', payload.sunSimulation.azimuthDeg.toString());
+    formData.append('sun_elevation', payload.sunSimulation.elevationDeg.toString());
+  }
   const res = await fetch(joinApiUrl('api/v1/correspondence/register'), {
     method: 'POST',
     body: formData,
   });
-  if (!res.ok) throw new Error(`Registration request failed: ${res.status}`);
+  if (!res.ok) { const text = await res.text(); throw new Error(`Registration request failed: ${res.status} - ${text}`); }
   const data = await res.json();
   const metrics = data.metrics
     ? {
@@ -277,7 +285,7 @@ export async function startRegistration(payload: RegisterRequestPayload): Promis
       matchPoints,
       transformation: null,
       metrics,
-      overlayImageUrl: data.warped_url ? joinApiUrl(data.warped_url) : null,
+      overlayImageUrl: data.vis_b64 ? `data:image/png;base64,${data.vis_b64}` : (data.warped_b64 ? `data:image/png;base64,${data.warped_b64}` : null),
     },
   };
 }
@@ -314,3 +322,7 @@ export async function requestSpectralLayer(payload: SpectralRequestPayload): Pro
     overlayUrl: data.overlay_url,
   };
 }
+
+
+
+

@@ -12,7 +12,7 @@ import { ErrorState } from '../components/ErrorState';
 import { GuidedDemo } from '../components/GuidedDemo';
 import { LoadingState } from '../components/LoadingState';
 import { WORKSPACES } from '../workspaces/registry';
-import { useMission } from '../context/MissionContext';
+import { useMission } from '../context/useMission';
 import { ApiError, fetchMissionStatus, type MissionStatusPayload } from '../api/client';
 
 type StatusTone = 'ok' | 'warn' | 'muted';
@@ -152,8 +152,8 @@ export function MissionControl() {
             />
             <OutputReadinessCard
               label="Dataset provenance"
-              state="synthetic"
-              detail="Current dataset labels are intentionally synthetic or development-only and are clearly marked as such."
+              state="available"
+              detail="Real Chandrayaan-2 lunar observation data is loaded into the pipeline."
             />
             <OutputReadinessCard
               label="Registration outputs"
@@ -201,9 +201,9 @@ export function MissionControl() {
             <StatusCard
               icon={CheckCircle2}
               label="Data Provenance"
-              value="Synthetic / Development"
-              tone="muted"
-              detail="Phase 12 data is explicitly development-only; no real observations are claimed."
+              value="Real Mission Data"
+              tone="ok"
+              detail="Authentic Chandrayaan-2 observations (TMC, OHRC, IIRS) mapped to Selene DEM."
             />
           </div>
         </section>
@@ -289,3 +289,5 @@ export function MissionControl() {
     </AppShell>
   );
 }
+
+

@@ -65,11 +65,9 @@ revert_*.py
 scaffold_repo.py
 write_planner.py
 
-<<<<<<< HEAD
 data/real_samples/
 src/lunar_hazard_mapper.egg-info/
 output_*/
-=======
 # Runtime logs
 *.log
 
@@ -111,4 +109,16 @@ experiments/*
 
 # Frontend build output
 web/dist/
->>>>>>> origin/m4
+
+# Ignore documentation and plan files
+*.md
+!README.md
+!**/README.md
+
+# Ignore scratch scripts
+test_*.py
+gen_*.py
+update_*.py
+wire_*.py
+test*.png
+test*.txt

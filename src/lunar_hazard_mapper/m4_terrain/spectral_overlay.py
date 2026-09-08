@@ -105,7 +105,7 @@ class SpectralOverlayModel:
         if self.data_status is SpectralDataStatus.ESTIMATED:
             return "MODEL ESTIMATED SPECTRAL OVERLAY"
         if self.data_status is SpectralDataStatus.REAL:
-            return "REAL AUTHORITATIVE SPECTRAL DATA"
+            return "Calibrated Spectral Data"
         return "SPECTRAL OVERLAY"
 
     def payload(self) -> Dict[str, Any]:

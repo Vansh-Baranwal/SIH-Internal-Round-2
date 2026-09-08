@@ -48,3 +48,20 @@ def phase_congruency_map(image: np.ndarray) -> np.ndarray:
         return cv2.normalize(pc, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
     except ImportError:
         return directional_gradient_illumination_invariant(image)
+
+
+def simulate_sun_angle_filter(image: np.ndarray, azimuth: float) -> np.ndarray:
+    """
+    Simulates highlighting edges perpendicular to the sun azimuth angle
+    to synthetically normalize shadows, preventing SIFT from hallucinating
+    false positives across different times of day.
+    """
+    img_f = image.astype(np.float32) / 255.0
+    
+    # Gabor filter aligned with the sun azimuth
+    kernel = cv2.getGaborKernel((21, 21), sigma=5.0, theta=np.radians(azimuth),
+                                 lambd=10.0, gamma=0.5, psi=0)
+    filtered = cv2.filter2D(img_f, cv2.CV_32F, kernel)
+    energy = np.abs(filtered)
+    
+    return cv2.normalize(energy, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)

@@ -603,40 +603,30 @@ export function Registration() {
         </div>
       )}
 
-      {showResults && (
-        <div className="mb-16">
-          <h3 className="text-zinc-300 font-bold tracking-widest text-xs uppercase mb-8 border-b border-white/5 pb-4">
-            Registered Output
-          </h3>
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-16">
-            <div className="xl:col-span-2 relative w-full bg-[#030303] min-h-[420px] flex items-center justify-center overflow-hidden">
-              {session.overlayImageUrl && (
-                <img src={session.overlayImageUrl} alt="Registered output" className="max-h-[420px] object-contain" />
-              )}
-              {session.spectralLayers
-                .filter((l) => l.visible)
-                .map((l) => (
-                  <div
-                    key={l.id}
-                    className="absolute inset-0 pointer-events-none mix-blend-screen"
-                    style={{
-                      opacity: l.opacity,
-                      background:
-                        l.kind === 'mineral-classification'
-                          ? 'radial-gradient(circle at 40% 40%, rgba(245,158,11,0.9), transparent 60%)'
-                          : 'radial-gradient(circle at 60% 55%, rgba(56,189,248,0.9), transparent 60%)',
-                    }}
-                  />
-                ))}
+
+
+      {session.overlayImageUrl && (
+        <div className="mb-16 border-t border-white/5 pt-16">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <h3 className="text-emerald-400 font-bold tracking-widest text-xs uppercase flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Registration Output
+              </h3>
+              <p className="text-zinc-500 text-[11px] mt-1">
+                The source image has been mathematically warped and overlaid onto the reference geometry.
+              </p>
             </div>
-            <SpectralPanel
-              layers={session.spectralLayers}
-              loadingKind={loadingSpectralKind}
-              onRequest={handleRequestSpectralLayer}
-              onToggle={toggleSpectralLayer}
-              onOpacityChange={setSpectralOpacity}
-              errors={spectralErrors}
-            />
+            <a
+              href={session.overlayImageUrl}
+              download="registered_overlay.png"
+              className="text-[10px] text-zinc-400 hover:text-white uppercase tracking-widest font-bold underline"
+            >
+              Download Full Res
+            </a>
+          </div>
+          <div className="w-full bg-[#030303] flex items-center justify-center p-4 border border-white/5 rounded-xl shadow-2xl">
+            <img src={session.overlayImageUrl} alt="Registered Overlay" className="max-w-full h-auto object-contain max-h-[800px]" />
           </div>
         </div>
       )}

@@ -76,7 +76,7 @@ class WaterIceOverlayModel:
         return {
             WaterIceDataStatus.SYNTHETIC: "SYNTHETIC DEVELOPMENT WATER-ICE OVERLAY",
             WaterIceDataStatus.ESTIMATED: "MODEL ESTIMATED WATER-ICE OVERLAY",
-            WaterIceDataStatus.REAL: "REAL AUTHORITATIVE WATER-ICE DATA",
+            WaterIceDataStatus.REAL: "Fused Water-Ice Model",
         }.get(self.data_status, "WATER-ICE OVERLAY")
 
     @property

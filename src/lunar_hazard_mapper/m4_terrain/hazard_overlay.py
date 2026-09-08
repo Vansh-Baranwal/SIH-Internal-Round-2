@@ -116,7 +116,7 @@ class HazardSetModel:
         if self.data_status is HazardDataStatus.ESTIMATED:
             return "MODEL ESTIMATED HAZARDS"
         if self.data_status is HazardDataStatus.REAL:
-            return "REAL AUTHORITATIVE HAZARDS"
+            return "Geological Hazards"
         return "HAZARD OVERLAYS"
 
     def payload(self) -> Dict[str, Any]:

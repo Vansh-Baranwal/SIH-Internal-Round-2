@@ -46,7 +46,7 @@ export const WORKSPACES: WorkspaceDefinition[] = [
     description: 'Mission overview, hazard maps, site assessment and trajectory operations.',
     icon: Gauge,
     routes: [
-      { label: 'Dashboard', path: '/' },
+      { label: 'Dashboard', path: '/dashboard' },
       { label: 'Hazards', path: '/hazard-map' },
       { label: 'Landing Sites', path: '/landing-sites' },
       { label: 'Trajectory', path: '/trajectory' },

@@ -65,7 +65,7 @@ class IirsCameraModel:
         if self.data_status is IirsDataStatus.SYNTHETIC:
             return "SYNTHETIC DEVELOPMENT CAMERA GEOMETRY"
         if self.data_status is IirsDataStatus.REAL:
-            return "REAL IIRS CAMERA METADATA"
+            return "IIRS Sensor Telemetry"
         return "IIRS CAMERA METADATA UNAVAILABLE"
 
     def payload(self) -> Dict[str, Any]:
@@ -104,7 +104,7 @@ class IirsFootprintModel:
         if self.data_status is IirsDataStatus.SYNTHETIC:
             return "SYNTHETIC DEVELOPMENT DATA"
         if self.data_status is IirsDataStatus.REAL:
-            return "REAL IIRS OBSERVATION FOOTPRINT"
+            return "IIRS Observation Footprint"
         return "IIRS FOOTPRINT UNAVAILABLE"
 
     def payload(self) -> Dict[str, Any]:

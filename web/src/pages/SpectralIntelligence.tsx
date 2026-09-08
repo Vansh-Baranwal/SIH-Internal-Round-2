@@ -70,6 +70,54 @@ export function SpectralIntelligence() {
   const { datasets } = useDatasetSelection();
   const [status, setStatus] = useState<SpectralWorkspaceStatus>('loading');
   const [error, setError] = useState<string | null>(null);
+
+  const [iirsImage, setIirsImage] = useState<File | null>(null);
+  const [opticalImage, setOpticalImage] = useState<File | null>(null);
+  const [overlayProcessing, setOverlayProcessing] = useState(false);
+  const [overlayResult, setOverlayResult] = useState<string | null>(null);
+  const [overlayError, setOverlayError] = useState<string | null>(null);
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleGenerateOverlay = async () => {
+    if (!iirsImage || !opticalImage) return;
+    setOverlayProcessing(true);
+    setOverlayError(null);
+    try {
+      const iirsB64 = await fileToBase64(iirsImage);
+      const opticalB64 = await fileToBase64(opticalImage);
+      
+      const response = await fetch('http://127.0.0.1:8000/api/spectral/overlay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          iirs_band_b64: iirsB64.split(',')[1],
+          optical_image_b64: opticalB64.split(',')[1],
+          iirs_gsd_m: 80.0,
+          optical_gsd_m: 5.0,
+          band_id: selectedBandId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const result = await response.json();
+      setOverlayResult('data:image/png;base64,' + result.registered_band_b64);
+    } catch (e: any) {
+      setOverlayError(e.message || 'Failed to generate overlay');
+    } finally {
+      setOverlayProcessing(false);
+    }
+  };
+
   const [data, setData] = useState<SpectralWorkspaceData | null>(null);
   const [selectedBandId, setSelectedBandId] = useState<string>('');
 
@@ -225,92 +273,56 @@ export function SpectralIntelligence() {
                     No spectral regions are available for the current dataset pair.
                   </div>
                 </div>
-                <MaterialClassification classification={data?.classification} />
+                
               </div>
             )}
 
             {status === 'ready' && data && (
-              <div className="space-y-4">
-                <div className="rounded-xl border border-white/10 bg-[#0d0d10] p-3">
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2 text-zinc-400 text-[10px] uppercase tracking-[0.25em] font-bold">
-                      <ScanLine className="w-3.5 h-3.5" />
-                      Base Layer
+              <div className="mt-8 pt-8 border-t border-white/10">
+                <p className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-bold mb-4">
+                  Interactive Spectral Heatmap Generator
+                </p>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-white/10 bg-[#0d0d10] p-4">
+                      <p className="text-[10px] text-zinc-500 font-bold mb-3 uppercase tracking-widest">1. Upload Optical Base Image</p>
+                      <input type="file" accept="image/*" onChange={(e) => setOpticalImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700" />
                     </div>
-                    {summary && (
-                      <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                        {summary.label}
-                      </div>
-                    )}
+                    <div className="rounded-xl border border-white/10 bg-[#0d0d10] p-4">
+                      <p className="text-[10px] text-zinc-500 font-bold mb-3 uppercase tracking-widest">2. Upload IIRS Band Image</p>
+                      <input type="file" accept="image/*" onChange={(e) => setIirsImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-200 hover:file:bg-indigo-500/30" />
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {data.regions.slice(0, 8).map((region, index) => (
-                      <div
-                        key={region.regionId ?? index}
-                        className="rounded-xl border border-white/10 px-2 py-3"
-                        style={{
-                          background: `linear-gradient(135deg, rgba(99,102,241,0.18), rgba(59,130,246,${0.15 + normalizeBandValue(region.value) * 0.45}))`,
-                        }}
-                      >
-                        <div className="text-[9px] uppercase tracking-[0.2em] text-zinc-500 mb-2">
-                          {region.displayLabel}
-                        </div>
-                        <div className="text-sm font-medium text-zinc-200">
-                          {region.value.toFixed(3)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="rounded-xl border border-white/10 bg-[#0d0d10] p-3">
-                  <div className="flex items-center gap-2 text-zinc-400 text-[10px] uppercase tracking-[0.25em] font-bold mb-3">
-                    <Layers3 className="w-3.5 h-3.5" />
-                    Heatmap Preview
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {data.regions.map((region, index) => {
-                      const intensity = normalizeBandValue(region.value);
-                      return (
-                        <div
-                          key={region.regionId ?? index}
-                          className="h-16 rounded-lg border border-white/10"
-                          style={{
-                            background: `rgba(${Math.round(60 + intensity * 90)}, ${Math.round(120 + intensity * 90)}, ${Math.round(200 + intensity * 40)}, ${0.35 + intensity * 0.5})`,
-                          }}
-                          title={`${region.displayLabel}: ${region.value.toFixed(3)}`}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
+                  <button 
+                    onClick={handleGenerateOverlay}
+                    disabled={!iirsImage || !opticalImage || overlayProcessing}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold tracking-widest uppercase text-[11px] py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {overlayProcessing ? 'Generating Mineral Overlay...' : 'Generate Spectral Overlay'}
+                  </button>
 
-                <MaterialClassification classification={data.classification} />
+                  {overlayError && (
+                    <div className="p-4 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 text-xs">
+                      {overlayError}
+                    </div>
+                  )}
+
+                  {overlayResult && (
+                    <div className="mt-8 rounded-xl border border-emerald-500/30 bg-emerald-500/5 overflow-hidden flex flex-col items-center p-6 shadow-2xl shadow-emerald-900/20">
+                      <p className="text-[10px] uppercase tracking-[0.25em] text-emerald-400 font-bold mb-6 self-start flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Generated Overlay Result
+                      </p>
+                      <img src={overlayResult} alt="Spectral Overlay" className="max-w-full h-auto object-contain rounded-lg border border-white/10 shadow-2xl" />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
           <aside className="space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold mb-3">
-                Active Dataset
-              </p>
-              {iirsDataset ? (
-                <div className="space-y-2 text-xs">
-                  <p className="text-zinc-200 font-semibold">{iirsDataset.displayLabel}</p>
-                  {iirsDataset.dataStatus === 'synthetic' && (
-                    <p className="text-amber-300/90 font-semibold">Synthetic / Development</p>
-                  )}
-                  <p className="text-zinc-500">{formatConvention(iirsDataset.coordinateConvention)}</p>
-                  <p className="text-zinc-500">
-                    {provenanceNote(iirsDataset.provenance) || 'No provenance note provided.'}
-                  </p>
-                </div>
-              ) : (
-                <p className="text-zinc-500 text-sm">No IIRS dataset selected.</p>
-              )}
-            </div>
-
             <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
               <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold mb-3">
                 Spectral Controls
@@ -335,56 +347,27 @@ export function SpectralIntelligence() {
                   ))
                 )}
               </select>
-
-              <div className="mt-4 rounded-xl border border-white/10 bg-[#0d0d10] px-3 py-2">
-                <p className="text-[9px] uppercase tracking-[0.25em] text-zinc-500 font-bold">Current band</p>
-                <p className="mt-2 text-sm text-zinc-200">
-                  {summary?.label ?? 'No band selected'}
-                </p>
-              </div>
-
-              <p className="mt-4 text-[10px] text-zinc-500 leading-relaxed uppercase tracking-[0.2em]">
-                Threshold / confidence controls are not exposed in the current spectral API contract.
-              </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold mb-3">
-                Metadata
+            <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-4 space-y-4">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold">
+                Band Guide (Hackathon Demo)
               </p>
-
-              {data ? (
-                <div className="space-y-3 text-xs">
-                  <Row label="Display" value={data.displayLabel} />
-                  <Row label="Status" value={data.dataStatus} />
-                  <Row label="Regions" value={String(data.regionCount)} />
-                  <Row label="Bands" value={String(data.availableBands.length)} />
-                  <Row label="Convention" value={formatConvention(data.coordinateConvention)} />
-                  {data.provenance && (
-                    <div className="rounded-xl border border-white/10 bg-[#0d0d10] px-3 py-2 text-zinc-500 leading-relaxed">
-                      {provenanceNote(data.provenance) || 'No provenance note provided.'}
-                    </div>
-                  )}
+              
+              <div className="space-y-3">
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Band 1 (TURBO Heatmap)</p>
+                  <p className="text-xs text-zinc-500 mt-1">Simulates standard multispectral reflectance. Hot colors (reds) indicate high albedo surfaces like Anorthosite highlands.</p>
                 </div>
-              ) : (
-                <p className="text-zinc-500 text-sm">No spectral metadata available.</p>
-              )}
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
-              <div className="flex items-center gap-2 text-zinc-400 text-[10px] uppercase tracking-[0.25em] font-bold mb-3">
-                <BarChart3 className="w-3.5 h-3.5" />
-                Summary
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Band 2 (MAGMA Inversion)</p>
+                  <p className="text-xs text-zinc-500 mt-1">Simulates a deep-absorption feature like the 1.0 μm Pyroxene band or 2.0 μm Olivine band. Intensities are inverted to highlight absorption pits.</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Band 3 (OCEAN Threshold)</p>
+                  <p className="text-xs text-zinc-500 mt-1">Simulates the critical 3.0 μm Water-Ice absorption band. Uses strict thresholding to rigidly classify valid ice-bearing pixels in permanently shadowed regions.</p>
+                </div>
               </div>
-              {summary ? (
-                <div className="space-y-2 text-xs">
-                  <Row label="Band" value={summary.label ?? '—'} />
-                  <Row label="Peak" value={summary.value == null ? '—' : summary.value.toFixed(3)} />
-                  <Row label="Status" value={summary.status ?? '—'} />
-                </div>
-              ) : (
-                <p className="text-zinc-500 text-sm">No spectral summary available.</p>
-              )}
             </div>
           </aside>
         </section>

@@ -76,7 +76,7 @@ class ProvenanceMetadata:
     def ui_label(self) -> str:
         """Human-readable UI label for this provenance."""
         labels = {
-            DataProvenance.REAL: "Real Authoritative Data",
+            DataProvenance.REAL: "Calibrated Measurement",
             DataProvenance.SYNTHETIC: "Synthetic Development Data",
             DataProvenance.ESTIMATED: "Model Estimated Data",
             DataProvenance.ILLUSTRATIVE: "Illustrative Example",

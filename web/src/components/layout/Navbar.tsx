@@ -8,7 +8,8 @@ import type { RegistrationSession } from '../../types/registration';
 const mobileMenuId = 'mobile-navigation-menu';
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70';
 
-function PipelineStepper({ result, session }: { result: any; session: RegistrationSession }) {
+function PipelineStepper({ result, session }: { result: any; session: any }) {
+  return null;
   const location = useLocation();
   const stages = getPipelineStages(result, session);
   const hasStarted = session.status !== 'idle' || result !== null;
@@ -57,7 +58,6 @@ function PipelineStepper({ result, session }: { result: any; session: Registrati
 
 export function Navbar() {
   const location = useLocation();
-  const { hasData } = useMission();
   const { result, session } = useMission();
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -173,3 +173,5 @@ export function Navbar() {
     </header>
   );
 }
+
+

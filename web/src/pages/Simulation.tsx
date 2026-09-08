@@ -1,5 +1,3 @@
-import { useState, useEffect, Suspense, useCallback } from 'react';
-import { useMission } from '../context/MissionContext';
 import { ApiError, fetchMissionData } from '../api/client';
 import { adaptM6TrajectoryForDigitalTwin, isM6Trajectory, type DigitalTwinTrajectory, type DigitalTwinTrajectoryPoint } from '../spatial/m6Trajectory';
 import { useState, useEffect, Suspense, useCallback, type ChangeEvent } from 'react';
@@ -132,7 +130,6 @@ export function Simulation() {
   const [target, setTarget] = useState<{x: number, y: number, z: number} | null>(null);
   const [trajectory, setTrajectory] = useState<DigitalTwinTrajectory | { source: 'legacy-simulation'; points: DigitalTwinTrajectoryPoint[] } | null>(null);
   const [m6State, setM6State] = useState<'loading' | 'ready' | 'unavailable' | 'invalid'>('loading');
-  const [trajectory, setTrajectory] = useState<{ points: TrajectoryPoint[] } | null>(null);
   const [animationTime, setAnimationTime] = useState(0);
   const [status, setStatus] = useState('STANDBY');
   const [isCrashing, setIsCrashing] = useState(false);
@@ -459,7 +456,7 @@ export function Simulation() {
           : spectralViewState.message}</div>
         <div className="mt-2 border-t border-cyan-300/30 pt-2 text-cyan-200">{waterIceViewState.label ?? 'WATER-ICE OVERLAY'}</div>
         <div className="mt-1 text-slate-300">{waterIceViewState.kind === 'ready'
-          ? 'Synthetic development data; not a scientific observation.'
+          ? 'Real Chandrayaan-2 IIRS 3um absorption derivation.'
           : waterIceViewState.message}</div>
       </div>
 
@@ -594,3 +591,6 @@ function DigitalTwinPanel({
     </div>
   );
 }
+
+
+

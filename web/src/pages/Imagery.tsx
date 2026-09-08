@@ -24,44 +24,7 @@ export function Imagery() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (file || autoLoadedFromRegistration || !preloadSource) return;
 
-    let cancelled = false;
-    setPreloadState('loading');
-    setPreloadError(null);
-
-    (async () => {
-      try {
-        const res = isHttpResponseUsable(await fetch(preloadSource));
-        const blob = await res.blob();
-        if (cancelled) return;
-
-        const ext = blob.type.split('/')[1] || 'png';
-        const registeredFile = new File([blob], `registered-output.${ext}`, { type: blob.type });
-
-        setFile(registeredFile);
-        setAutoLoadedFromRegistration(true);
-        setPreloadState('idle');
-
-        if (fileInputRef.current) {
-          const dataTransfer = new DataTransfer();
-          dataTransfer.items.add(registeredFile);
-          fileInputRef.current.files = dataTransfer.files;
-        }
-      } catch (err) {
-        if (cancelled) return;
-        const message = err instanceof Error ? err.message : 'The registered image could not be staged as an upload.';
-        setPreloadState('error');
-        setPreloadError(message);
-        console.error('Failed to load registered image as upload file', err);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [preloadSource, file, autoLoadedFromRegistration, preloadAttempt]);
 
   const retryPreload = () => {
     setFile(null);

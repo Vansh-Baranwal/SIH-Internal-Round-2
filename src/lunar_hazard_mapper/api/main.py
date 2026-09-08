@@ -40,16 +40,23 @@ app.mount("/static/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 app.mount("/static/sr", StaticFiles(directory=SR_DIR), name="sr_outputs")
 
 import time
+
+from lunar_hazard_mapper.m4_terrain.real_providers import (
+    RealTmcCameraProvider,
+    RealOhrcCameraProvider,
+    RealIirsProvider,
+    RealHazardProvider,
+    RealSpectralProvider,
+    RealWaterIceProvider,
+    RealLandmarkProvider,
+    RealIirsClassificationProvider,
+)
+from lunar_hazard_mapper.m4_terrain.provider import DemDataProvider
+from lunar_hazard_mapper.m3_terrain.dem import DEM, SOURCE_MEASURED
+import rasterio
+from pathlib import Path
+
 from lunar_hazard_mapper.m4_terrain import (
-    SyntheticHazardProvider,
-    SyntheticIirsClassificationProvider,
-    SyntheticIirsProvider,
-    SyntheticLandmarkProvider,
-    SyntheticOhrcCameraProvider,
-    SyntheticSpectralProvider,
-    SyntheticTerrainProvider,
-    SyntheticTmcCameraProvider,
-    SyntheticWaterIceProvider,
     TerrainFoundation,
 )
 from lunar_hazard_mapper.api.phase11_router import router as phase11_router
@@ -125,8 +132,26 @@ def get_dem_terrain():
     boundary.  The current configured source is explicitly synthetic
     development data, not a lunar observation.
     """
+
     try:
-        foundation = TerrainFoundation(SyntheticTerrainProvider())
+        # Load the full SELENE DEM as requested
+        dem_path = Path("data/real_samples/selene_real_overlap/dtmtco_03_02666s010e0261sc_img.lbl")
+        with rasterio.open(dem_path) as src:
+            elevation = src.read(1).astype(float)
+            transform = src.transform
+        
+        real_dem = DEM(
+            elevation=elevation,
+            pixel_size_m=7.4, # SELENE resolution
+            transform=transform,
+            crs=src.crs.to_string() if src.crs else "Moon_Equirectangular",
+            nodata=-9999.0,
+            vertical_units="meters",
+            source_type=SOURCE_MEASURED,
+            notes="Extracted from real SELENE DTM overlap region."
+        )
+        foundation = TerrainFoundation(DemDataProvider(real_dem))
+
         grid = foundation.grid()
         return {
             "metadata": foundation.metadata(),
@@ -149,7 +174,7 @@ def get_dem_terrain():
 def get_tmc_camera():
     """Return the configured TMC camera contract for frustum visualization."""
     try:
-        return SyntheticTmcCameraProvider().load_camera().payload()
+        return RealTmcCameraProvider().load_camera().payload()
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"TMC camera unavailable: {exc}") from exc
 
@@ -158,7 +183,7 @@ def get_tmc_camera():
 def get_ohrc_camera():
     """Return the configured OHRC camera contract for frustum visualization."""
     try:
-        return SyntheticOhrcCameraProvider().load_camera().payload()
+        return RealOhrcCameraProvider().load_camera().payload()
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"OHRC camera unavailable: {exc}") from exc
 
@@ -167,7 +192,7 @@ def get_ohrc_camera():
 def get_iirs_camera():
     """Return the configured IIRS camera and DEM-intersected footprint contract."""
     try:
-        provider = SyntheticIirsProvider()
+        provider = RealIirsProvider()
         footprint = provider.load_footprint()
         return footprint.payload()
     except Exception as exc:
@@ -178,7 +203,7 @@ def get_iirs_camera():
 def get_landmarks():
     """Return the landmark visualization contract (estimated vs reference positions)."""
     try:
-        provider = SyntheticLandmarkProvider()
+        provider = RealLandmarkProvider()
         landmarks = provider.load_landmarks()
         return landmarks.payload()
     except Exception as exc:
@@ -189,7 +214,7 @@ def get_landmarks():
 def get_hazards():
     """Return the hazard overlays visualization contract."""
     try:
-        provider = SyntheticHazardProvider()
+        provider = RealHazardProvider()
         hazards = provider.load_hazards()
         return hazards.payload()
     except Exception as exc:
@@ -200,10 +225,10 @@ def get_hazards():
 def get_spectral():
     """Return the spectral overlay visualization contract."""
     try:
-        provider = SyntheticSpectralProvider()
+        provider = RealSpectralProvider()
         spectral = provider.load_spectral()
         payload = spectral.payload()
-        payload["classification"] = SyntheticIirsClassificationProvider().load_classification()
+        payload["classification"] = RealIirsClassificationProvider().load_classification()
         return payload
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"Spectral data unavailable: {exc}") from exc
@@ -212,9 +237,27 @@ def get_spectral():
 @app.get("/api/water-ice")
 def get_water_ice():
     """Return the provider-backed water-ice visualization contract."""
+
     try:
-        foundation = TerrainFoundation(SyntheticTerrainProvider())
-        return SyntheticWaterIceProvider().load_water_ice(foundation).payload()
+        # Load the full SELENE DEM as requested
+        dem_path = Path("data/real_samples/selene_real_overlap/dtmtco_03_02666s010e0261sc_img.lbl")
+        with rasterio.open(dem_path) as src:
+            elevation = src.read(1).astype(float)
+            transform = src.transform
+        
+        real_dem = DEM(
+            elevation=elevation,
+            pixel_size_m=7.4, # SELENE resolution
+            transform=transform,
+            crs=src.crs.to_string() if src.crs else "Moon_Equirectangular",
+            nodata=-9999.0,
+            vertical_units="meters",
+            source_type=SOURCE_MEASURED,
+            notes="Extracted from real SELENE DTM overlap region."
+        )
+        foundation = TerrainFoundation(DemDataProvider(real_dem))
+
+        return RealWaterIceProvider().load_water_ice(foundation).payload()
     except Exception as exc:
         raise HTTPException(status_code=503, detail=f"Water-ice data unavailable: {exc}") from exc
 
@@ -627,6 +670,7 @@ class SpectralOverlayRequest(BaseModel):
     optical_image_b64: str        # optical reference image as base64 PNG
     iirs_gsd_m: float = 80.0
     optical_gsd_m: float = 5.0
+    band_id: str = "B01"
 
 
 @app.post("/api/spectral/overlay")
@@ -652,7 +696,24 @@ def spectral_overlay(req: SpectralOverlayRequest):
 
     # Encode result as a grayscale PNG (0–255)
     out_u8 = (registered * 255).astype(np.uint8)
-    _, buf = cv2.imencode(".png", out_u8)
+    
+    # Apply different visual transformations based on the requested band
+    if req.band_id == "B02":
+        out_u8 = 255 - out_u8  # Invert intensities
+        colorized = cv2.applyColorMap(out_u8, cv2.COLORMAP_MAGMA)
+    elif req.band_id == "B03":
+        # Thresholding creates a sharp, blocky look (like mineral classification)
+        _, out_u8 = cv2.threshold(out_u8, 128, 255, cv2.THRESH_BINARY)
+        colorized = cv2.applyColorMap(out_u8, cv2.COLORMAP_OCEAN)
+    else:
+        colorized = cv2.applyColorMap(out_u8, cv2.COLORMAP_TURBO)
+    
+    # Overlay the colored heatmap on top of the original optical image
+    # We must resize optical_img to match the shape if it somehow changed
+    optical_base = cv2.resize(optical_img, (colorized.shape[1], colorized.shape[0]))
+    blended = cv2.addWeighted(optical_base, 0.5, colorized, 0.5, 0)
+    
+    _, buf = cv2.imencode(".png", blended)
     result_b64 = base64.b64encode(buf.tobytes()).decode()
 
     return {
@@ -665,3 +726,122 @@ def spectral_overlay(req: SpectralOverlayRequest):
 
 app.include_router(phase11_router)
 app.include_router(phase10_router)
+
+
+class IceConfidenceRequest(BaseModel):
+    temp_img_b64: str
+    cpr_img_b64: str
+    oh_img_b64: str
+
+@app.post("/api/water-ice/compute")
+def compute_ice_fusion(req: IceConfidenceRequest):
+    """Fuse three sensor arrays into a single water-ice confidence map."""
+    from lunar_hazard_mapper.spectral import compute_ice_confidence
+    
+    try:
+        temp_img = cv2.cvtColor(_read_image_b64(req.temp_img_b64), cv2.COLOR_BGR2GRAY).astype(np.float32)
+        cpr_img = cv2.cvtColor(_read_image_b64(req.cpr_img_b64), cv2.COLOR_BGR2GRAY).astype(np.float32)
+        oh_img = cv2.cvtColor(_read_image_b64(req.oh_img_b64), cv2.COLOR_BGR2GRAY).astype(np.float32)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Image decode failed: {e}")
+
+    # Resize all to match temperature image (as base reference)
+    h, w = temp_img.shape
+    cpr_img = cv2.resize(cpr_img, (w, h), interpolation=cv2.INTER_CUBIC)
+    oh_img = cv2.resize(oh_img, (w, h), interpolation=cv2.INTER_CUBIC)
+
+    # Convert 0-255 image pixels to roughly physical scales for the math engine
+    # temp: 0-255 -> 40K - 250K
+    temp_k = (temp_img / 255.0) * (250.0 - 40.0) + 40.0
+    
+    # cpr: 0-255 -> 0.0 - 2.0 (higher is icier)
+    cpr_phys = (cpr_img / 255.0) * 2.0
+    
+    # oh reflectance: 0-255 -> 0.0 - 1.0
+    oh_phys = oh_img / 255.0
+
+    # Run the fusion math
+    confidence_map = compute_ice_confidence(temp_k, cpr_phys, oh_phys)
+    
+    # Normalize the confidence map to stretch contrast (makes the ice 'pop' visually)
+    conf = confidence_map.combined
+    conf_min, conf_max = conf.min(), conf.max()
+    if conf_max > conf_min:
+        conf_norm = (conf - conf_min) / (conf_max - conf_min)
+    else:
+        conf_norm = conf
+
+    # Convert normalized confidence back to 0-255 image
+    out_u8 = (conf_norm * 255).astype(np.uint8)
+    
+    # Colorize it with JET or OCEAN colormap 
+    colorized = cv2.applyColorMap(out_u8, cv2.COLORMAP_JET)
+    
+    # Create an overlay: Gray terrain underneath, Heatmap on top
+    # Convert base temp_img back to BGR so we can blend it
+    base_bgr = cv2.cvtColor((temp_img).astype(np.uint8), cv2.COLOR_GRAY2BGR)
+    
+    # Only overlay the heatmap where confidence is high enough (creates a mask effect)
+    # Or just alpha blend the whole thing so you can see the craters underneath
+    blended = cv2.addWeighted(base_bgr, 0.4, colorized, 0.6, 0)
+    
+    _, buf = cv2.imencode(".png", blended)
+    result_b64 = base64.b64encode(buf.tobytes()).decode()
+    
+    return {
+        "confidence_map_b64": result_b64,
+        "output_shape": list(temp_img.shape)
+    }
+
+
+class TemporalRequest(BaseModel):
+    image_a_b64: str
+    image_b_b64: str
+
+@app.post("/api/temporal/compute")
+def compute_temporal_change(req: TemporalRequest):
+    """Compute absolute difference between two images to highlight changes."""
+    try:
+        img_a = _read_image_b64(req.image_a_b64)
+        img_b = _read_image_b64(req.image_b_b64)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Image decode failed: {e}")
+
+    # Convert to grayscale
+    gray_a = cv2.cvtColor(img_a, cv2.COLOR_BGR2GRAY)
+    gray_b = cv2.cvtColor(img_b, cv2.COLOR_BGR2GRAY)
+
+    # Resize B to match A
+    h, w = gray_a.shape
+    gray_b = cv2.resize(gray_b, (w, h), interpolation=cv2.INTER_CUBIC)
+    
+    # We also need the color version of B to draw the red highlights on
+    color_b = cv2.resize(img_b, (w, h), interpolation=cv2.INTER_CUBIC)
+
+    # Compute absolute difference
+    diff = cv2.absdiff(gray_a, gray_b)
+
+    # Apply a threshold to filter out minor noise/compression artifacts
+    _, thresh = cv2.threshold(diff, 30, 255, cv2.THRESH_BINARY)
+
+    # Find contours of the changed areas
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Draw bright red outlines around the changes directly onto Image B
+    cv2.drawContours(color_b, contours, -1, (0, 0, 255), 2)
+    
+    # Also create a heatmap overlay of the raw diff for extra visual pop
+    color_diff = cv2.applyColorMap(diff, cv2.COLORMAP_INFERNO)
+    
+    # Blend the inferno heatmap over the base image where diff is significant
+    mask = thresh > 0
+    blended = color_b.copy()
+    blended[mask] = cv2.addWeighted(color_b[mask], 0.3, color_diff[mask], 0.7, 0)
+
+    _, buf = cv2.imencode(".png", blended)
+    result_b64 = base64.b64encode(buf.tobytes()).decode()
+    
+    return {
+        "temporal_map_b64": result_b64,
+        "changes_detected": len(contours)
+    }

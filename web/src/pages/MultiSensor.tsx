@@ -3,7 +3,7 @@ import { CheckCircle2, Loader2, AlertTriangle, ScanLine } from 'lucide-react';
 import { AppShell } from '../components/layout/AppShell';
 import { SENSOR_OPTIONS, loadSensorDataset } from '../sensors/sensors';
 import { useDatasetSelection, type SelectedDataset, type SensorId } from '../context/datasetSelectionContext';
-import { useMission } from '../context/MissionContext';
+import { useMission } from '../context/useMission';
 
 interface LoadState {
   loading: boolean;
@@ -70,10 +70,9 @@ export function MultiSensor() {
 
         <p className="text-zinc-500 text-sm font-medium max-w-3xl">
           Select one or more imaging sensors to define the active dataset set. Selections are
-          shared so later registration, spectral and Water-Ice workspaces can consume them. All
-          current data is synthetic/development and is clearly labelled; no measurements are
-          invented here.
+          shared so later registration, spectral and Water-Ice workspaces can consume them.
         </p>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {SENSOR_OPTIONS.map((sensor) => {
@@ -174,3 +173,5 @@ function Row({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+

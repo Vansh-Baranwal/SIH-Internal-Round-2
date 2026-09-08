@@ -51,7 +51,7 @@ class TmcCameraModel:
         if self.data_status is TmcCameraDataStatus.SYNTHETIC:
             return "SYNTHETIC DEVELOPMENT CAMERA GEOMETRY"
         if self.data_status is TmcCameraDataStatus.REAL:
-            return "REAL TMC CAMERA METADATA"
+            return "TMC-2 Sensor Telemetry"
         return "TMC CAMERA METADATA UNAVAILABLE"
 
     def payload(self) -> Dict[str, Any]:

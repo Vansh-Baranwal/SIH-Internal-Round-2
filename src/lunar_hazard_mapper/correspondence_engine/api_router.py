@@ -37,6 +37,9 @@ async def register(
     reference: UploadFile = File(...),
     matcher: str = Form("sift"),
     geo_model: str = Form("affine"),
+    illumination_variant: bool = Form(False),
+    sun_azimuth: float = Form(135.0),
+    sun_elevation: float = Form(45.0),
 ):
     if matcher not in MATCHERS:
         return JSONResponse(status_code=400, content={"error": f"unknown matcher: {matcher}"})
@@ -53,19 +56,39 @@ async def register(
         shutil.copyfileobj(reference.file, f)
 
     try:
+        print(f"Running pipeline with illumination_variant={illumination_variant}, azimuth={sun_azimuth}, elevation={sun_elevation}")
         metrics = run_pipeline(str(source_path), str(reference_path), str(job_dir),
-                                matcher=matcher, geo_model=geo_model)
+                                matcher=matcher, geo_model=geo_model,
+                                apply_illumination_invariant=illumination_variant,
+                                sun_azimuth=sun_azimuth)
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
     if metrics is None:
         return JSONResponse(status_code=422, content={"error": "insufficient matches found"})
 
+    import base64
+    
+    warped_b64 = None
+    vis_b64 = None
+    
+    try:
+        with open(job_dir / "warped_source.png", "rb") as f:
+            warped_b64 = base64.b64encode(f.read()).decode("utf-8")
+    except: pass
+    
+    try:
+        with open(job_dir / "match_visualization.png", "rb") as f:
+            vis_b64 = base64.b64encode(f.read()).decode("utf-8")
+    except: pass
+
     return {
         "job_id": job_id,
         "metrics": metrics.to_dict(),
         "warped_path": str(job_dir / "warped_source.png"),
         "visualization_path": str(job_dir / "match_visualization.png"),
+        "warped_b64": warped_b64,
+        "vis_b64": vis_b64,
         "matches_csv_path": str(job_dir / "matches.csv"),
         "matches_json_path": str(job_dir / "matches.json"),
     }
