@@ -67,7 +67,6 @@ export function WaterIceIntelligence() {
               <div className="flex flex-col mb-4">
                 <p className="text-[10px] text-zinc-500 font-bold mb-2 uppercase tracking-widest flex items-center justify-between">
                   1. Temperature Map (Diviner)
-                  <span className="text-blue-500/50">Base Frame</span>
                 </p>
                 <input type="file" accept="image/*" onChange={(e) => setTempImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
               </div>
@@ -75,7 +74,6 @@ export function WaterIceIntelligence() {
               <div className="flex flex-col mb-4">
                 <p className="text-[10px] text-zinc-500 font-bold mb-2 uppercase tracking-widest flex items-center justify-between">
                   2. Radar CPR Map (Mini-SAR)
-                  <span className="text-emerald-500/50">Roughness</span>
                 </p>
                 <input type="file" accept="image/*" onChange={(e) => setCprImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
               </div>
@@ -83,7 +81,6 @@ export function WaterIceIntelligence() {
               <div className="flex flex-col mb-4">
                 <p className="text-[10px] text-zinc-500 font-bold mb-2 uppercase tracking-widest flex items-center justify-between">
                   3. OH Reflectance Map (IIRS)
-                  <span className="text-violet-500/50">Chemical</span>
                 </p>
                 <input type="file" accept="image/*" onChange={(e) => setOhImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
               </div>
