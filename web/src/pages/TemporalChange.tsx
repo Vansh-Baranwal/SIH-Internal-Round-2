@@ -1,10 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppShell } from '../components/layout/AppShell';
 
 export function TemporalChange() {
   const [imageA, setImageA] = useState<File | null>(null);
   const [imageB, setImageB] = useState<File | null>(null);
-  
+  const [previewA, setPreviewA] = useState<string | null>(null);
+  const [previewB, setPreviewB] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!imageA) { setPreviewA(null); return; }
+    const url = URL.createObjectURL(imageA);
+    setPreviewA(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageA]);
+
+  useEffect(() => {
+    if (!imageB) { setPreviewB(null); return; }
+    const url = URL.createObjectURL(imageB);
+    setPreviewB(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageB]);
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [changesDetected, setChangesDetected] = useState<number | null>(null);
@@ -67,8 +83,11 @@ export function TemporalChange() {
             <div className="rounded-xl border border-white/10 bg-black p-4 mb-4">
               <input type="file" accept="image/*" onChange={(e) => setImageA(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
             </div>
-            {imageA && (
-              <p className="text-xs text-emerald-400 font-mono mt-2">Loaded: {imageA.name}</p>
+            {imageA && previewA && (
+              <div className="mt-4">
+                <img src={previewA} alt="Preview A" className="w-full h-auto max-h-[400px] object-contain rounded-lg border border-white/10" />
+                <p className="text-xs text-emerald-400 font-mono mt-2">Loaded: {imageA.name}</p>
+              </div>
             )}
           </div>
 
@@ -80,8 +99,11 @@ export function TemporalChange() {
             <div className="rounded-xl border border-white/10 bg-black p-4 mb-4">
               <input type="file" accept="image/*" onChange={(e) => setImageB(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
             </div>
-            {imageB && (
-              <p className="text-xs text-emerald-400 font-mono mt-2">Loaded: {imageB.name}</p>
+            {imageB && previewB && (
+              <div className="mt-4">
+                <img src={previewB} alt="Preview B" className="w-full h-auto max-h-[400px] object-contain rounded-lg border border-white/10" />
+                <p className="text-xs text-emerald-400 font-mono mt-2">Loaded: {imageB.name}</p>
+              </div>
             )}
           </div>
         </section>
