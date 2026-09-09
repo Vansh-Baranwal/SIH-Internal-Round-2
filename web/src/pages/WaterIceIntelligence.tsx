@@ -66,13 +66,13 @@ export function WaterIceIntelligence() {
         </div>
 
         <section className="grid grid-cols-1 xl:grid-cols-[1.3fr_0.7fr] gap-6">
-          <div className="rounded-2xl border border-white/10 bg-[#0d0d10] p-6 shadow-2xl">
+          <div className="border-l border-white/5 pl-8 py-4">
             <p className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-bold mb-6">
               Interactive Water-Ice Fusion Engine
             </p>
             
             <div className="space-y-4 mb-8">
-              <div className="rounded-xl border border-white/10 bg-black p-4">
+              <div className="flex flex-col mb-4">
                 <p className="text-[10px] text-zinc-500 font-bold mb-2 uppercase tracking-widest flex items-center justify-between">
                   1. Temperature Map (Diviner)
                   <span className="text-blue-500/50">Base Frame</span>
@@ -80,7 +80,7 @@ export function WaterIceIntelligence() {
                 <input type="file" accept="image/*" onChange={(e) => setTempImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-black p-4">
+              <div className="flex flex-col mb-4">
                 <p className="text-[10px] text-zinc-500 font-bold mb-2 uppercase tracking-widest flex items-center justify-between">
                   2. Radar CPR Map (Mini-SAR)
                   <span className="text-emerald-500/50">Roughness</span>
@@ -88,7 +88,7 @@ export function WaterIceIntelligence() {
                 <input type="file" accept="image/*" onChange={(e) => setCprImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-black p-4">
+              <div className="flex flex-col mb-4">
                 <p className="text-[10px] text-zinc-500 font-bold mb-2 uppercase tracking-widest flex items-center justify-between">
                   3. OH Reflectance Map (IIRS)
                   <span className="text-violet-500/50">Chemical</span>
@@ -100,7 +100,7 @@ export function WaterIceIntelligence() {
             <button 
               onClick={handleGenerate}
               disabled={!tempImage || !cprImage || !ohImage || isProcessing}
-              className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold tracking-widest uppercase text-[11px] py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-cyan-900/20"
+              className={`w-full font-bold tracking-widest uppercase text-[11px] py-3 rounded transition-all ${(!tempImage || !cprImage || !ohImage || isProcessing) ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" : "bg-zinc-200 hover:bg-white text-black"}`}
             >
               {isProcessing ? 'Running Fusion Engine...' : 'Fuse Sensor Data ->'}
             </button>
@@ -112,9 +112,9 @@ export function WaterIceIntelligence() {
             )}
 
             {resultImage && (
-              <div className="mt-8 rounded-xl border border-cyan-500/30 bg-cyan-500/5 overflow-hidden flex flex-col items-center p-6 shadow-2xl shadow-cyan-900/20">
-                <p className="text-[10px] uppercase tracking-[0.25em] text-cyan-400 font-bold mb-6 self-start flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              <div className="mt-8 rounded-xl border-t border-white/10 pt-8 mt-8 overflow-hidden flex flex-col items-center p-6 ">
+                <p className="text-[10px] uppercase tracking-[0.25em] text-zinc-300 font-bold mb-6 self-start flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-zinc-300 animate-pulse"></span>
                   LUPEX Ice Confidence Map
                 </p>
                 <img src={resultImage} alt="Ice Confidence Overlay" className="max-w-full h-auto object-contain rounded-lg border border-white/10 shadow-2xl" />
@@ -123,8 +123,8 @@ export function WaterIceIntelligence() {
           </div>
 
           <aside className="space-y-4">
-            <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5 space-y-4">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-cyan-400 font-bold">
+            <div className="border-l border-white/5 pl-8 py-4 space-y-4">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-300 font-bold">
                 Algorithm Math Guide
               </p>
               

@@ -213,7 +213,7 @@ export function SpectralIntelligence() {
       <div className="max-w-7xl mx-auto w-full px-8 pt-8 pb-16 space-y-8">
 
         <section className="grid grid-cols-1 xl:grid-cols-[1.3fr_0.7fr] gap-6">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
+          <div className="border-l border-white/5 pl-8 py-4">
             <div className="flex items-center justify-between gap-3 mb-4">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">
@@ -270,17 +270,17 @@ export function SpectralIntelligence() {
 
             {status === 'ready' && data && (
               <div className="mt-8 pt-8 border-t border-white/10">
-                <p className="text-[10px] uppercase tracking-[0.25em] text-zinc-500 font-bold mb-4">
-                  Interactive Spectral Heatmap Generator
-                </p>
+                <h2 className="text-sm font-bold text-zinc-300 tracking-widest uppercase mb-8">
+                    Data Ingestion
+                  </h2>
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="rounded-xl border border-white/10 bg-[#0d0d10] p-4">
-                      <p className="text-[10px] text-zinc-500 font-bold mb-3 uppercase tracking-widest">1. Upload Optical Base Image</p>
+                    <div className="flex flex-col mb-4">
+                        <p className="text-[10px] text-zinc-500 font-bold mb-3 uppercase tracking-widest">1. Upload Optical Base Image</p>
                       <input type="file" accept="image/*" onChange={(e) => setOpticalImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-[#0d0d10] p-4">
-                      <p className="text-[10px] text-zinc-500 font-bold mb-3 uppercase tracking-widest">2. Upload IIRS Band Image</p>
+                    <div className="flex flex-col mb-4">
+                        <p className="text-[10px] text-zinc-500 font-bold mb-3 uppercase tracking-widest">2. Upload IIRS Band Image</p>
                       <input type="file" accept="image/*" onChange={(e) => setIirsImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
                     </div>
                   </div>
@@ -288,7 +288,7 @@ export function SpectralIntelligence() {
                   <button 
                     onClick={handleGenerateOverlay}
                     disabled={!iirsImage || !opticalImage || overlayProcessing}
-                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold tracking-widest uppercase text-[11px] py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className={`w-full font-bold tracking-widest uppercase text-[11px] py-3 rounded transition-all ${(!iirsImage || !opticalImage || overlayProcessing) ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" : "bg-zinc-200 hover:bg-white text-black"}`}
                   >
                     {overlayProcessing ? 'Generating Mineral Overlay...' : 'Generate Spectral Overlay'}
                   </button>
@@ -314,7 +314,7 @@ export function SpectralIntelligence() {
           </div>
 
           <aside className="space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
+            <div className="border-l border-white/5 pl-8 py-4">
               <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold mb-3">
                 Spectral Controls
               </p>
@@ -340,8 +340,8 @@ export function SpectralIntelligence() {
               </select>
             </div>
 
-            <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-4 space-y-4">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-indigo-400 font-bold">
+            <div className="border-l border-white/5 pl-8 py-4 space-y-4">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">
                 Band Guide (Hackathon Demo)
               </p>
               
