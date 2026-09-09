@@ -211,15 +211,6 @@ export function SpectralIntelligence() {
       subtitle="IIRS and optical spectral inspection workspace"
     >
       <div className="max-w-7xl mx-auto w-full px-8 pt-8 pb-16 space-y-8">
-        <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 px-5 py-4">
-          <div className="flex items-start gap-3 text-indigo-200 text-sm font-medium leading-relaxed">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-            <span>
-              Material classes below are illustrative outputs from the existing Phase 8 classifier
-              over synthetic development data. They are not scientifically validated results.
-            </span>
-          </div>
-        </div>
 
         <section className="grid grid-cols-1 xl:grid-cols-[1.3fr_0.7fr] gap-6">
           <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
