@@ -125,7 +125,7 @@ export function WaterIceIntelligence() {
                 <div className="h-px bg-white/10" />
                 <div>
                   <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">CPR Roughness</p>
-                    <p className="text-xs text-zinc-500 mt-1">CPR > 1.0 indicates thick ice volume scattering. Scaled 0-1.</p>
+                    <p className="text-xs text-zinc-500 mt-1">CPR &gt; 1.0 indicates thick ice volume scattering. Scaled 0-1.</p>
                 </div>
                 <div className="h-px bg-white/10" />
                 <div>
