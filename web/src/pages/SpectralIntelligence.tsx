@@ -345,18 +345,18 @@ export function SpectralIntelligence() {
                 Band Guide (Hackathon Demo)
               </p>
               
-              <div className="space-y-3">
-                <div>
-                  <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Band 1 (TURBO Heatmap)</p>
-                  <p className="text-xs text-zinc-500 mt-1">Simulates standard multispectral reflectance. Hot colors (reds) indicate high albedo surfaces like Anorthosite highlands.</p>
+              <div className="space-y-6">
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Band 1 (TURBO Heatmap)</p>
+                    <p className="text-xs text-zinc-500 mt-1">Multispectral reflectance. Red = high albedo (Anorthosite).</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Band 2 (MAGMA Inversion)</p>
-                  <p className="text-xs text-zinc-500 mt-1">Simulates a deep-absorption feature like the 1.0 μm Pyroxene band or 2.0 μm Olivine band. Intensities are inverted to highlight absorption pits.</p>
+                    <p className="text-xs text-zinc-500 mt-1">Simulates deep-absorption (Pyroxene/Olivine). Inverted to highlight pits.</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Band 3 (OCEAN Threshold)</p>
-                  <p className="text-xs text-zinc-500 mt-1">Simulates the critical 3.0 μm Water-Ice absorption band. Uses strict thresholding to rigidly classify valid ice-bearing pixels in permanently shadowed regions.</p>
+                    <p className="text-xs text-zinc-500 mt-1">Simulates 3.0 µm Water-Ice absorption. Thresholded for ice-bearing pixels.</p>
                 </div>
               </div>
             </div>

@@ -117,25 +117,25 @@ export function WaterIceIntelligence() {
                 Algorithm Math Guide
               </p>
               
-              <div className="space-y-4">
-                <div>
-                  <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Temperature Normalization</p>
-                  <p className="text-xs text-zinc-500 mt-1">Pixels are clamped between 40K and 250K. Inverted so that 40K produces maximum confidence weight (1.0) and 250K drops to zero.</p>
+              <div className="space-y-6">
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Temperature Normalization</p>
+                    <p className="text-xs text-zinc-500 mt-1">Clamped (40K–250K) and inverted for max weight at 40K.</p>
                 </div>
                 <div className="h-px bg-white/10" />
                 <div>
                   <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">CPR Roughness</p>
-                  <p className="text-xs text-zinc-500 mt-1">Circular Polarization Ratio &gt; 1.0 strongly indicates volume scattering from thick ice. Values are normalized directly to a 0.0-1.0 confidence boost.</p>
+                    <p className="text-xs text-zinc-500 mt-1">CPR > 1.0 indicates thick ice volume scattering. Scaled 0-1.</p>
                 </div>
                 <div className="h-px bg-white/10" />
                 <div>
                   <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">OH Absorption</p>
-                  <p className="text-xs text-zinc-500 mt-1">The 3.0 μm band anomaly acts as the definitive chemical signature, scaling the final probability.</p>
+                    <p className="text-xs text-zinc-500 mt-1">3.0 µm anomaly provides definitive chemical signature scaling.</p>
                 </div>
                 <div className="h-px bg-white/10" />
                 <div>
                   <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Final Fusion</p>
-                  <p className="text-xs text-zinc-500 mt-1">Weights: Temp (50%), CPR (30%), OH (20%). Displayed via OCEAN colormap where deep blue is dry regolith and bright cyan/white is highly probable frost.</p>
+                    <p className="text-xs text-zinc-500 mt-1">Weights: Temp 50%, CPR 30%, OH 20%. Blue = Dry, Cyan/White = Frost.</p>
                 </div>
               </div>
             </div>
