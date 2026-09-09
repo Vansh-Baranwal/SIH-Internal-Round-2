@@ -17,8 +17,7 @@ export type WorkspaceId =
   | 'mission-control'
   | 'multi-sensor-registration'
   | 'spectral-water-ice'
-  | 'temporal-analysis'
-  | 'digital-twin';
+  | 'temporal-analysis';
 
 export interface WorkspaceRoute {
   label: string;
@@ -81,17 +80,6 @@ export const WORKSPACES: WorkspaceDefinition[] = [
     description: 'Frontend temporal comparison workspace for genuine observation pairs and future change-analysis integration.',
     icon: History,
     routes: [{ label: 'Temporal Analysis', path: '/temporal' }],
-  },
-  {
-    id: 'digital-twin',
-    label: '3D Digital Twin',
-    shortLabel: '3D Twin',
-    description: 'Interactive 3D digital twin of the lunar terrain with the Phase 12 overlays.',
-    icon: Boxes,
-    routes: [
-      { label: 'Terrain', path: '/terrain' },
-      { label: 'Simulation', path: '/simulation' },
-    ],
   },
 ];
 

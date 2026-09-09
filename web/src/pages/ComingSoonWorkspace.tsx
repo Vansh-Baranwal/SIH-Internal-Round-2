@@ -21,7 +21,7 @@ export function ComingSoonWorkspace({ workspaceId }: { workspaceId: WorkspaceId 
             No synthetic or real scientific results are produced or fabricated in this placeholder.
           </p>
           <p className="mt-4 text-zinc-600 text-sm font-medium tracking-wide">
-            Existing Phase 12 components remain available in the “3D Digital Twin” workspace, and
+            Existing Phase 12 components remain available in the "Simulation" workspace, and
             all currently working modules keep their existing routes.
           </p>
         </div>

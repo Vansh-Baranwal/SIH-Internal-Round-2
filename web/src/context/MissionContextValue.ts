@@ -15,7 +15,7 @@ export type MissionContextType = {
   // Explicit hand-off from registration into the legacy mission pipeline.
   sendToMissionPipeline: (overlayImageUrl: string) => void;
 
-  // Isolated hand-off from the digital twin into a fresh registration session.
+  // Isolated hand-off from the simulation into a fresh registration session.
   startCounterfactualSession: (capture: {
     dataUrl: string;
     azimuthDeg: number;

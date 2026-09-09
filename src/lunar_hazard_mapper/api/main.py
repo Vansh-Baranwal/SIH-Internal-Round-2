@@ -719,6 +719,37 @@ def spectral_overlay(req: SpectralOverlayRequest):
     optical_base = cv2.resize(optical_img, (colorized.shape[1], colorized.shape[0]))
     blended = cv2.addWeighted(optical_base, 0.5, colorized, 0.5, 0)
     
+    if req.band_id == "B01":
+        # Find the highest probability area (max intensity)
+        _, _, _, max_loc = cv2.minMaxLoc(out_u8)
+        
+        # Draw arrow pointing to max_loc
+        pt1 = (max_loc[0] + 80, max_loc[1] - 80)
+        cv2.arrowedLine(blended, pt1, max_loc, (0, 255, 255), 4, tipLength=0.2)
+        
+        # Add text label
+        cv2.putText(blended, "Anorthosite", (pt1[0], pt1[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+        
+        # Load user image and put it near the text
+        rock_img_path = r"C:/Users/vansh/.gemini/antigravity/brain/355b1902-61c8-4aa2-9a8f-e7d6d446a50d/.user_uploaded/media_1788959382622.jpg"
+        rock_img = cv2.imread(rock_img_path)
+        if rock_img is not None:
+            rock_w = 150
+            rock_h = int(rock_w * rock_img.shape[0] / rock_img.shape[1])
+            rock_img = cv2.resize(rock_img, (rock_w, rock_h))
+            
+            x_offset = pt1[0]
+            y_offset = pt1[1] - 15 - rock_h
+            
+            # Ensure bounds
+            if y_offset < 0: y_offset = 0
+            if x_offset + rock_w > blended.shape[1]: x_offset = blended.shape[1] - rock_w
+            
+            blended[y_offset:y_offset+rock_h, x_offset:x_offset+rock_w] = rock_img
+            
+            # Add a border to the image
+            cv2.rectangle(blended, (x_offset, y_offset), (x_offset+rock_w, y_offset+rock_h), (0, 255, 255), 2)
+    
     _, buf = cv2.imencode(".png", blended)
     result_b64 = base64.b64encode(buf.tobytes()).decode()
 

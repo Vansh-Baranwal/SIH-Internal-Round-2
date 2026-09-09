@@ -92,7 +92,7 @@ export function Landing() {
           </h1>
           
           <motion.p className="text-lg lg:text-xl text-zinc-400 leading-relaxed mb-12 max-w-2xl font-medium overflow-hidden">
-            {"A geospatial intelligence platform for converting Chandrayaan-2 lunar observations into high-fidelity terrain hazard maps, landing-site assessments, and interactive descent trajectory physics.".split(" ").map((word, index) => (
+            {"A geospatial intelligence platform for integrating Chandrayaan-2 and multi-sensor lunar observations into high-fidelity hazard maps, spectral intelligence, and water-ice confidence fusions.".split(" ").map((word, index) => (
               <motion.span key={index} variants={wordVariant} className="inline-block mr-1.5">{word}</motion.span>
             ))}
           </motion.p>
@@ -133,10 +133,10 @@ export function Landing() {
             <div>
               <h3 className="text-lg font-medium text-white mb-6 tracking-tight">Problem Statement</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight mb-4">
-                Safe autonomous lunar landings require detailed prior knowledge of the target terrain. Existing optical imagery often lacks the resolution required to identify sub-meter hazards (boulders, craters) and steep local slopes.
+                Identifying water-ice and characterizing the lunar surface requires fusing data from multiple sensors (Optical, Thermal, SAR, and Spectral). Disparate observation geometries and varying resolutions make this a complex registration challenge.
               </p>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                Without physical elevation data and mathematically rigorous hazard mapping, mission planners cannot accurately predict the Delta-V required to reach a safe touchdown zone.
+                Without mathematically rigorous cross-modal matching and multi-sensor alignment, mission planners cannot accurately derive spectral confidence maps or assess target suitability.
               </p>
             </div>
 
@@ -145,23 +145,23 @@ export function Landing() {
               <ul className="space-y-4 text-sm text-zinc-500 tracking-tight">
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">01</span> 
-                  <span>Enhance optical imagery resolution using deep learning (CSASR).</span>
+                  <span>Register multi-sensor imagery (TMC, OHRC, Diviner, Mini-SAR, IIRS) across different modalities.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">02</span> 
-                  <span>Integrate physical DEMs to derive true elevation.</span>
+                  <span>Extract cross-modal features with automated matching engines.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">03</span> 
-                  <span>Map hazards including slopes, craters, and roughness.</span>
+                  <span>Map hazards including slopes, craters, and morphological roughness.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">04</span> 
-                  <span>Evaluate sites dynamically against strict lander physics.</span>
+                  <span>Derive hyperspectral intelligence to map surface mineralogy.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">05</span> 
-                  <span>Validate descent reachability and Delta-V costs.</span>
+                  <span>Fuse temperature, CPR, and hydration maps for high-confidence Water-Ice detections.</span>
                 </li>
               </ul>
             </div>
@@ -196,12 +196,12 @@ export function Landing() {
               <div className="lg:col-span-7 flex flex-col w-full">
                 <div className="border-t border-white/10"></div>
                 {[
-                  { step: "01", title: "Select imagery", desc: "Choose a source frame and a geometry reference from local files" },
-                  { step: "02", title: "Match features", desc: "Find cross-modal correspondences with the SIFT matching engine" },
-                  { step: "03", title: "Verify geometry", desc: "Reject outliers with RANSAC and refine the surviving matches" },
-                  { step: "04", title: "Review registration", desc: "Inspect real match points, RMSE, inlier ratio, and spatial coverage" },
-                  { step: "05", title: "Continue to imagery", desc: "Send the registered output into the existing imagery pipeline" },
-                  { step: "06", title: "Run mission analysis", desc: "Generate hazards, landing sites, and trajectories as separate downstream steps" }
+                  { step: "01", title: "Select imagery", desc: "Choose source and reference frames (e.g. TMC, OHRC) from the registry" },
+                  { step: "02", title: "Match features", desc: "Find cross-modal correspondences and verify geometric alignment" },
+                  { step: "03", title: "Review registration", desc: "Inspect match points, RMSE, and alignment fidelity in the cockpit" },
+                  { step: "04", title: "Generate hazard maps", desc: "Map local slopes, craters, and morphological roughness" },
+                  { step: "05", title: "Spectral Intelligence", desc: "Analyze hyperspectral signatures to detect surface compositions" },
+                  { step: "06", title: "Water-Ice Fusion", desc: "Fuse Diviner thermal, Mini-SAR CPR, and IIRS hydration into confidence maps" }
                 ].map((module, i) => (
                   <motion.div 
                     initial={{ opacity: 0, x: 20 }} 
@@ -246,14 +246,14 @@ export function Landing() {
             <div>
               <h3 className="text-lg font-medium text-white mb-4 tracking-tight">Scientific Motivation</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                The Lunar Hazard Mapper is a geospatial analysis platform for Chandrayaan-2 imagery. Its active correspondence workflow registers a source image against a reference frame, reports measurable geometric quality, and hands the registered output to the downstream mission tools.
+                Lunadrishti is a multi-sensor geospatial analysis platform for ISRO lunar datasets. Our workflow spatially registers disparate datasets (Optical, SAR, Thermal, Spectral), generates multi-modal hazard maps, and employs data fusion to create high-confidence water-ice prospect maps.
               </p>
             </div>
 
             <div>
               <h3 className="text-lg font-medium text-white mb-4 tracking-tight">Data Sources</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                The correspondence engine accepts real local image files, including <b>TMC</b>, <b>OHRC</b>, and other supported sensor imagery. Hazard, landing-site, and trajectory outputs require their own downstream processing; registration metrics alone are not a final flight recommendation.
+                The platform processes real level-1 and level-2 data products, including <b>TMC</b> and <b>OHRC</b> optical imagery, <b>IIRS</b> hyperspectral cubes, <b>Mini-SAR</b> radar backscatter, and <b>Diviner</b> thermal radiometry, bringing them into a unified spatial reference frame.
               </p>
             </div>
           </div>

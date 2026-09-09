@@ -85,16 +85,6 @@ const DEMO_STEPS: GuidedDemoStep[] = [
     whyItMatters: 'This prevents false claims about multi-date landform change while still showing the intended workflow structure.',
     inspect: 'Review the selected observation pair and the honest statement that no genuine temporal change map is available yet.',
   },
-  {
-    id: 'digital-twin',
-    title: '3D Digital Twin',
-    path: '/simulation',
-    status: 'available',
-    label: 'Phase 12 / Available',
-    summary: 'The digital twin retains the Phase 12 terrain and simulation experience as a navigable mission visualization layer.',
-    whyItMatters: 'It gives the user a final spatial context for terrain, hazard, and mission environment awareness without introducing new science.',
-    inspect: 'Open the simulation and terrain-oriented space to see the preserved 3D workflow in context.',
-  },
 ];
 
 function statusStyles(status: DemoStatus) {

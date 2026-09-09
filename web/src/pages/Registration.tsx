@@ -35,7 +35,16 @@ function DatasetSlot({
   disabled: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const sensor = dataset?.sensor || (label === 'Source' ? 'OHRC' : 'TMC');
+  const [selectedSensor, setSelectedSensor] = useState<SensorType>(
+    dataset?.sensor || (label === 'Source' ? 'OHRC' : 'TMC')
+  );
+
+  // Sync state if dataset changes externally
+  useEffect(() => {
+    if (dataset?.sensor) {
+      setSelectedSensor(dataset.sensor);
+    }
+  }, [dataset?.sensor]);
 
   return (
     <div className="border-l border-white/5 pl-8 flex-1 min-w-0">
@@ -47,8 +56,8 @@ function DatasetSlot({
         <label className="sr-only" htmlFor={`${label.toLowerCase()}-sensor`}>{label} sensor</label>
         <select
           id={`${label.toLowerCase()}-sensor`}
-          value={sensor}
-          onChange={(e) => setSensor(e.target.value as SensorType)}
+          value={selectedSensor}
+          onChange={(e) => setSelectedSensor(e.target.value as SensorType)}
           disabled={disabled}
           className="bg-transparent border border-white/10 text-zinc-400 text-[11px] font-bold tracking-widest uppercase px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus:border-white/30"
         >
@@ -83,7 +92,7 @@ function DatasetSlot({
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file) onSelect(file, sensor);
+          if (file) onSelect(file, selectedSensor);
           e.target.value = '';
         }}
       />

@@ -170,11 +170,6 @@ export function MissionControl() {
               state="deferred"
               detail="Temporal change detection remains intentionally deferred and is not presented as actual multi-date analysis."
             />
-            <OutputReadinessCard
-              label="3D Digital Twin"
-              state="available"
-              detail="The Phase 12 Digital Twin remains presentation-ready and is preserved as a live inspection workflow without new scientific claims."
-            />
           </div>
         </section>
 

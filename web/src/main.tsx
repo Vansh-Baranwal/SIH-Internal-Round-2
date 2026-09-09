@@ -18,7 +18,6 @@ import { HazardMap } from './pages/HazardMap';
 import { LandingSites } from './pages/LandingSites';
 import { Trajectory } from './pages/Trajectory';
 import { Simulation } from './pages/Simulation';
-import { DigitalTwin } from './pages/DigitalTwin';
 import MultiSensorCockpit from './pages/MultiSensorCockpit';
 import './index.css';
 
@@ -41,7 +40,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="spectral" element={<SpectralIntelligence />} />
             <Route path="water-ice" element={<WaterIceIntelligence />} />
             <Route path="temporal" element={<TemporalChange />} />
-            <Route path="digital-twin" element={<DigitalTwin />} />
           </Route>
         </Routes>
       </BrowserRouter>

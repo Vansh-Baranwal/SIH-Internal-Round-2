@@ -70,7 +70,6 @@ export function Navbar() {
     { name: 'Water Ice', path: '/water-ice' },
     { name: 'Temporal', path: '/temporal' },
     { name: 'Simulation', path: '/simulation' },
-    { name: '3D Twin', path: '/digital-twin' },
   ];
 
   const hasRegistration = session.status === 'succeeded';
