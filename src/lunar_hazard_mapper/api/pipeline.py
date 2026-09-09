@@ -144,7 +144,7 @@ def run_dual_pipeline(scene_id: str = "01_01", subset_window=((0, 100), (0, 100)
     if optical_path is None:
         optical_path = repo_dir / "data/real_samples/tmc_ortho2/data/derived/20250707/ch2_tmc_ndn_20250707T1853051045_d_oth_d18.tif"
     if dem_path is None:
-        dem_path = repo_dir / "data/real_samples/selene_real_overlap/DTMTCO_03_02666S010E0261SC_img.img"
+        dem_path = repo_dir / "data/real_samples/selene_real_overlap/dtmtco_03_02666s010e0261sc_img.lbl"
 
     if not optical_path.exists():
         raise FileNotFoundError(f"Missing optical dataset: {optical_path}")
