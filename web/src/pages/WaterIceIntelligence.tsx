@@ -134,8 +134,8 @@ export function WaterIceIntelligence() {
                 </div>
                 <div className="h-px bg-white/10" />
                 <div>
-                  <p className="text-[10px] font-bold text-cyan-300 uppercase tracking-widest">Final Fusion</p>
-                  <p className="text-xs text-zinc-400 mt-1">Weights: Temp (50%), CPR (30%), OH (20%). Displayed via OCEAN colormap where deep blue is dry regolith and bright cyan/white is highly probable frost.</p>
+                  <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">Final Fusion</p>
+                  <p className="text-xs text-zinc-500 mt-1">Weights: Temp (50%), CPR (30%), OH (20%). Displayed via OCEAN colormap where deep blue is dry regolith and bright cyan/white is highly probable frost.</p>
                 </div>
               </div>
             </div>
