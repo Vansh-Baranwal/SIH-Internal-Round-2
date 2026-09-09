@@ -20,6 +20,8 @@ export interface DatasetInput {
   name: string;
   /** URL the frontend can render as a preview (may be a blob: URL pre-upload). */
   previewUrl: string;
+  width?: number;
+  height?: number;
   /** Original browser file retained until both datasets are submitted. */
   file?: File;
   /** Reserved for a future catalog-backed dataset workflow. */

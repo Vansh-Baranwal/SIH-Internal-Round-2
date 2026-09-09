@@ -19,6 +19,33 @@ import json
 from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 
+def extract_metadata(filepath: str):
+    import os
+    if not str(filepath).lower().endswith(('.tif', '.tiff')):
+        return None
+    try:
+        import rasterio
+        with rasterio.open(filepath) as dataset:
+            tags = dataset.tags()
+            # Try some common tag names for solar angles
+            az = None
+            el = None
+            for key, val in tags.items():
+                kl = key.lower()
+                if 'azimuth' in kl and 'sun' in kl:
+                    try: az = float(val)
+                    except: pass
+                elif 'elevation' in kl and 'sun' in kl:
+                    try: el = float(val)
+                    except: pass
+            
+            if az is not None or el is not None:
+                return {"azimuth": az, "elevation": el}
+    except:
+        pass
+    return None
+
+
 from lunar_hazard_mapper.correspondence_engine.registration.pipeline import run_pipeline, MATCHERS
 
 router = APIRouter(prefix="/api/v1/correspondence", tags=["correspondence-engine"])
@@ -82,6 +109,14 @@ async def register(
             vis_b64 = base64.b64encode(f.read()).decode("utf-8")
     except: pass
 
+    matches_data = []
+    try:
+        with open(job_dir / "matches.json", "r") as f:
+            jdata = json.load(f)
+            matches_data = jdata.get("matches", [])
+    except:
+        pass
+
     return {
         "job_id": job_id,
         "metrics": metrics.to_dict(),
@@ -91,6 +126,9 @@ async def register(
         "vis_b64": vis_b64,
         "matches_csv_path": str(job_dir / "matches.csv"),
         "matches_json_path": str(job_dir / "matches.json"),
+        "matches": matches_data,
+        "source_metadata": extract_metadata(str(source_path)),
+        "reference_metadata": extract_metadata(str(reference_path)),
     }
 
 

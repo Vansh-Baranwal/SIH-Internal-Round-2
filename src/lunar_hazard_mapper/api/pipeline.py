@@ -184,7 +184,9 @@ def run_dual_pipeline(scene_id: str = "01_01", subset_window=((0, 100), (0, 100)
 
     try:
         # Load stages and infer
-        infer_geotiff(CHECKPOINT_DIR, crop_path, sr_path)
+        import torch
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        infer_geotiff(CHECKPOINT_DIR, crop_path, sr_path, device=device)
         with rasterio.open(sr_path) as sr_src:
             sr_dim = f"{sr_src.width} x {sr_src.height}"
     except Exception as e:

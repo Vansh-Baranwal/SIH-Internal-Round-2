@@ -102,7 +102,7 @@ export function HUD({ telemetry, status, target, isCrashing, animationTime, onOp
       {/* BOTTOM ROW */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-4">
         {telemetry && (
-            <div className={`p-4 sm:p-6 rounded-2xl border backdrop-blur-xl shadow-2xl w-full sm:min-w-[320px] ${borderColor} ${bgColor}`}>
+            <div className={`p-4 sm:p-6 rounded-2xl border backdrop-blur-xl shadow-2xl w-full sm:w-auto sm:min-w-[320px] ${borderColor} ${bgColor}`}>
                 <h3 className="text-zinc-400 font-bold mb-4 text-[10px] tracking-widest uppercase border-b border-white/10 pb-2">Live Telemetry</h3>
                 
                 <div className="grid grid-cols-2 gap-x-6 gap-y-4">
@@ -129,7 +129,7 @@ export function HUD({ telemetry, status, target, isCrashing, animationTime, onOp
         )}
 
         {telemetry && (
-            <div className={`p-4 sm:p-6 rounded-2xl border backdrop-blur-xl shadow-2xl w-full sm:min-w-[220px] text-left sm:text-right ${borderColor} ${bgColor}`}>
+            <div className={`p-4 sm:p-6 rounded-2xl border backdrop-blur-xl shadow-2xl w-full sm:w-auto sm:min-w-[220px] text-left sm:text-right ${borderColor} ${bgColor}`}>
                 <h3 className="text-zinc-400 font-bold mb-4 text-[10px] tracking-widest uppercase border-b border-white/10 pb-2">Guidance & Nav</h3>
                 
                 <div className="mb-4">

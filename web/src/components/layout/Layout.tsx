@@ -12,7 +12,7 @@ export function Layout() {
     <div className="min-h-screen flex flex-col bg-[#050505] text-zinc-300 selection:bg-white/20 selection:text-zinc-300 font-sans">
       <AppLoader />
       <Navbar />
-      {!isLanding && <WorkspaceNav />}
+      
       
       <main className="flex-grow flex flex-col relative min-w-0">
         {/* Subtle, highly professional grid background */}
@@ -22,7 +22,7 @@ export function Layout() {
           <Outlet />
         </div>
       </main>
-      {!isLanding && <Footer />}
+      <Footer />
     </div>
   );
 }

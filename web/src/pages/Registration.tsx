@@ -35,7 +35,7 @@ function DatasetSlot({
   disabled: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [sensor, setSensor] = useState<SensorType>(label === 'Source' ? 'OHRC' : 'TMC');
+  const sensor = dataset?.sensor || (label === 'Source' ? 'OHRC' : 'TMC');
 
   return (
     <div className="border-l border-white/5 pl-8 flex-1 min-w-0">
@@ -296,6 +296,7 @@ export function Registration() {
   const isRunning = session.status === 'queued' || session.status === 'running' || session.status === 'uploading';
 
   const [sunParams, setSunParams] = useState({ azimuthDeg: 135, elevationDeg: 45, illuminationVariant: false });
+  const [viewMode, setViewMode] = useState<'before'|'after'|'overlay'>('overlay');
   const loadingSpectralKind: SpectralLayer['kind'] | null = null;
   const [spectralErrors, setSpectralErrors] = useState<Partial<Record<SpectralLayer['kind'], string>>>({});
   const [previousQuality, setPreviousQuality] = useState<'good' | 'weak' | 'failed' | null>(null);
@@ -551,33 +552,7 @@ export function Registration() {
       </div>
 
 
-      {session.matchPoints.length > 0 && (
-        <div className="mb-16">
-          <h3 className="text-zinc-300 font-bold tracking-widest text-xs uppercase mb-8 border-b border-white/5 pb-4">
-            Feature Correspondence
-          </h3>
-          <div className="relative w-full bg-[#030303] min-h-[420px] flex items-center justify-center overflow-hidden">
-            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full opacity-80">
-              {session.matchPoints.map((m) => (
-                <line
-                  key={m.id}
-                  x1={m.sourceX * 0.45}
-                  y1={m.sourceY}
-                  x2={55 + m.referenceX * 0.45}
-                  y2={m.referenceY}
-                  stroke={m.isInlier ? '#38bdf8' : '#52525b'}
-                  strokeWidth={m.isInlier ? 0.15 : 0.08}
-                  opacity={m.isInlier ? 0.7 : 0.25}
-                />
-              ))}
-            </svg>
-            <div className="relative z-10 flex w-full justify-between px-8 py-8 pointer-events-none">
-              <span className="text-[11px] font-bold tracking-widest uppercase text-zinc-600">Source</span>
-              <span className="text-[11px] font-bold tracking-widest uppercase text-zinc-600">Reference</span>
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       {showResults && session.metrics && (
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 mb-8">
@@ -633,22 +608,15 @@ export function Registration() {
 
       {showResults && (
         <div className="flex justify-end gap-4 border-t border-white/5 pt-8">
-          <button
-            onClick={() => {
-              if (session.overlayImageUrl) {
-                sendToMissionPipeline(session.overlayImageUrl);
-                // Lands on Imagery (M2) rather than Hazard Map (M4) —
-                // matches the legacy pipeline order (M1 → M2 → M3/M4 →
-                // M5/M6): a registered image should go through
-                // super-resolution before hazard analysis, not skip it.
-                navigate('/imagery');
-              }
-            }}
-            className="flex items-center gap-2 bg-zinc-200 hover:bg-white text-black font-bold tracking-widest text-xs uppercase py-3 px-6 transition-colors"
-          >
-            Send to Mission Pipeline
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+                      <button
+              onClick={() => {
+                navigate('/temporal');
+              }}
+              className="flex items-center gap-2 bg-zinc-200 hover:bg-white text-black font-bold tracking-widest text-xs uppercase py-3 px-6 transition-colors"
+            >
+              Detect Temporal Changes
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
         </div>
       )}
     </div>

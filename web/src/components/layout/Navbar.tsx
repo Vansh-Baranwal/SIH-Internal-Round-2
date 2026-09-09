@@ -65,12 +65,12 @@ export function Navbar() {
   const navLinks = [
     { name: 'Registration', path: '/registration' },
     { name: 'Imagery', path: '/imagery' },
-    { name: 'Terrain', path: '/terrain' },
     { name: 'Hazards', path: '/hazard-map' },
-    { name: 'Sites', path: '/landing-sites' },
-    { name: 'Trajectory', path: '/trajectory' },
+    { name: 'Spectral', path: '/spectral' },
+    { name: 'Water Ice', path: '/water-ice' },
+    { name: 'Temporal', path: '/temporal' },
     { name: 'Simulation', path: '/simulation' },
-    { name: 'Cockpit', path: '/cockpit' },
+    { name: '3D Twin', path: '/digital-twin' },
   ];
 
   const hasRegistration = session.status === 'succeeded';

@@ -56,13 +56,7 @@ export function TemporalChange() {
     >
       <div className="max-w-7xl mx-auto w-full px-8 pt-8 pb-16 space-y-8">
         
-        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 px-5 py-4">
-          <div className="flex items-start gap-3 text-amber-200 text-sm font-medium leading-relaxed">
-            <span>
-              Upload a "Before" and "After" image of the lunar surface. The algorithm mathematically subtracts them to detect new impact craters, landslides, or rover tracks.
-            </span>
-          </div>
-        </div>
+
 
         <section className="grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-6">
           <div className="rounded-2xl border border-white/10 bg-[#0d0d10] p-6 shadow-2xl">
@@ -95,7 +89,7 @@ export function TemporalChange() {
         <button 
           onClick={handleGenerate}
           disabled={!imageA || !imageB || isProcessing}
-          className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold tracking-widest uppercase text-[11px] py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-amber-900/20"
+          className="w-full bg-white hover:bg-zinc-200 text-black font-bold tracking-widest uppercase text-[11px] py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-white/20"
         >
           {isProcessing ? 'Subtracting Images...' : 'Detect Temporal Changes'}
         </button>

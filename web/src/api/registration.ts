@@ -261,6 +261,7 @@ export async function startRegistration(payload: RegisterRequestPayload): Promis
         // The engine reports pixel RMSE; no physical scale is available here.
         rmseMeters: undefined,
         rmsePixels: data.metrics.rmse,
+          subpixelRefined: data.metrics.subpixel_refined,
         inlierCount: data.metrics.inlier_count,
         totalMatches: data.metrics.total_matches,
         inlierRatio: data.metrics.inlier_ratio,
