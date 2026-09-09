@@ -77,7 +77,7 @@ export function WaterIceIntelligence() {
                   1. Temperature Map (Diviner)
                   <span className="text-blue-500/50">Base Frame</span>
                 </p>
-                <input type="file" accept="image/*" onChange={(e) => setTempImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20" />
+                <input type="file" accept="image/*" onChange={(e) => setTempImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
               </div>
 
               <div className="rounded-xl border border-white/10 bg-black p-4">
@@ -85,7 +85,7 @@ export function WaterIceIntelligence() {
                   2. Radar CPR Map (Mini-SAR)
                   <span className="text-emerald-500/50">Roughness</span>
                 </p>
-                <input type="file" accept="image/*" onChange={(e) => setCprImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20" />
+                <input type="file" accept="image/*" onChange={(e) => setCprImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
               </div>
 
               <div className="rounded-xl border border-white/10 bg-black p-4">
@@ -93,7 +93,7 @@ export function WaterIceIntelligence() {
                   3. OH Reflectance Map (IIRS)
                   <span className="text-violet-500/50">Chemical</span>
                 </p>
-                <input type="file" accept="image/*" onChange={(e) => setOhImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-violet-500/10 file:text-violet-400 hover:file:bg-violet-500/20" />
+                <input type="file" accept="image/*" onChange={(e) => setOhImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
               </div>
             </div>
 

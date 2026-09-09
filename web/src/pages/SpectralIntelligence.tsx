@@ -277,11 +277,11 @@ export function SpectralIntelligence() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="rounded-xl border border-white/10 bg-[#0d0d10] p-4">
                       <p className="text-[10px] text-zinc-500 font-bold mb-3 uppercase tracking-widest">1. Upload Optical Base Image</p>
-                      <input type="file" accept="image/*" onChange={(e) => setOpticalImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700" />
+                      <input type="file" accept="image/*" onChange={(e) => setOpticalImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
                     </div>
                     <div className="rounded-xl border border-white/10 bg-[#0d0d10] p-4">
                       <p className="text-[10px] text-zinc-500 font-bold mb-3 uppercase tracking-widest">2. Upload IIRS Band Image</p>
-                      <input type="file" accept="image/*" onChange={(e) => setIirsImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-200 hover:file:bg-indigo-500/30" />
+                      <input type="file" accept="image/*" onChange={(e) => setIirsImage(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
                     </div>
                   </div>
 

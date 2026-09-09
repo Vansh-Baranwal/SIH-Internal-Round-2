@@ -65,7 +65,7 @@ export function TemporalChange() {
             </p>
             
             <div className="rounded-xl border border-white/10 bg-black p-4 mb-4">
-              <input type="file" accept="image/*" onChange={(e) => setImageA(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700" />
+              <input type="file" accept="image/*" onChange={(e) => setImageA(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
             </div>
             {imageA && (
               <p className="text-xs text-emerald-400 font-mono mt-2">Loaded: {imageA.name}</p>
@@ -78,7 +78,7 @@ export function TemporalChange() {
             </p>
             
             <div className="rounded-xl border border-white/10 bg-black p-4 mb-4">
-              <input type="file" accept="image/*" onChange={(e) => setImageB(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700" />
+              <input type="file" accept="image/*" onChange={(e) => setImageB(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
             </div>
             {imageB && (
               <p className="text-xs text-emerald-400 font-mono mt-2">Loaded: {imageB.name}</p>

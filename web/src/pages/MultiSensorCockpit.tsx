@@ -110,11 +110,11 @@ export function MultiSensorCockpit() {
         <div className="xl:col-span-2 mb-2 flex gap-4 bg-slate-900/90 p-4 rounded-xl border border-slate-800">
           <div className="flex-1">
             <label className="block text-[10px] uppercase text-cyan-400 mb-1 font-bold">1. Target Base (e.g. OHRC)</label>
-            <input type="file" onChange={e => setDstFile(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700" />
+            <input type="file" onChange={e => setDstFile(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
           </div>
           <div className="flex-1">
             <label className="block text-[10px] uppercase text-violet-400 mb-1 font-bold">2. Source Overlay (e.g. TMC)</label>
-            <input type="file" onChange={e => setSrcFile(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700" />
+            <input type="file" onChange={e => setSrcFile(e.target.files?.[0] || null)} className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" />
           </div>
           <button onClick={handleAlign} disabled={!srcFile || !dstFile || isAligning} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 rounded text-xs tracking-widest uppercase">
             {isAligning ? 'Aligning...' : 'Run Registration'}
