@@ -56,14 +56,6 @@ export function WaterIceIntelligence() {
       subtitle="Multi-sensor LUPEX fusion workspace"
     >
       <div className="max-w-7xl mx-auto w-full px-8 pt-8 pb-16 space-y-8">
-        
-        <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 px-5 py-4">
-          <div className="flex items-start gap-3 text-blue-200 text-sm font-medium leading-relaxed">
-            <span>
-              This workspace runs the actual Phase 13 Multi-Sensor Fusion math engine. Upload 3 sensor inputs to generate a live, scientific Ice Confidence Map.
-            </span>
-          </div>
-        </div>
 
         <section className="grid grid-cols-1 xl:grid-cols-[1.3fr_0.7fr] gap-6">
           <div className="border-l border-white/5 pl-8 py-4">
