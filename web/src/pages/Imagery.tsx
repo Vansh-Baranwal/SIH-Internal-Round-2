@@ -146,7 +146,7 @@ export function Imagery() {
             accept="image/*,.tif,.tiff"
             aria-label="Select orbital image"
             onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
-            className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer" mb-4"
+            className="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-bold file:tracking-wide file:bg-zinc-200 file:text-black hover:file:bg-white transition-colors cursor-pointer mb-4"
           />
 
           {file && (
