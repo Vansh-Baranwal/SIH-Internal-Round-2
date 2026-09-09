@@ -310,9 +310,9 @@ async def run_full_pipeline(file: UploadFile = File(None), scene_id: str = "01_0
     """
     Executes the Dual-Path Pipeline (M1-M6).
     """
+    import re
     optical_path = None
     if file and file.filename:
-        import re
         input_path = UPLOAD_DIR / file.filename
         with open(input_path, "wb") as buffer:
             buffer.write(await file.read())
@@ -368,10 +368,16 @@ async def run_full_pipeline(file: UploadFile = File(None), scene_id: str = "01_0
             # cached mission responses and all normal M4 routes stay available.
             from lunar_hazard_mapper.api.pipeline import run_dual_pipeline
 
-            if re.match(r"(\d{8}T\d+)", scene_id):
-                stats = run_dual_pipeline(scene_id, optical_path=None)
-            else:
-                stats = run_dual_pipeline(scene_id, optical_path=optical_path)
+            try:
+                if re.match(r"(\d{8}T\d+)", scene_id):
+                    stats = run_dual_pipeline(scene_id, optical_path=None)
+                else:
+                    stats = run_dual_pipeline(scene_id, optical_path=optical_path)
+            except Exception as pipeline_err:
+                import traceback
+                with open("scratch/pipeline_crash.log", "w") as crash_file:
+                    crash_file.write(traceback.format_exc())
+                raise pipeline_err
         
         # Include fields the frontend currently expects:
         import time
