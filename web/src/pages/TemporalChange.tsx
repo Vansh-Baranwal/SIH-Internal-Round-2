@@ -123,17 +123,17 @@ export function TemporalChange() {
         )}
 
         {resultImage && (
-          <div className="mt-8 rounded-xl border border-amber-500/30 bg-amber-500/5 overflow-hidden flex flex-col items-center p-6 shadow-2xl shadow-amber-900/20">
+          <div className="mt-8 rounded-xl border border-white/20 bg-white/5 overflow-hidden flex flex-col items-center p-6 shadow-2xl shadow-white/10">
             <div className="w-full flex justify-between items-center mb-6">
-              <p className="text-[10px] uppercase tracking-[0.25em] text-amber-400 font-bold flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <p className="text-[10px] uppercase tracking-[0.25em] text-white font-bold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                 Temporal Change Map
               </p>
-              <p className="text-xs font-mono text-amber-300 bg-amber-500/10 px-3 py-1 rounded-full">
+              <p className="text-xs font-mono text-zinc-300 bg-white/10 px-3 py-1 rounded-full">
                 Anomalies Detected: {changesDetected}
               </p>
             </div>
-            <img src={resultImage} alt="Temporal Change" className="max-w-full h-auto object-contain rounded-lg border border-white/10 shadow-2xl" />
+            <img src={resultImage} alt="Temporal Change" className="w-full h-auto max-h-[400px] object-contain rounded-lg border border-white/10 shadow-2xl" />
           </div>
         )}
       </div>
