@@ -92,7 +92,7 @@ export function Landing() {
           </h1>
           
           <motion.p className="text-lg lg:text-xl text-zinc-400 leading-relaxed mb-12 max-w-2xl font-medium overflow-hidden">
-            {"A geospatial intelligence platform for integrating Chandrayaan-2 and multi-sensor lunar observations into high-fidelity hazard maps, spectral intelligence, and water-ice confidence fusions.".split(" ").map((word, index) => (
+            {"A multi-modal, sun angle, and scale invariant image correspondence platform leveraging Hapke photometric modeling, Geo-LoFTR, and coarse-to-fine pyramids for Chandrayaan-2 optical datasets.".split(" ").map((word, index) => (
               <motion.span key={index} variants={wordVariant} className="inline-block mr-1.5">{word}</motion.span>
             ))}
           </motion.p>
@@ -133,35 +133,35 @@ export function Landing() {
             <div>
               <h3 className="text-lg font-medium text-white mb-6 tracking-tight">Problem Statement</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight mb-4">
-                Identifying water-ice and characterizing the lunar surface requires fusing data from multiple sensors (Optical, Thermal, SAR, and Spectral). Disparate observation geometries and varying resolutions make this a complex registration challenge.
+                Identifying precise landing sites and characterizing the lunar surface requires fusing data from multiple sensors. Extreme differences in sun angles (illumination), resolutions (scale), and observing geometries (viewpoints) make this a complex registration challenge.
               </p>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                Without mathematically rigorous cross-modal matching and multi-sensor alignment, mission planners cannot accurately derive spectral confidence maps or assess target suitability.
+                Without mathematically rigorous cross-modal matching and physics-aware alignment, mission planners cannot accurately derive geometric correspondence or assess target suitability between Chandrayaan-2 and global basemaps.
               </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-white mb-6 tracking-tight">Key Objectives</h3>
+              <h3 className="text-lg font-medium text-white mb-6 tracking-tight">Key Innovations</h3>
               <ul className="space-y-4 text-sm text-zinc-500 tracking-tight">
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">01</span> 
-                  <span>Register multi-sensor imagery (TMC, OHRC, Diviner, Mini-SAR, IIRS) across different modalities.</span>
+                  <span>Photometric Normalization: Physics-based Hapke correction using real sun/sensor geometry.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">02</span> 
-                  <span>Extract cross-modal features with automated matching engines.</span>
+                  <span>Scale Invariance: Coarse-to-fine pyramids to bridge extreme 100-300x resolution gaps.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">03</span> 
-                  <span>Map hazards including slopes, craters, and morphological roughness.</span>
+                  <span>Robust Matching: Hybrid Geo-LoFTR and phase-congruency for viewpoint distortions.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">04</span> 
-                  <span>Derive hyperspectral intelligence to map surface mineralogy.</span>
+                  <span>Spatial Uniformity: Coverage-aware grid-quota sampling for uniform match distribution.</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-zinc-300 font-medium mr-4">05</span> 
-                  <span>Fuse temperature, CPR, and hydration maps for high-confidence Water-Ice detections.</span>
+                  <span>Sub-Pixel Refinement: Post-RANSAC NCC refinement achieving exact metric tolerances.</span>
                 </li>
               </ul>
             </div>
@@ -196,12 +196,12 @@ export function Landing() {
               <div className="lg:col-span-7 flex flex-col w-full">
                 <div className="border-t border-white/10"></div>
                 {[
-                  { step: "01", title: "Select imagery", desc: "Choose source and reference frames (e.g. TMC, OHRC) from the registry" },
-                  { step: "02", title: "Match features", desc: "Find cross-modal correspondences and verify geometric alignment" },
-                  { step: "03", title: "Review registration", desc: "Inspect match points, RMSE, and alignment fidelity in the cockpit" },
-                  { step: "04", title: "Generate hazard maps", desc: "Map local slopes, craters, and morphological roughness" },
-                  { step: "05", title: "Spectral Intelligence", desc: "Analyze hyperspectral signatures to detect surface compositions" },
-                  { step: "06", title: "Water-Ice Fusion", desc: "Fuse Diviner thermal, Mini-SAR CPR, and IIRS hydration into confidence maps" }
+                  { step: "01", title: "Select imagery", desc: "Choose source and reference frames (e.g. OHRC, LRO NAC) from the registry" },
+                  { step: "02", title: "Hapke Correction", desc: "Normalize sun-sensor illumination variances using physics-based modeling" },
+                  { step: "03", title: "Geo-LoFTR Matching", desc: "Extract geometry-aware correspondences across coarse-to-fine scale pyramids" },
+                  { step: "04", title: "Sub-pixel Refinement", desc: "Refine points via NCC/phase-correlation and compute exact RMSE/Inlier ratios" },
+                  { step: "05", title: "Downstream: Hazards", desc: "Map local slopes, craters, and morphological roughness using registered DEMs" },
+                  { step: "06", title: "Downstream: Spectral", desc: "Analyze hyperspectral signatures (IIRS) to detect surface compositions" }
                 ].map((module, i) => (
                   <motion.div 
                     initial={{ opacity: 0, x: 20 }} 
@@ -246,14 +246,14 @@ export function Landing() {
             <div>
               <h3 className="text-lg font-medium text-white mb-4 tracking-tight">Scientific Motivation</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                Lunadrishti is a multi-sensor geospatial analysis platform for ISRO lunar datasets. Our workflow spatially registers disparate datasets (Optical, SAR, Thermal, Spectral), generates multi-modal hazard maps, and employs data fusion to create high-confidence water-ice prospect maps.
+                LunaDrishti pairs a deterministic, physics-aware registration core with an adaptive orchestration layer. Our workflow spatially registers disparate datasets, generating accurate image correspondences regardless of extreme illumination, scale, or viewpoint variations.
               </p>
             </div>
 
             <div>
               <h3 className="text-lg font-medium text-white mb-4 tracking-tight">Data Sources</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                The platform processes real level-1 and level-2 data products, including <b>TMC</b> and <b>OHRC</b> optical imagery, <b>IIRS</b> hyperspectral cubes, <b>Mini-SAR</b> radar backscatter, and <b>Diviner</b> thermal radiometry, bringing them into a unified spatial reference frame.
+                The platform processes real level-1 and level-2 data products, including <b>TMC</b>, <b>OHRC</b>, and <b>IIRS</b> optical imagery from Chandrayaan-2, bringing them into a unified spatial reference frame against basemaps like <b>LRO NAC</b> and <b>SELENE</b>.
               </p>
             </div>
           </div>
