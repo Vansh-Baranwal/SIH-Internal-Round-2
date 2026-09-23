@@ -164,11 +164,11 @@ function SunAnglePanel({
         <h3 className="text-zinc-300 font-bold tracking-widest text-xs uppercase">Sun-Angle Simulator</h3>
       </div>
 
-      <div className="space-y-6">
-        <div>
-          <div className="flex justify-between text-[11px] font-bold tracking-widest uppercase text-zinc-500 mb-2">
+      <div className="space-y-8">
+        <div className="group">
+          <div className="flex justify-between text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-4 transition-colors group-hover:text-zinc-400">
             <span>Azimuth</span>
-            <span className="text-zinc-300">{azimuthDeg.toFixed(0)}°</span>
+            <span className="text-zinc-300 tracking-wider">{azimuthDeg.toFixed(0)}°</span>
           </div>
           <input
             type="range"
@@ -177,14 +177,17 @@ function SunAnglePanel({
             value={azimuthDeg}
             disabled={disabled}
             onChange={(e) => onChange({ azimuthDeg: Number(e.target.value), elevationDeg, illuminationVariant })}
-            className="w-full accent-sky-400"
+            className="w-full h-1.5 appearance-none rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-sky-400 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-125 [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-sky-400 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:hover:scale-125 [&::-moz-range-thumb]:transition-transform disabled:opacity-50"
+            style={{
+              background: `linear-gradient(to right, #38bdf8 ${(azimuthDeg / 360) * 100}%, #27272a ${(azimuthDeg / 360) * 100}%)`
+            }}
           />
         </div>
 
-        <div>
-          <div className="flex justify-between text-[11px] font-bold tracking-widest uppercase text-zinc-500 mb-2">
+        <div className="group">
+          <div className="flex justify-between text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500 mb-4 transition-colors group-hover:text-zinc-400">
             <span>Elevation</span>
-            <span className={elevationDeg < 20 ? 'text-amber-500' : 'text-zinc-300'}>{elevationDeg.toFixed(0)}°</span>
+            <span className={elevationDeg < 20 ? 'text-amber-500 tracking-wider' : 'text-zinc-300 tracking-wider'}>{elevationDeg.toFixed(0)}°</span>
           </div>
           <input
             type="range"
@@ -193,10 +196,13 @@ function SunAnglePanel({
             value={elevationDeg}
             disabled={disabled}
             onChange={(e) => onChange({ azimuthDeg, elevationDeg: Number(e.target.value), illuminationVariant })}
-            className="w-full accent-sky-400"
+            className="w-full h-1.5 appearance-none rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-sky-400 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-125 [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-sky-400 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:hover:scale-125 [&::-moz-range-thumb]:transition-transform disabled:opacity-50"
+            style={{
+              background: `linear-gradient(to right, #38bdf8 ${((elevationDeg - 2) / (90 - 2)) * 100}%, #27272a ${((elevationDeg - 2) / (90 - 2)) * 100}%)`
+            }}
           />
           {elevationDeg < 20 && (
-            <p className="text-[10px] text-amber-500 tracking-wide mt-2">
+            <p className="text-[10px] text-amber-500/80 tracking-wide mt-3">
               Low sun angle — grazing shadows will stress the correspondence engine.
             </p>
           )}
