@@ -133,10 +133,10 @@ export function Landing() {
             <div>
               <h3 className="text-lg font-medium text-white mb-6 tracking-tight">Problem Statement</h3>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight mb-4">
-                Identifying precise landing sites and characterizing the lunar surface requires fusing data from multiple sensors. Extreme differences in sun angles (illumination), resolutions (scale), and observing geometries (viewpoints) make this a complex registration challenge.
+                Lunar image registration requires finding match points to align a source image with a reference image. This poses three key challenges: <b>Illumination variation</b> (changes in sun azimuth/elevation altering feature appearances), <b>Viewpoint variation</b> (geometric distortions from different camera angles), and <b>Scale variation</b> (vastly different altitudes and spatial resolutions).
               </p>
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                Without mathematically rigorous cross-modal matching and physics-aware alignment, mission planners cannot accurately derive geometric correspondence or assess target suitability between Chandrayaan-2 and global basemaps.
+                <b>Expected Solution:</b> A generic software solution for finding correspondence between Chandrayaan-2 acquired optical images (OHRC, TMC, IIRS) and Lunar reference images (LRO NAC, SELENE) with sub-pixel accuracy, maintaining a uniform match distribution across the images.
               </p>
             </div>
 
