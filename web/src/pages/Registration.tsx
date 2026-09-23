@@ -61,7 +61,7 @@ function DatasetSlot({
           disabled={disabled}
           className="bg-transparent border border-white/10 text-zinc-400 text-[11px] font-bold tracking-widest uppercase px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus:border-white/30"
         >
-          {SENSORS.map((s) => (
+          {(label === 'Source' ? SENSORS.filter(s => s !== 'NAC' && s !== 'DEM') : SENSORS).map((s) => (
             <option key={s} value={s} className="bg-[#0a0a0a]">
               {s}
             </option>
