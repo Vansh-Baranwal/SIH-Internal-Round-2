@@ -135,9 +135,6 @@ export function Landing() {
               <p className="text-zinc-500 text-sm leading-relaxed tracking-tight mb-4">
                 Lunar image registration requires finding match points to align a source image with a reference image. This poses three key challenges: <b>Illumination variation</b> (changes in sun azimuth/elevation altering feature appearances), <b>Viewpoint variation</b> (geometric distortions from different camera angles), and <b>Scale variation</b> (vastly different altitudes and spatial resolutions).
               </p>
-              <p className="text-zinc-500 text-sm leading-relaxed tracking-tight">
-                <b>Expected Solution:</b> A generic software solution for finding correspondence between Chandrayaan-2 acquired optical images (OHRC, TMC, IIRS) and Lunar reference images (LRO NAC, SELENE) with sub-pixel accuracy, maintaining a uniform match distribution across the images.
-              </p>
             </div>
 
             <div>
