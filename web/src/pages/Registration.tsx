@@ -21,6 +21,14 @@ import { ProgressBar, StatusPanel } from '../components/ui/StatusPanel';
 
 const SENSORS: SensorType[] = ['TMC', 'OHRC', 'IIRS', 'NAC', 'DEM'];
 
+const SENSOR_LABELS: Record<SensorType, string> = {
+  'TMC': 'TMC',
+  'OHRC': 'OHRC',
+  'IIRS': 'IIRS',
+  'NAC': 'LRO NAC',
+  'DEM': 'SELENE'
+};
+
 function DatasetSlot({
   label,
   dataset,
@@ -36,7 +44,7 @@ function DatasetSlot({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedSensor, setSelectedSensor] = useState<SensorType>(
-    dataset?.sensor || (label === 'Source' ? 'OHRC' : 'TMC')
+    dataset?.sensor || (label === 'Source' ? 'OHRC' : 'NAC')
   );
 
   // Sync state if dataset changes externally
@@ -61,9 +69,9 @@ function DatasetSlot({
           disabled={disabled}
           className="bg-transparent border border-white/10 text-zinc-400 text-[11px] font-bold tracking-widest uppercase px-2 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus:border-white/30"
         >
-          {(label === 'Source' ? SENSORS.filter(s => s !== 'NAC' && s !== 'DEM') : SENSORS).map((s) => (
+          {(label === 'Source' ? SENSORS.filter(s => s !== 'NAC' && s !== 'DEM') : SENSORS.filter(s => s === 'NAC' || s === 'DEM')).map((s) => (
             <option key={s} value={s} className="bg-[#0a0a0a]">
-              {s}
+              {SENSOR_LABELS[s]}
             </option>
           ))}
         </select>
