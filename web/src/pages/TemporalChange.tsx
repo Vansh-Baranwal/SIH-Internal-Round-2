@@ -133,7 +133,7 @@ export function TemporalChange() {
                 Anomalies Detected: {changesDetected}
               </p>
             </div>
-            <img src={resultImage} alt="Temporal Change" className="w-full h-auto max-h-[400px] object-contain rounded-lg border border-white/10 shadow-2xl" />
+            <img src={resultImage} alt="Temporal Change" className="max-w-full h-auto object-contain rounded-lg border border-white/10 shadow-2xl" />
           </div>
         )}
       </div>
