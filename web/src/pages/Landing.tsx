@@ -98,7 +98,7 @@ export function Landing() {
           </motion.p>
           
           <motion.div variants={wordVariant} className="flex space-x-6">
-            <Link to="/imagery" className="flex items-center space-x-2 bg-zinc-200 hover:bg-white text-black shadow-lg shadow-white/10 rounded-xl font-semibold px-8 py-4 tracking-wide transition-colors">
+            <Link to="/registration" className="flex items-center space-x-2 bg-zinc-200 hover:bg-white text-black shadow-lg shadow-white/10 rounded-xl font-semibold px-8 py-4 tracking-wide transition-colors">
               <span>Launch Platform</span>
               <ChevronRight className="w-5 h-5" />
             </Link>
