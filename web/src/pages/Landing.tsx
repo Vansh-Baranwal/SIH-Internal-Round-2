@@ -14,7 +14,6 @@ export function Landing() {
     visible: {
       opacity: 1,
       transition: {
-        delay: 3.0, // Wait for global loader to vanish completely (2.0s wait + 0.8s fade)
         staggerChildren: 0.15,
       },
     },
