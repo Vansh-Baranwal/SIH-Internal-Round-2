@@ -114,63 +114,65 @@ export function Navbar() {
 
   return (
     <header className="fixed top-4 z-50 flex w-full flex-col items-center px-3 sm:px-6 pointer-events-none">
-      <div className="bg-[#f0f0f3] shadow-[0_15px_35px_rgba(0,0,0,0.5),_inset_0_2px_4px_rgba(255,255,255,0.8)] rounded-[2.5rem] flex items-center p-2 gap-1 pointer-events-auto border border-white/50">
-        
-        {/* Desktop Navigation */}
-        <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
-          {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
-            const Icon = link.icon;
-            return (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`flex flex-col items-center justify-center px-3 py-2 min-w-[76px] h-[64px] rounded-[2rem] transition-all duration-300 ${
-                  isActive 
-                    ? 'bg-[#1a1a1a] text-white shadow-md' 
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5'
-                }`}
-              >
-                <Icon className="w-5 h-5 mb-1.5" strokeWidth={isActive ? 2 : 1.5} />
-                <span className="text-[10px] tracking-wide font-medium">{link.name}</span>
-              </Link>
-            );
-          })}
+      <div className="bg-white/95 backdrop-blur-xl p-1.5 sm:p-2 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.2)] pointer-events-auto border border-white/40">
+        <div className="bg-[#f2f2f4] rounded-full shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] p-1 flex items-center">
+          
+          {/* Desktop Navigation */}
+          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path;
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`flex flex-col items-center justify-center px-3 py-1.5 min-w-[72px] h-[52px] rounded-full transition-all duration-300 ${
+                    isActive 
+                      ? 'bg-[#1a1a1a] text-white shadow-md' 
+                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 mb-1" strokeWidth={isActive ? 2 : 1.5} />
+                  <span className="text-[10px] tracking-wide font-medium">{link.name}</span>
+                </Link>
+              );
+            })}
 
-          <div className="flex flex-col items-center justify-center px-4 py-2 ml-2 border-l border-zinc-300">
-             <Database className={`w-5 h-5 mb-1.5 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-400'}`} strokeWidth={1.5} />
-             <span className="text-[10px] tracking-wide font-medium text-zinc-500 whitespace-nowrap">
-               {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
-             </span>
-          </div>
-        </nav>
+            <div className="flex flex-col items-center justify-center px-4 py-1.5 h-[52px] ml-1 border-l border-zinc-300">
+               <Database className={`w-4 h-4 mb-1 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-400'}`} strokeWidth={1.5} />
+               <span className="text-[10px] tracking-wide font-medium text-zinc-500 whitespace-nowrap">
+                 {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
+               </span>
+            </div>
+          </nav>
 
-        {/* Mobile Navigation Bar */}
-        <nav aria-label="Mobile top bar" className="flex lg:hidden items-center justify-between w-full min-w-[280px] px-2">
-          <Link
-            to="/"
-            className={`flex flex-col items-center justify-center px-4 py-2 w-[72px] h-[64px] rounded-[2rem] transition-all duration-300 ${location.pathname === '/' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5'}`}
-          >
-            <Home className="w-5 h-5 mb-1.5" strokeWidth={location.pathname === '/' ? 2 : 1.5} />
-            <span className="text-[10px] tracking-wide font-medium">Home</span>
-          </Link>
+          {/* Mobile Navigation Bar */}
+          <nav aria-label="Mobile top bar" className="flex lg:hidden items-center justify-between w-full min-w-[260px] px-1">
+            <Link
+              to="/"
+              className={`flex flex-col items-center justify-center px-3 py-1.5 w-[64px] h-[52px] rounded-full transition-all duration-300 ${location.pathname === '/' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5'}`}
+            >
+              <Home className="w-4 h-4 mb-1" strokeWidth={location.pathname === '/' ? 2 : 1.5} />
+              <span className="text-[10px] tracking-wide font-medium">Home</span>
+            </Link>
 
-          <div className="flex flex-col items-center justify-center px-2">
-             <Database className={`w-5 h-5 mb-1.5 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-400'}`} strokeWidth={1.5} />
-             <span className="text-[10px] tracking-wide font-medium text-zinc-500 whitespace-nowrap">
-               {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
-             </span>
-          </div>
+            <div className="flex flex-col items-center justify-center px-2 h-[52px]">
+               <Database className={`w-4 h-4 mb-1 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-400'}`} strokeWidth={1.5} />
+               <span className="text-[10px] tracking-wide font-medium text-zinc-500 whitespace-nowrap">
+                 {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
+               </span>
+            </div>
 
-          <button
-            type="button"
-            className="flex flex-col items-center justify-center px-4 py-2 w-[72px] h-[64px] rounded-[2rem] transition-all duration-300 text-zinc-500 hover:text-zinc-900 hover:bg-black/5 focus:outline-none"
-            onClick={() => setMobileOpen((open) => !open)}
-          >
-            {mobileOpen ? <X className="w-5 h-5 mb-1.5" strokeWidth={1.5} /> : <Menu className="w-5 h-5 mb-1.5" strokeWidth={1.5} />}
-            <span className="text-[10px] tracking-wide font-medium">Menu</span>
-          </button>
-        </nav>
+            <button
+              type="button"
+              className="flex flex-col items-center justify-center px-3 py-1.5 w-[64px] h-[52px] rounded-full transition-all duration-300 text-zinc-500 hover:text-zinc-900 hover:bg-black/5 focus:outline-none"
+              onClick={() => setMobileOpen((open) => !open)}
+            >
+              {mobileOpen ? <X className="w-4 h-4 mb-1" strokeWidth={1.5} /> : <Menu className="w-4 h-4 mb-1" strokeWidth={1.5} />}
+              <span className="text-[10px] tracking-wide font-medium">Menu</span>
+            </button>
+          </nav>
+        </div>
       </div>
 
       <PipelineStepper result={result} session={session} />
