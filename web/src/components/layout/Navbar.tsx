@@ -113,7 +113,7 @@ export function Navbar() {
   }, [mobileOpen]);
 
   return (
-    <header className="fixed top-4 z-50 flex w-full flex-col items-center px-3 sm:px-6 pointer-events-none">
+    <header className="fixed top-6 sm:top-8 z-50 flex w-full flex-col items-center px-3 sm:px-6 pointer-events-none">
       <div className="bg-[#e4e4e7] p-[2px] sm:p-1 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.15)] hover:shadow-[0_0_50px_rgba(255,255,255,0.25)] transition-shadow duration-500 pointer-events-auto">
         <div className="bg-[#0a0a0a] p-[3px] sm:p-1 rounded-full">
           <div className="bg-[#27272a] rounded-full shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] p-[3px] flex items-center">
