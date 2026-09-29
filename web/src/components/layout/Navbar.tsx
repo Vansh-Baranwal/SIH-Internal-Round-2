@@ -114,9 +114,9 @@ export function Navbar() {
 
   return (
     <header className="fixed top-4 z-50 flex w-full flex-col items-center px-3 sm:px-6 pointer-events-none">
-      <div className="bg-white/10 p-1 sm:p-1.5 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.15)] hover:shadow-[0_0_50px_rgba(255,255,255,0.25)] transition-shadow duration-500 pointer-events-auto">
-        <div className="bg-[#0a0a0a]/90 backdrop-blur-2xl p-1 sm:p-1.5 rounded-full">
-          <div className="bg-[#27272a]/80 backdrop-blur-md rounded-full shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] p-1 flex items-center">
+      <div className="bg-[#e4e4e7] p-1 sm:p-1.5 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.15)] hover:shadow-[0_0_50px_rgba(255,255,255,0.25)] transition-shadow duration-500 pointer-events-auto">
+        <div className="bg-[#0a0a0a] p-1 sm:p-1.5 rounded-full">
+          <div className="bg-[#27272a] rounded-full shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] p-1 flex items-center">
           
           {/* Desktop Navigation */}
           <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
