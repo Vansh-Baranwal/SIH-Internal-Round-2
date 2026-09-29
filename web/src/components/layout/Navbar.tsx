@@ -115,7 +115,7 @@ export function Navbar() {
   return (
     <header className="fixed top-4 z-50 flex w-full flex-col items-center px-3 sm:px-6 pointer-events-none">
       <div className="bg-[#0a0a0a]/95 backdrop-blur-xl p-1 sm:p-1.5 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.5)] pointer-events-auto border border-white/10">
-        <div className="bg-[#1a1a1a] rounded-full shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] p-1 flex items-center">
+        <div className="bg-[#27272a] rounded-full shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] p-1 flex items-center">
           
           {/* Desktop Navigation */}
           <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
@@ -138,7 +138,7 @@ export function Navbar() {
               );
             })}
 
-            <div className="flex flex-col items-center justify-center px-3 py-1 h-[46px] ml-1 border-l border-zinc-800">
+            <div className="flex flex-col items-center justify-center px-3 py-1 h-[46px] ml-1 border-l border-zinc-700/50">
                <Database className={`w-3.5 h-3.5 mb-0.5 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-500'}`} strokeWidth={1.5} />
                <span className="text-[9px] tracking-wide font-medium text-zinc-400 whitespace-nowrap">
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
