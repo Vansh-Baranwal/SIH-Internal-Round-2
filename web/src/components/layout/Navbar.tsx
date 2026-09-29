@@ -115,11 +115,11 @@ export function Navbar() {
   return (
     <header className="fixed top-4 z-50 flex w-full flex-col items-center px-3 sm:px-6 pointer-events-none">
       <div className="bg-[#e4e4e7] p-[2px] sm:p-1 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.15)] hover:shadow-[0_0_50px_rgba(255,255,255,0.25)] transition-shadow duration-500 pointer-events-auto">
-        <div className="bg-[#0a0a0a] p-1 sm:p-[6px] rounded-full">
-          <div className="bg-[#27272a] rounded-full shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] p-1 flex items-center">
+        <div className="bg-[#0a0a0a] p-[3px] sm:p-1 rounded-full">
+          <div className="bg-[#27272a] rounded-full shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] p-[3px] flex items-center">
           
           {/* Desktop Navigation */}
-          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
+          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               const Icon = link.icon;
@@ -127,50 +127,50 @@ export function Navbar() {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`flex flex-col items-center justify-center px-3 py-1 min-w-[72px] h-[50px] rounded-full transition-all duration-300 transform active:scale-95 ${
+                  className={`flex flex-col items-center justify-center px-3 py-0.5 min-w-[68px] h-[40px] rounded-full transition-all duration-300 transform active:scale-95 ${
                     isActive 
                       ? 'bg-zinc-100 text-black shadow-[0_4px_12px_rgba(255,255,255,0.3)]' 
                       : 'text-zinc-300 hover:text-white hover:bg-white/10 hover:shadow-lg'
                   }`}
                 >
-                  <Icon className="w-4 h-4 mb-0.5" strokeWidth={isActive ? 2 : 1.5} />
-                  <span className="text-[11px] font-semibold">{link.name}</span>
+                  <Icon className="w-3.5 h-3.5 mb-[1px]" strokeWidth={isActive ? 2 : 1.5} />
+                  <span className="text-[10px] font-semibold leading-none">{link.name}</span>
                 </Link>
               );
             })}
 
-            <div className="flex flex-col items-center justify-center px-3 py-1 h-[50px] ml-1 border-l border-zinc-700/50">
-               <Database className={`w-4 h-4 mb-0.5 ${hasRegistration ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-400'}`} strokeWidth={1.5} />
-               <span className="text-[11px] font-semibold text-zinc-300 whitespace-nowrap">
+            <div className="flex flex-col items-center justify-center px-3 py-0.5 h-[40px] ml-1 border-l border-zinc-700/50">
+               <Database className={`w-3.5 h-3.5 mb-[1px] ${hasRegistration ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-400'}`} strokeWidth={1.5} />
+               <span className="text-[10px] font-semibold leading-none text-zinc-300 whitespace-nowrap">
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
                </span>
             </div>
           </nav>
 
           {/* Mobile Navigation Bar */}
-          <nav aria-label="Mobile top bar" className="flex lg:hidden items-center justify-between w-full min-w-[250px] px-1">
+          <nav aria-label="Mobile top bar" className="flex lg:hidden items-center justify-between w-full min-w-[250px] px-0.5">
             <Link
               to="/"
-              className={`flex flex-col items-center justify-center px-2 py-1 w-[60px] h-[50px] rounded-full transition-all duration-300 transform active:scale-95 ${location.pathname === '/' ? 'bg-zinc-100 text-black shadow-[0_4px_12px_rgba(255,255,255,0.3)]' : 'text-zinc-300 hover:text-white hover:bg-white/10'}`}
+              className={`flex flex-col items-center justify-center px-2 py-0.5 w-[60px] h-[40px] rounded-full transition-all duration-300 transform active:scale-95 ${location.pathname === '/' ? 'bg-zinc-100 text-black shadow-[0_4px_12px_rgba(255,255,255,0.3)]' : 'text-zinc-300 hover:text-white hover:bg-white/10'}`}
             >
-              <Home className="w-4 h-4 mb-0.5" strokeWidth={location.pathname === '/' ? 2 : 1.5} />
-              <span className="text-[11px] font-semibold">Home</span>
+              <Home className="w-3.5 h-3.5 mb-[1px]" strokeWidth={location.pathname === '/' ? 2 : 1.5} />
+              <span className="text-[10px] font-semibold leading-none">Home</span>
             </Link>
 
-            <div className="flex flex-col items-center justify-center px-2 h-[50px]">
-               <Database className={`w-4 h-4 mb-0.5 ${hasRegistration ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-400'}`} strokeWidth={1.5} />
-               <span className="text-[11px] font-semibold text-zinc-300 whitespace-nowrap">
+            <div className="flex flex-col items-center justify-center px-2 h-[40px]">
+               <Database className={`w-3.5 h-3.5 mb-[1px] ${hasRegistration ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-400'}`} strokeWidth={1.5} />
+               <span className="text-[10px] font-semibold leading-none text-zinc-300 whitespace-nowrap">
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
                </span>
             </div>
 
             <button
               type="button"
-              className="flex flex-col items-center justify-center px-2 py-1 w-[60px] h-[50px] rounded-full transition-all duration-300 transform active:scale-95 text-zinc-300 hover:text-white hover:bg-white/10 focus:outline-none"
+              className="flex flex-col items-center justify-center px-2 py-0.5 w-[60px] h-[40px] rounded-full transition-all duration-300 transform active:scale-95 text-zinc-300 hover:text-white hover:bg-white/10 focus:outline-none"
               onClick={() => setMobileOpen((open) => !open)}
             >
-              {mobileOpen ? <X className="w-4 h-4 mb-0.5" strokeWidth={1.5} /> : <Menu className="w-4 h-4 mb-0.5" strokeWidth={1.5} />}
-              <span className="text-[11px] font-semibold">Menu</span>
+              {mobileOpen ? <X className="w-3.5 h-3.5 mb-[1px]" strokeWidth={1.5} /> : <Menu className="w-3.5 h-3.5 mb-[1px]" strokeWidth={1.5} />}
+              <span className="text-[10px] font-semibold leading-none">Menu</span>
             </button>
           </nav>
         </div>
