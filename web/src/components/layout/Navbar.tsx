@@ -134,14 +134,14 @@ export function Navbar() {
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5 mb-0.5" strokeWidth={isActive ? 2 : 1.5} />
-                  <span className="text-[9px] tracking-wide font-medium">{link.name}</span>
+                  <span className="text-[10px] font-bold tracking-tight">{link.name}</span>
                 </Link>
               );
             })}
 
             <div className="flex flex-col items-center justify-center px-3 py-1 h-[46px] ml-1 border-l border-zinc-700/50">
                <Database className={`w-3.5 h-3.5 mb-0.5 ${hasRegistration ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-500'}`} strokeWidth={1.5} />
-               <span className="text-[9px] tracking-wide font-medium text-zinc-400 whitespace-nowrap">
+               <span className="text-[10px] font-bold tracking-tight text-zinc-400 whitespace-nowrap">
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
                </span>
             </div>
@@ -154,12 +154,12 @@ export function Navbar() {
               className={`flex flex-col items-center justify-center px-2 py-1 w-[56px] h-[46px] rounded-full transition-all duration-300 transform active:scale-95 ${location.pathname === '/' ? 'bg-zinc-100 text-black shadow-[0_4px_12px_rgba(255,255,255,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/10'}`}
             >
               <Home className="w-3.5 h-3.5 mb-0.5" strokeWidth={location.pathname === '/' ? 2 : 1.5} />
-              <span className="text-[9px] tracking-wide font-medium">Home</span>
+              <span className="text-[10px] font-bold tracking-tight">Home</span>
             </Link>
 
             <div className="flex flex-col items-center justify-center px-2 h-[46px]">
                <Database className={`w-3.5 h-3.5 mb-0.5 ${hasRegistration ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-500'}`} strokeWidth={1.5} />
-               <span className="text-[9px] tracking-wide font-medium text-zinc-400 whitespace-nowrap">
+               <span className="text-[10px] font-bold tracking-tight text-zinc-400 whitespace-nowrap">
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
                </span>
             </div>
@@ -170,7 +170,7 @@ export function Navbar() {
               onClick={() => setMobileOpen((open) => !open)}
             >
               {mobileOpen ? <X className="w-3.5 h-3.5 mb-0.5" strokeWidth={1.5} /> : <Menu className="w-3.5 h-3.5 mb-0.5" strokeWidth={1.5} />}
-              <span className="text-[9px] tracking-wide font-medium">Menu</span>
+              <span className="text-[10px] font-bold tracking-tight">Menu</span>
             </button>
           </nav>
         </div>
