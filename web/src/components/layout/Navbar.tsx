@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Database, Satellite, Menu, X, Check } from 'lucide-react';
+import {
+  Database,
+  Menu,
+  X,
+  Check,
+  Home,
+  ClipboardList,
+  Image as ImageIcon,
+  AlertTriangle,
+  Activity,
+  Droplets,
+  Clock,
+  PlayCircle
+} from 'lucide-react';
 import { useMission } from '../../context/useMission';
 import { getPipelineStages } from '../../utils/pipelineProgress';
 import type { RegistrationSession } from '../../types/registration';
@@ -63,13 +76,14 @@ export function Navbar() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const navLinks = [
-    { name: 'Registration', path: '/registration' },
-    { name: 'Imagery', path: '/imagery' },
-    { name: 'Hazards', path: '/hazard-map' },
-    { name: 'Spectral', path: '/spectral' },
-    { name: 'Water Ice', path: '/water-ice' },
-    { name: 'Temporal', path: '/temporal' },
-    { name: 'Simulation', path: '/simulation' },
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Registration', path: '/registration', icon: ClipboardList },
+    { name: 'Imagery', path: '/imagery', icon: ImageIcon },
+    { name: 'Hazards', path: '/hazard-map', icon: AlertTriangle },
+    { name: 'Spectral', path: '/spectral', icon: Activity },
+    { name: 'Water Ice', path: '/water-ice', icon: Droplets },
+    { name: 'Temporal', path: '/temporal', icon: Clock },
+    { name: 'Simulation', path: '/simulation', icon: PlayCircle },
   ];
 
   const hasRegistration = session.status === 'succeeded';
@@ -99,73 +113,89 @@ export function Navbar() {
   }, [mobileOpen]);
 
   return (
-    <header className="fixed top-3 z-50 flex w-full flex-col items-center px-3 sm:top-6 sm:px-6 pointer-events-none">
-      <div className="bg-[#0a0a0a]/90 backdrop-blur-xl rounded-2xl shadow-2xl flex items-center justify-between px-3 py-2 w-full max-w-fit gap-3 sm:gap-6 lg:gap-12 border border-white/10 pointer-events-auto">
-        <div className="flex items-center space-x-4 sm:space-x-6">
-          <Link to="/" aria-label="Luna Drishti home" className={`flex items-center justify-center bg-black w-8 h-8 rounded-lg shadow-inner border border-white/20 relative group overflow-hidden ${focusRing}`}>
-            <div className="absolute top-0.5 left-0.5 w-1 h-1 border-t border-l border-white/20" />
-            <div className="absolute top-0.5 right-0.5 w-1 h-1 border-t border-r border-white/20" />
-            <div className="absolute bottom-0.5 left-0.5 w-1 h-1 border-b border-l border-white/20" />
-            <div className="absolute bottom-0.5 right-0.5 w-1 h-1 border-b border-r border-white/20" />
-            <Satellite className="w-4 h-4 text-white" aria-hidden="true" />
-          </Link>
-
-          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-3 xl:gap-5">
-            {navLinks.map((link) => (
+    <header className="fixed top-4 z-50 flex w-full flex-col items-center px-3 sm:px-6 pointer-events-none">
+      <div className="bg-[#f0f0f3] shadow-[0_15px_35px_rgba(0,0,0,0.5),_inset_0_2px_4px_rgba(255,255,255,0.8)] rounded-[2.5rem] flex items-center p-2 gap-1 pointer-events-auto border border-white/50">
+        
+        {/* Desktop Navigation */}
+        <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
+          {navLinks.map((link) => {
+            const isActive = location.pathname === link.path;
+            const Icon = link.icon;
+            return (
               <Link
                 key={link.name}
                 to={link.path}
-                aria-current={location.pathname === link.path ? 'page' : undefined}
-                className={`${focusRing} rounded px-1 py-1 text-[13px] whitespace-nowrap transition-colors ${location.pathname === link.path ? 'text-white font-bold' : 'text-zinc-400 font-medium hover:text-white'}`}
+                className={`flex flex-col items-center justify-center px-3 py-2 min-w-[76px] h-[64px] rounded-[2rem] transition-all duration-300 ${
+                  isActive 
+                    ? 'bg-[#1a1a1a] text-white shadow-md' 
+                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5'
+                }`}
               >
-                {link.name}
+                <Icon className="w-5 h-5 mb-1.5" strokeWidth={isActive ? 2 : 1.5} />
+                <span className="text-[10px] tracking-wide font-medium">{link.name}</span>
               </Link>
-            ))}
-          </nav>
-        </div>
+            );
+          })}
 
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          <div className="hidden sm:flex items-center space-x-2 border-l border-white/10 pl-4 text-[12px] font-semibold pr-1" aria-live="polite">
-            <Database className="w-3.5 h-3.5 text-white" aria-hidden="true" />
-            <span className="text-white">{hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}</span>
+          <div className="flex flex-col items-center justify-center px-4 py-2 ml-2 border-l border-zinc-300">
+             <Database className={`w-5 h-5 mb-1.5 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-400'}`} strokeWidth={1.5} />
+             <span className="text-[10px] tracking-wide font-medium text-zinc-500 whitespace-nowrap">
+               {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
+             </span>
+          </div>
+        </nav>
+
+        {/* Mobile Navigation Bar */}
+        <nav aria-label="Mobile top bar" className="flex lg:hidden items-center justify-between w-full min-w-[280px] px-2">
+          <Link
+            to="/"
+            className={`flex flex-col items-center justify-center px-4 py-2 w-[72px] h-[64px] rounded-[2rem] transition-all duration-300 ${location.pathname === '/' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5'}`}
+          >
+            <Home className="w-5 h-5 mb-1.5" strokeWidth={location.pathname === '/' ? 2 : 1.5} />
+            <span className="text-[10px] tracking-wide font-medium">Home</span>
+          </Link>
+
+          <div className="flex flex-col items-center justify-center px-2">
+             <Database className={`w-5 h-5 mb-1.5 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-400'}`} strokeWidth={1.5} />
+             <span className="text-[10px] tracking-wide font-medium text-zinc-500 whitespace-nowrap">
+               {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
+             </span>
           </div>
 
           <button
             type="button"
-            className={`lg:hidden flex items-center justify-center w-8 h-8 text-zinc-400 hover:text-white transition-colors ${focusRing}`}
+            className="flex flex-col items-center justify-center px-4 py-2 w-[72px] h-[64px] rounded-[2rem] transition-all duration-300 text-zinc-500 hover:text-zinc-900 hover:bg-black/5 focus:outline-none"
             onClick={() => setMobileOpen((open) => !open)}
-            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            aria-expanded={mobileOpen}
-            aria-controls={mobileMenuId}
           >
-            {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
+            {mobileOpen ? <X className="w-5 h-5 mb-1.5" strokeWidth={1.5} /> : <Menu className="w-5 h-5 mb-1.5" strokeWidth={1.5} />}
+            <span className="text-[10px] tracking-wide font-medium">Menu</span>
           </button>
-        </div>
+        </nav>
       </div>
 
       <PipelineStepper result={result} session={session} />
 
       {mobileOpen && (
-        <div ref={mobileMenuRef} id={mobileMenuId} className="lg:hidden fixed inset-x-3 top-[4.5rem] z-40 pointer-events-auto sm:inset-x-6 sm:top-[5.5rem]">
-          <div className="relative bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 sm:p-6 max-h-[calc(100vh-6rem)] overflow-y-auto">
-            <nav aria-label="Mobile navigation" className="flex flex-col space-y-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  onClick={() => setMobileOpen(false)}
-                  aria-current={location.pathname === link.path ? 'page' : undefined}
-                  className={`${focusRing} px-4 py-3 rounded-lg text-sm transition-colors ${location.pathname === link.path ? 'text-white font-bold bg-white/5' : 'text-zinc-400 font-medium hover:text-white hover:bg-white/5'}`}
-                >
-                  {link.name}
-                </Link>
-              ))}
+        <div ref={mobileMenuRef} id={mobileMenuId} className="lg:hidden fixed inset-x-3 top-[6rem] z-40 pointer-events-auto sm:inset-x-6">
+          <div className="relative bg-[#f0f0f3]/95 backdrop-blur-2xl border border-white/50 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+            <nav aria-label="Mobile navigation" className="flex flex-col space-y-2">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    onClick={() => setMobileOpen(false)}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center gap-4 px-5 py-4 rounded-[1.5rem] transition-all duration-300 ${isActive ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-zinc-600 hover:text-zinc-900 hover:bg-black/5'}`}
+                  >
+                    <Icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.5} />
+                    <span className="text-sm font-semibold tracking-wide">{link.name}</span>
+                  </Link>
+                );
+              })}
             </nav>
-
-            <div className="sm:hidden flex items-center space-x-2 mt-6 pt-4 border-t border-white/10 px-4 text-[12px] font-semibold" aria-live="polite">
-              <Database className="w-3.5 h-3.5 text-white" aria-hidden="true" />
-              <span className="text-white">{hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}</span>
-            </div>
           </div>
         </div>
       )}
