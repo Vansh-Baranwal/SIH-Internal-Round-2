@@ -114,8 +114,8 @@ export function Navbar() {
 
   return (
     <header className="fixed top-4 z-50 flex w-full flex-col items-center px-3 sm:px-6 pointer-events-none">
-      <div className="bg-white/95 backdrop-blur-xl p-1.5 sm:p-2 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.2)] pointer-events-auto border border-white/40">
-        <div className="bg-[#f2f2f4] rounded-full shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] p-1 flex items-center">
+      <div className="bg-[#0a0a0a]/95 backdrop-blur-xl p-1.5 sm:p-2 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.5)] pointer-events-auto border border-white/10">
+        <div className="bg-[#1a1a1a] rounded-full shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)] p-1 flex items-center">
           
           {/* Desktop Navigation */}
           <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
@@ -128,8 +128,8 @@ export function Navbar() {
                   to={link.path}
                   className={`flex flex-col items-center justify-center px-3 py-1.5 min-w-[72px] h-[52px] rounded-full transition-all duration-300 ${
                     isActive 
-                      ? 'bg-[#1a1a1a] text-white shadow-md' 
-                      : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5'
+                      ? 'bg-zinc-100 text-black shadow-md' 
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   <Icon className="w-4 h-4 mb-1" strokeWidth={isActive ? 2 : 1.5} />
@@ -138,9 +138,9 @@ export function Navbar() {
               );
             })}
 
-            <div className="flex flex-col items-center justify-center px-4 py-1.5 h-[52px] ml-1 border-l border-zinc-300">
-               <Database className={`w-4 h-4 mb-1 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-400'}`} strokeWidth={1.5} />
-               <span className="text-[10px] tracking-wide font-medium text-zinc-500 whitespace-nowrap">
+            <div className="flex flex-col items-center justify-center px-4 py-1.5 h-[52px] ml-1 border-l border-zinc-800">
+               <Database className={`w-4 h-4 mb-1 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-500'}`} strokeWidth={1.5} />
+               <span className="text-[10px] tracking-wide font-medium text-zinc-400 whitespace-nowrap">
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
                </span>
             </div>
@@ -150,22 +150,22 @@ export function Navbar() {
           <nav aria-label="Mobile top bar" className="flex lg:hidden items-center justify-between w-full min-w-[260px] px-1">
             <Link
               to="/"
-              className={`flex flex-col items-center justify-center px-3 py-1.5 w-[64px] h-[52px] rounded-full transition-all duration-300 ${location.pathname === '/' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-zinc-500 hover:text-zinc-900 hover:bg-black/5'}`}
+              className={`flex flex-col items-center justify-center px-3 py-1.5 w-[64px] h-[52px] rounded-full transition-all duration-300 ${location.pathname === '/' ? 'bg-zinc-100 text-black shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
             >
               <Home className="w-4 h-4 mb-1" strokeWidth={location.pathname === '/' ? 2 : 1.5} />
               <span className="text-[10px] tracking-wide font-medium">Home</span>
             </Link>
 
             <div className="flex flex-col items-center justify-center px-2 h-[52px]">
-               <Database className={`w-4 h-4 mb-1 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-400'}`} strokeWidth={1.5} />
-               <span className="text-[10px] tracking-wide font-medium text-zinc-500 whitespace-nowrap">
+               <Database className={`w-4 h-4 mb-1 ${hasRegistration ? 'text-emerald-500' : 'text-zinc-500'}`} strokeWidth={1.5} />
+               <span className="text-[10px] tracking-wide font-medium text-zinc-400 whitespace-nowrap">
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
                </span>
             </div>
 
             <button
               type="button"
-              className="flex flex-col items-center justify-center px-3 py-1.5 w-[64px] h-[52px] rounded-full transition-all duration-300 text-zinc-500 hover:text-zinc-900 hover:bg-black/5 focus:outline-none"
+              className="flex flex-col items-center justify-center px-3 py-1.5 w-[64px] h-[52px] rounded-full transition-all duration-300 text-zinc-400 hover:text-white hover:bg-white/5 focus:outline-none"
               onClick={() => setMobileOpen((open) => !open)}
             >
               {mobileOpen ? <X className="w-4 h-4 mb-1" strokeWidth={1.5} /> : <Menu className="w-4 h-4 mb-1" strokeWidth={1.5} />}
@@ -179,7 +179,7 @@ export function Navbar() {
 
       {mobileOpen && (
         <div ref={mobileMenuRef} id={mobileMenuId} className="lg:hidden fixed inset-x-3 top-[6rem] z-40 pointer-events-auto sm:inset-x-6">
-          <div className="relative bg-[#f0f0f3]/95 backdrop-blur-2xl border border-white/50 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <div className="relative bg-[#0a0a0a]/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
             <nav aria-label="Mobile navigation" className="flex flex-col space-y-2">
               {navLinks.map((link) => {
                 const isActive = location.pathname === link.path;
@@ -190,7 +190,7 @@ export function Navbar() {
                     to={link.path}
                     onClick={() => setMobileOpen(false)}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`flex items-center gap-4 px-5 py-4 rounded-[1.5rem] transition-all duration-300 ${isActive ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-zinc-600 hover:text-zinc-900 hover:bg-black/5'}`}
+                    className={`flex items-center gap-4 px-5 py-4 rounded-[1.5rem] transition-all duration-300 ${isActive ? 'bg-zinc-100 text-black shadow-md' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}
                   >
                     <Icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.5} />
                     <span className="text-sm font-semibold tracking-wide">{link.name}</span>
