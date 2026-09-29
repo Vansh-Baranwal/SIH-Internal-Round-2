@@ -119,29 +119,26 @@ export function Navbar() {
           <div className="bg-[#27272a] rounded-full shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] p-[3px] flex items-center">
           
           {/* Desktop Navigation */}
-          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-0.5">
+          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
-              const Icon = link.icon;
               return (
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`flex flex-col items-center justify-center px-3 py-0.5 min-w-[68px] h-[40px] rounded-full transition-all duration-300 transform active:scale-95 ${
+                  className={`flex items-center justify-center px-4 py-1.5 h-[38px] rounded-full transition-all duration-300 transform active:scale-95 ${
                     isActive 
                       ? 'bg-zinc-100 text-black shadow-[0_4px_12px_rgba(255,255,255,0.3)]' 
                       : 'text-zinc-300 hover:text-white hover:bg-white/10 hover:shadow-lg'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5 mb-[1px]" strokeWidth={isActive ? 2 : 1.5} />
-                  <span className="text-[10px] font-semibold leading-none">{link.name}</span>
+                  <span className="text-[13px] font-bold tracking-tight leading-none">{link.name}</span>
                 </Link>
               );
             })}
 
-            <div className="flex flex-col items-center justify-center px-3 py-0.5 h-[40px] ml-1 border-l border-zinc-700/50">
-               <Database className={`w-3.5 h-3.5 mb-[1px] ${hasRegistration ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-400'}`} strokeWidth={1.5} />
-               <span className="text-[10px] font-semibold leading-none text-zinc-300 whitespace-nowrap">
+            <div className="flex items-center justify-center px-4 py-1.5 h-[38px] ml-1 border-l border-zinc-700/50">
+               <span className={`text-[13px] font-bold tracking-tight leading-none whitespace-nowrap ${hasRegistration ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-400'}`}>
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
                </span>
             </div>
@@ -151,26 +148,23 @@ export function Navbar() {
           <nav aria-label="Mobile top bar" className="flex lg:hidden items-center justify-between w-full min-w-[250px] px-0.5">
             <Link
               to="/"
-              className={`flex flex-col items-center justify-center px-2 py-0.5 w-[60px] h-[40px] rounded-full transition-all duration-300 transform active:scale-95 ${location.pathname === '/' ? 'bg-zinc-100 text-black shadow-[0_4px_12px_rgba(255,255,255,0.3)]' : 'text-zinc-300 hover:text-white hover:bg-white/10'}`}
+              className={`flex items-center justify-center px-4 py-1.5 h-[38px] rounded-full transition-all duration-300 transform active:scale-95 ${location.pathname === '/' ? 'bg-zinc-100 text-black shadow-[0_4px_12px_rgba(255,255,255,0.3)]' : 'text-zinc-300 hover:text-white hover:bg-white/10'}`}
             >
-              <Home className="w-3.5 h-3.5 mb-[1px]" strokeWidth={location.pathname === '/' ? 2 : 1.5} />
-              <span className="text-[10px] font-semibold leading-none">Home</span>
+              <span className="text-[13px] font-bold tracking-tight leading-none">Home</span>
             </Link>
 
-            <div className="flex flex-col items-center justify-center px-2 h-[40px]">
-               <Database className={`w-3.5 h-3.5 mb-[1px] ${hasRegistration ? 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-400'}`} strokeWidth={1.5} />
-               <span className="text-[10px] font-semibold leading-none text-zinc-300 whitespace-nowrap">
+            <div className="flex items-center justify-center px-2 h-[38px]">
+               <span className={`text-[13px] font-bold tracking-tight leading-none whitespace-nowrap ${hasRegistration ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'text-zinc-400'}`}>
                  {hasRegistration ? 'Registered' : hasData ? 'Data Loaded' : 'Awaiting Data'}
                </span>
             </div>
 
             <button
               type="button"
-              className="flex flex-col items-center justify-center px-2 py-0.5 w-[60px] h-[40px] rounded-full transition-all duration-300 transform active:scale-95 text-zinc-300 hover:text-white hover:bg-white/10 focus:outline-none"
+              className="flex items-center justify-center px-4 py-1.5 h-[38px] rounded-full transition-all duration-300 transform active:scale-95 text-zinc-300 hover:text-white hover:bg-white/10 focus:outline-none"
               onClick={() => setMobileOpen((open) => !open)}
             >
-              {mobileOpen ? <X className="w-3.5 h-3.5 mb-[1px]" strokeWidth={1.5} /> : <Menu className="w-3.5 h-3.5 mb-[1px]" strokeWidth={1.5} />}
-              <span className="text-[10px] font-semibold leading-none">Menu</span>
+              <span className="text-[13px] font-bold tracking-tight leading-none">{mobileOpen ? 'Close' : 'Menu'}</span>
             </button>
           </nav>
         </div>
